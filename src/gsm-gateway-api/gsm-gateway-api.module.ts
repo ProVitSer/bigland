@@ -18,6 +18,7 @@ import { SendSmsScheduleService } from './sms/send-sms-schedule.service';
 import { SmsService } from './sms/sms.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Sms, SmsSchema } from './sms/sms.schema';
+import { SystemModule } from '@app/system/system.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { Sms, SmsSchema } from './sms/sms.schema';
     MongooseModule.forFeature([{ name: Sms.name, schema: SmsSchema }]),
     LogModule,
     HttpResponseModule,
+    SystemModule,
   ],
   providers: [
     {

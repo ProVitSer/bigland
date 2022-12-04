@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { SmsStatusDescription } from '../interfaces/gsm-gateway-api.enum';
 import {
   ScheduledSMSData,
-  SMSData,
   UpdateSMSData,
 } from '../interfaces/gsm-gateway-api.interfaces';
 import { Sms, SmsDocument } from './sms.schema';

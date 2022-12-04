@@ -30,6 +30,7 @@ import {
 import { SendSMSScheduledTime } from '../dto/sms.dto';
 import { SmsService } from '../sms/sms.service';
 import { LogService } from '@app/log/log.service';
+import { SystemService } from '@app/system/system.service';
 
 @Injectable()
 export class GsmUSSDActionService {
@@ -57,7 +58,7 @@ export class GsmUSSDActionService {
 export class GsmPortsActionService {
   constructor(
     private readonly gsmGateway: GsmGateway,
-    private readonly system: SmsService,
+    private readonly system: SystemService,
     private readonly ussd: GsmUSSDActionService,
   ) {}
 
@@ -129,7 +130,7 @@ export class GsmPortsActionService {
       ),
       ...(await this.getAdditionalPortInfo(port, operator)),
     };
-    //await this.system.updateGsmGatewayConfig(formatPortInfo);
+    await this.system.updateGsmGatewayConfig(formatPortInfo);
     return formatPortInfo;
   }
 
