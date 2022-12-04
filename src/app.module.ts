@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LogModule } from './log/log.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
 import { CdrModule } from './cdr/cdr.module';
 import { DatabaseModule } from './database/database.module';
@@ -14,14 +14,25 @@ import { HttpResponseModule } from './http/http.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
-
+import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const { username, password, database, host } =
+          configService.get('mongo');
+
+        return {
+          uri: `mongodb://${username}:${password}@${host}/${database}`,
+        };
+      },
+      inject: [ConfigService],
+    }),
     LogModule,
     TelegramModule,
     CdrModule,
-    DatabaseModule,
     LdsModule,
     DockerModule,
     SeleniumModule,
