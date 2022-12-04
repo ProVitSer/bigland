@@ -17,5 +17,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   providers: [TelegramService],
+  exports: [TelegramService],
 })
 export class TelegramModule {}

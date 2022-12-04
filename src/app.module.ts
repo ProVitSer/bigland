@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
 import { CdrModule } from './cdr/cdr.module';
 import { DatabaseModule } from './database/database.module';
+import { LdsModule } from './lds/lds.module';
 import configuration from './config/config.provider';
 
 @Module({
@@ -15,6 +16,7 @@ import configuration from './config/config.provider';
     TelegramModule,
     CdrModule,
     DatabaseModule,
+    LdsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

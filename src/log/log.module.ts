@@ -5,10 +5,12 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import * as Transport from 'winston-transport';
 import 'winston-daily-rotate-file';
+import { TelegramModule } from '@app/telegram/telegram.module';
 const { combine, timestamp, printf, splat } = winston.format;
 
 @Module({
   imports: [
+    TelegramModule,
     WinstonModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
