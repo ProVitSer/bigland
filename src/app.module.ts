@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
 import { CdrModule } from './cdr/cdr.module';
 import { LdsModule } from './lds/lds.module';
-import configuration from './config/config.provider';
+import configuration, { InitSystemConfig } from './config/config.provider';
 import { DockerModule } from './docker/docker.module';
 import { SeleniumModule } from './selenium/selenium.module';
 import { HttpResponseModule } from './http/http.module';
@@ -18,6 +18,7 @@ import { GsmGatewayApiModule } from './gsm-gateway-api/gsm-gateway-api.module';
 import { FreepbxApiModule } from './freepbx-api/freepbx-api.module';
 import { MailModule } from './mail/mail.module';
 import { SystemModule } from './system/system.module';
+import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
@@ -47,9 +48,10 @@ import { SystemModule } from './system/system.module';
     FreepbxApiModule,
     MailModule,
     SystemModule,
+    RedisModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [InitSystemConfig],
   exports: [ConfigModule],
 })
 export class AppModule {}
