@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { GsmGatewayApiModule } from './gsm-gateway-api/gsm-gateway-api.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
@@ -40,6 +41,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     AuthModule,
     UsersModule,
     UtilsModule,
+    GsmGatewayApiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

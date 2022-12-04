@@ -41,6 +41,7 @@
     "cookie-parser": "^1.4.6",
     "dockerode": "^3.3.4",
     "mongoose": "^6.7.3",
+    "nami": "^0.7.2",
     "nest-winston": "^1.8.0",
     "nestjs-telegram": "^1.2.0",
     "passport-jwt": "^4.0.0",
