@@ -5,7 +5,6 @@ import { LogModule } from './log/log.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
 import { CdrModule } from './cdr/cdr.module';
-import { DatabaseModule } from './database/database.module';
 import { LdsModule } from './lds/lds.module';
 import configuration from './config/config.provider';
 import { DockerModule } from './docker/docker.module';
@@ -16,6 +15,9 @@ import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GsmGatewayApiModule } from './gsm-gateway-api/gsm-gateway-api.module';
+import { FreepbxApiModule } from './freepbx-api/freepbx-api.module';
+import { MailModule } from './mail/mail.module';
+import { SystemModule } from './system/system.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
@@ -42,6 +44,9 @@ import { GsmGatewayApiModule } from './gsm-gateway-api/gsm-gateway-api.module';
     UsersModule,
     UtilsModule,
     GsmGatewayApiModule,
+    FreepbxApiModule,
+    MailModule,
+    SystemModule,
   ],
   controllers: [AppController],
   providers: [AppService],
