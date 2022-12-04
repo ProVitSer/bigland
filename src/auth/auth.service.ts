@@ -109,22 +109,24 @@ export class AuthUserService {
   public async register(
     registrationData: RegisterDto,
   ): Promise<RegisterResponse> {
-    const hashedPassword = await bcrypt.hash(registrationData.password, 10);
+    const { username, email, password } = registrationData;
+    const hashedPassword = await bcrypt.hash(password, 10);
     try {
-      const checkUser = await this.usersService.getByEmail(
-        registrationData.email,
-      );
+      const checkUser = await this.usersService.getByEmail(email.toLowerCase());
       if (checkUser)
         throw {
-          message: 'Пользователь с таой почтой уже зарегистрирован',
+          message: `Пользователь с почтой  ${email} уже зарегистрирован`,
           httpStatus: HttpStatus.BAD_REQUEST,
         };
-      const createdUser: any = await this.usersService.create({
-        ...registrationData,
+      await this.usersService.create({
+        username,
+        email: email.toLowerCase(),
         passHash: hashedPassword,
       });
-      createdUser.passHash = undefined;
-      return createdUser;
+      return {
+        email,
+        username,
+      };
     } catch (e) {
       throw e;
     }

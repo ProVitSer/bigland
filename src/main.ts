@@ -11,6 +11,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { LogEventType } from './log/interfaces/log.interfaces';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const config = new ConfigService(configuration());
@@ -44,6 +45,25 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api/v2');
+
+  const docConfig = new DocumentBuilder()
+    .setTitle('VPNP VoIP API')
+    .setDescription('API for VoIP integration')
+    .setVersion('2.1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+  const document = SwaggerModule.createDocument(app, docConfig);
+  SwaggerModule.setup('api', app, document);
   await app.listen(config.get('appPort'));
 }
 

@@ -16,9 +16,34 @@ import { AuthTokenService, AuthUserService } from './auth.service';
 import { LogInDto } from './dto/logIn.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthenticationGuard } from './guard/localAuthentication.guard';
-import { RequestWithUser } from './types/interfaces';
+import {
+  GetApiTokenReponse,
+  RegisterResponse,
+  RequestWithUser,
+} from './types/interfaces';
 import { Request, Response } from 'express';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  SwaggerApiBadResponse,
+  SwaggerHttpErrorResponseMap,
+} from '@app/http/interfaces/http.interfaces';
 
+@ApiTags('auth')
+@ApiBadRequestResponse(
+  SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
+)
+@ApiInternalServerErrorResponse(
+  SwaggerHttpErrorResponseMap[
+    SwaggerApiBadResponse.ApiInternalServerErrorResponse
+  ],
+)
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
 export class AuthController {
@@ -28,6 +53,15 @@ export class AuthController {
     private readonly http: HttpResponseService,
   ) {}
 
+  @ApiOperation({
+    summary: 'Регистрация пользователя для взаимодействия с API',
+  })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Успешный ответ',
+    type: RegisterResponse,
+  })
+  @ApiBody({ type: RegisterDto })
   @Post('register')
   async register(
     @Req() req: Request,
@@ -45,6 +79,13 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Получение токена для взаимодействия с API' })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Успешный ответ',
+    type: GetApiTokenReponse,
+  })
+  @ApiBody({ type: LogInDto })
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
   @Post('apiToken')
