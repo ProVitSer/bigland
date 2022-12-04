@@ -8,6 +8,8 @@ import { CdrModule } from './cdr/cdr.module';
 import { DatabaseModule } from './database/database.module';
 import { LdsModule } from './lds/lds.module';
 import configuration from './config/config.provider';
+import { DockerModule } from './docker/docker.module';
+import { SeleniumModule } from './selenium/selenium.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import configuration from './config/config.provider';
     CdrModule,
     DatabaseModule,
     LdsModule,
+    DockerModule,
+    SeleniumModule,
   ],
   controllers: [AppController],
   providers: [AppService],
