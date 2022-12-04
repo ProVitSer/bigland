@@ -10,7 +10,7 @@ export class Users {
   email: string;
 
   @Prop()
-  name: string;
+  username: string;
 
   @Prop()
   passHash: string;

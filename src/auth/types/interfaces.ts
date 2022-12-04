@@ -24,7 +24,7 @@ export class RegisterResponse {
     description: 'Имя указанное при регистрации',
     nullable: false,
   })
-  name: string;
+  username: string;
 }
 
 export interface RequestWithUser extends Request {
