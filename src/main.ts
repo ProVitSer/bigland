@@ -12,10 +12,14 @@ import {
 } from '@nestjs/common';
 import { LogEventType } from './log/interfaces/log.interfaces';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import httpsConfig from './https.provider';
 
 async function bootstrap() {
   const config = new ConfigService(configuration());
-  const app = await NestFactory.create(AppModule);
+  const httpsOptions = httpsConfig(config);
+  const app = await NestFactory.create(AppModule, {
+    ...(httpsOptions ? { httpsOptions } : {}),
+  });
   app.useWebSocketAdapter(new WsAdapter(app));
   app.use(cookieParser());
   app.useGlobalPipes(

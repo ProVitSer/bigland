@@ -3,7 +3,7 @@ import { Table, Column, Model } from 'sequelize-typescript';
 @Table({
   tableName: 'cdr',
 })
-export class Cdr extends Model {
+export class AsteriskCdr extends Model {
   @Column
   calldate: Date;
 

@@ -2,18 +2,20 @@ import { LogService } from '@app/log/log.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Cdr } from './asterisk-cdr.entity';
+import { AsteriskCdr } from './asterisk-cdr.entity';
 import { Op } from 'sequelize';
 
 @Injectable()
 export class AsteriskCdrService {
   constructor(
-    @InjectModel(Cdr)
-    private getCallInfo: typeof Cdr,
+    @InjectModel(AsteriskCdr)
+    private getCallInfo: typeof AsteriskCdr,
     private readonly log: LogService,
   ) {}
 
-  public async searchIncomingCallInfoInCdr(uniqueid: string): Promise<Cdr[]> {
+  public async searchIncomingCallInfoInCdr(
+    uniqueid: string,
+  ): Promise<AsteriskCdr[]> {
     try {
       this.log.info(`Входящий вызов ${uniqueid}`, AsteriskCdrService.name);
       const resultFind = await this.getCallInfo.findAll({
@@ -38,11 +40,13 @@ export class AsteriskCdrService {
 
       // const filterResult = resultFind.filter((cdr: Cdr) => cdr.disposition === 'ANSWERED');
       const result = await Promise.all(
-        resultFind.map(async (cdr: Cdr) => {
-          if (UtilsService.isGsmChannel(cdr.dstchannel)) {
-            return await this.searchIncomingCallByLinkedid(cdr.uniqueid);
+        resultFind.map(async (asteriskCdr: AsteriskCdr) => {
+          if (UtilsService.isGsmChannel(asteriskCdr.dstchannel)) {
+            return await this.searchIncomingCallByLinkedid(
+              asteriskCdr.uniqueid,
+            );
           } else {
-            return cdr;
+            return asteriskCdr;
           }
         }),
       );
@@ -57,7 +61,9 @@ export class AsteriskCdrService {
     }
   }
 
-  public async searchOutgoingCallInfoInCdr(uniqueid: string): Promise<Cdr> {
+  public async searchOutgoingCallInfoInCdr(
+    uniqueid: string,
+  ): Promise<AsteriskCdr> {
     try {
       this.log.info(`Исходящий вызов ${uniqueid}`, AsteriskCdrService.name);
 
@@ -99,7 +105,9 @@ export class AsteriskCdrService {
     }
   }
 
-  public async searchPozvonimCallInfoInCdr(uniqueid: string): Promise<Cdr> {
+  public async searchPozvonimCallInfoInCdr(
+    uniqueid: string,
+  ): Promise<AsteriskCdr> {
     try {
       this.log.info(
         `Исходящий вызов Pozvonim ${uniqueid}`,
@@ -144,7 +152,9 @@ export class AsteriskCdrService {
     }
   }
 
-  public async searchIncomingCallByLinkedid(uniqueid: string): Promise<Cdr> {
+  public async searchIncomingCallByLinkedid(
+    uniqueid: string,
+  ): Promise<AsteriskCdr> {
     try {
       this.log.info(`Входящий вызов GSM ${uniqueid}`, AsteriskCdrService.name);
       const resultFind = await this.getCallInfo.findAll({
@@ -167,8 +177,8 @@ export class AsteriskCdrService {
         order: [['billsec', 'DESC']],
       });
 
-      const result = resultFind.filter((cdr: Cdr) =>
-        UtilsService.checkDstChannel(cdr.dstchannel),
+      const result = resultFind.filter((asteriskCdr: AsteriskCdr) =>
+        UtilsService.checkDstChannel(asteriskCdr.dstchannel),
       );
       this.log.info(result, AsteriskCdrService.name);
       return result[0];

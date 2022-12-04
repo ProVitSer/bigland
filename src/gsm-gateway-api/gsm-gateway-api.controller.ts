@@ -58,6 +58,7 @@ import { Sms } from './sms/sms.schema';
     SwaggerApiBadResponse.ApiInternalServerErrorResponse
   ],
 )
+@UseGuards(RoleGuard(Role.Admin))
 @ApiBearerAuth('JWT-auth')
 @Controller('gsm-gateway')
 export class GsmGatewayApiController {
@@ -68,7 +69,6 @@ export class GsmGatewayApiController {
     private readonly ussd: GsmUSSDActionService,
   ) {}
 
-  @UseGuards(RoleGuard(Role.Admin))
   @ApiOperation({ summary: 'Отправка смс сообщений через GSM шлюз' })
   @ApiOkResponse({
     status: HttpStatus.OK,

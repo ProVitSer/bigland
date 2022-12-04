@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { LogModule } from './log/log.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
@@ -20,6 +18,10 @@ import { MailModule } from './mail/mail.module';
 import { SystemModule } from './system/system.module';
 import { RedisModule } from './redis/redis.module';
 import { AsteriskCdrModule } from './asterisk-cdr/asterisk-cdr.module';
+import { AmocrmUsersModule } from './amocrm-users/amocrm-users.module';
+import { AsteriskApiModule } from './asterisk-api/asterisk-api.module';
+import { AmocrmModule } from './amocrm/amocrm.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
@@ -51,6 +53,9 @@ import { AsteriskCdrModule } from './asterisk-cdr/asterisk-cdr.module';
     SystemModule,
     RedisModule,
     AsteriskCdrModule,
+    AmocrmUsersModule,
+    AsteriskApiModule,
+    AmocrmModule,
   ],
   controllers: [],
   providers: [InitSystemConfig],

@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { forwardRef, MiddlewareConsumer, Module } from '@nestjs/common';
 import * as namiLib from 'nami';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GsmGatewayApiController } from './gsm-gateway-api.controller';

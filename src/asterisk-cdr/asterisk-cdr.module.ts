@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { Cdr } from './asterisk-cdr.entity';
+import { AsteriskCdr } from './asterisk-cdr.entity';
 import { AsteriskCdrService } from './asterisk-cdr.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -22,7 +22,7 @@ import { LogModule } from '@app/log/log.module';
       }),
       inject: [ConfigService],
     }),
-    SequelizeModule.forFeature([Cdr]),
+    SequelizeModule.forFeature([AsteriskCdr]),
   ],
   providers: [AsteriskCdrService],
   exports: [AsteriskCdrService],
