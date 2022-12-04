@@ -10,6 +10,10 @@ import { LdsModule } from './lds/lds.module';
 import configuration from './config/config.provider';
 import { DockerModule } from './docker/docker.module';
 import { SeleniumModule } from './selenium/selenium.module';
+import { HttpResponseModule } from './http/http.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { SeleniumModule } from './selenium/selenium.module';
     LdsModule,
     DockerModule,
     SeleniumModule,
+    HttpResponseModule,
+    AuthModule,
+    UsersModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

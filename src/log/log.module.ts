@@ -7,10 +7,13 @@ import * as Transport from 'winston-transport';
 import 'winston-daily-rotate-file';
 import { TelegramModule } from '@app/telegram/telegram.module';
 const { combine, timestamp, printf, splat } = winston.format;
+import { MongooseModule } from '@nestjs/mongoose';
+import { Log, LogSchema } from './log.schems';
 
 @Module({
   imports: [
     TelegramModule,
+    MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }]),
     WinstonModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
