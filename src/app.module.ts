@@ -19,6 +19,7 @@ import { FreepbxApiModule } from './freepbx-api/freepbx-api.module';
 import { MailModule } from './mail/mail.module';
 import { SystemModule } from './system/system.module';
 import { RedisModule } from './redis/redis.module';
+import { AsteriskCdrModule } from './asterisk-cdr/asterisk-cdr.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
@@ -49,6 +50,7 @@ import { RedisModule } from './redis/redis.module';
     MailModule,
     SystemModule,
     RedisModule,
+    AsteriskCdrModule,
   ],
   controllers: [],
   providers: [InitSystemConfig],
