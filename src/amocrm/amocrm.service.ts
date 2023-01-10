@@ -2,7 +2,6 @@ import { HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { AmocrmConnector } from './amocrm.connect';
 import {
   AmocrmAddCallInfo,
-  AmocrmAddCallInfoResponse,
   AmocrmAddTasks,
   amocrmAPI,
   AmocrmCreateContact,
@@ -12,7 +11,7 @@ import {
   AmocrmCreateTasksResponse,
   AmocrmGetContactsRequest,
   AmocrmGetContactsResponse,
-  directionType,
+  SendCallInfoToCRM,
 } from './interfaces/amocrm.interfaces';
 import {
   AmoCRMAPIV2,
@@ -32,7 +31,9 @@ import { AmocrmUtilsService } from './amocrm.utils';
 import { RedisService } from '@app/redis/redis.service';
 import { LogService } from '@app/log/log.service';
 import { NumberInfo, System } from '@app/system/system.schema';
-import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
+import { Amocrm, AmocrmDocument } from './amocrm.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AmocrmService implements OnApplicationBootstrap {
@@ -48,6 +49,8 @@ export class AmocrmService implements OnApplicationBootstrap {
   };
 
   constructor(
+    @InjectModel(Amocrm.name)
+    private amocrmModel: Model<AmocrmDocument>,
     private readonly amocrmConnect: AmocrmConnector,
     private readonly log: LogService,
     private readonly configService: ConfigService,
@@ -97,18 +100,16 @@ export class AmocrmService implements OnApplicationBootstrap {
         tasksInfo,
       ]);
       this.log.info(response.data, AmocrmService.name);
-      return this.checkResponseData<AmocrmCreateTasksResponse>(response);
+      return await this.checkResponseData<AmocrmCreateTasksResponse>(response);
     } catch (e) {
       throw e;
     }
   }
 
-  public async sendCallInfoToCRM(
-    result: AsteriskCdr,
-    amocrmId: number,
-    direction: directionType,
-  ): Promise<AmocrmAddCallInfoResponse> {
+  public async sendCallInfoToCRM(data: SendCallInfoToCRM): Promise<any> {
+    //AmocrmAddCallInfoResponse
     try {
+      const { result, direction, amocrmId, cdrId } = data;
       const {
         uniqueid,
         src,
@@ -139,11 +140,11 @@ export class AmocrmService implements OnApplicationBootstrap {
       };
 
       this.log.info(callInfo, AmocrmService.name);
-      const response = await this.amocrm.request.post(amocrmAPI.call, [
-        callInfo,
-      ]);
-      this.log.info(response.data, AmocrmService.name);
-      return this.checkResponseData<AmocrmAddCallInfoResponse>(response);
+      // const response = await this.amocrm.request.post(amocrmAPI.call, [
+      //   callInfo,
+      // ]);
+      // this.log.info(response.data, AmocrmService.name);
+      // return await this.checkResponseData<AmocrmAddCallInfoResponse>(response, cdrId);
     } catch (e) {
       throw e;
     }
@@ -163,9 +164,9 @@ export class AmocrmService implements OnApplicationBootstrap {
         )}`,
         AmocrmService.name,
       );
-      return !!result ? false : true;
+      return !!result ? true : false;
     } catch (e) {
-      throw e;
+      throw `${e}: ${incomingNumber}`;
     }
   }
 
@@ -208,10 +209,12 @@ export class AmocrmService implements OnApplicationBootstrap {
       const response = await this.amocrm.request.post(amocrmAPI.contacts, [
         contact,
       ]);
-      return this.checkResponseData<AmocrmCreateContactResponse>(response)
-        ._embedded.contacts[0].id;
+      const data = await this.checkResponseData<AmocrmCreateContactResponse>(
+        response,
+      );
+      return data._embedded.contacts[0].id;
     } catch (e) {
-      throw e;
+      throw `${e}: ${incomingNumber} ${incomingTrunk}`;
     }
   }
 
@@ -241,9 +244,9 @@ export class AmocrmService implements OnApplicationBootstrap {
 
       this.log.info(lead, AmocrmService.name);
       const response = await this.amocrm.request.post(amocrmAPI.leads, [lead]);
-      return this.checkResponseData<AmocrmCreateLeadResponse>(response);
+      return await this.checkResponseData<AmocrmCreateLeadResponse>(response);
     } catch (e) {
-      throw e;
+      throw `${e}: ${incomingNumber} ${incomingTrunk} ${contactsId}`;
     }
   }
 
@@ -326,7 +329,8 @@ export class AmocrmService implements OnApplicationBootstrap {
     }
   }
 
-  private checkResponseData<T>(response: any): T {
+  private async checkResponseData<T>(response: any, cdrId?: any): Promise<T> {
+    await this.saveResponse(response, cdrId);
     if (!!response.status && [400, 401].includes(response.status)) {
       throw String(response.data);
     } else {
@@ -348,5 +352,15 @@ export class AmocrmService implements OnApplicationBootstrap {
 
   private async connect(): Promise<AmocrmConnector> {
     return await this.amocrmConnect.connect();
+  }
+
+  private async saveResponse(response: any, cdrCollId: any) {
+    const cdrId = !!cdrCollId ? cdrCollId : {};
+    const amocrm = new this.amocrmModel({
+      cdrId,
+      statusCode: response.status || 0,
+      amocrmResponse: response.data || '',
+    });
+    return await amocrm.save();
   }
 }
