@@ -29,13 +29,52 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
   ],
   providers: [
     {
-      provide: 'ARI',
+      provide: 'CHANSPY',
       useFactory: async (configService: ConfigService) => {
         return {
           ariClient: await ARI.connect(
             configService.get('asterisk.ari.url'),
-            configService.get('asterisk.ari.user'),
-            configService.get('asterisk.ari.password'),
+            configService.get('asterisk.ari.application.chanspy.user'),
+            configService.get('asterisk.ari.application.chanspy.password'),
+          ),
+        };
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: 'AMOCRM',
+      useFactory: async (configService: ConfigService) => {
+        return {
+          ariClient: await ARI.connect(
+            configService.get('asterisk.ari.url'),
+            configService.get('asterisk.ari.application.amocrm.user'),
+            configService.get('asterisk.ari.application.amocrm.password'),
+          ),
+        };
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: 'BLACKLIST',
+      useFactory: async (configService: ConfigService) => {
+        return {
+          ariClient: await ARI.connect(
+            configService.get('asterisk.ari.url'),
+            configService.get('asterisk.ari.application.blackList.user'),
+            configService.get('asterisk.ari.application.blackList.password'),
+          ),
+        };
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: 'ARICALL',
+      useFactory: async (configService: ConfigService) => {
+        return {
+          ariClient: await ARI.connect(
+            configService.get('asterisk.ari.url'),
+            configService.get('asterisk.ari.application.aricall.user'),
+            configService.get('asterisk.ari.application.aricall.password'),
           ),
         };
       },
@@ -65,7 +104,10 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     AriActionService,
   ],
   exports: [
-    'ARI',
+    'CHANSPY',
+    'AMOCRM',
+    'BLACKLIST',
+    'ARICALL',
     'AMI',
     AriIncomingCallApplication,
     AriBlackListApplication,
