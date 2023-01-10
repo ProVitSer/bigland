@@ -45,11 +45,11 @@ export class Sms {
   smsText: string;
 
   @ApiProperty({ description: 'Время добавления', nullable: false })
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   stamp?: Date;
 
   @ApiProperty({ description: 'Время обновление', nullable: false })
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   changed?: Date;
 }
 

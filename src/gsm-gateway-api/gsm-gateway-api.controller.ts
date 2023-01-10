@@ -47,8 +47,6 @@ import {
 import { Role } from '@app/users/interfaces/users.enum';
 import { Sms } from './sms/sms.schema';
 
-@UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
 @ApiTags('gsm-gateway')
 @ApiBadRequestResponse(
   SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
@@ -58,8 +56,10 @@ import { Sms } from './sms/sms.schema';
     SwaggerApiBadResponse.ApiInternalServerErrorResponse
   ],
 )
-@UseGuards(RoleGuard(Role.Admin))
 @ApiBearerAuth('JWT-auth')
+@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(JwtGuard)
+@UseFilters(HttpExceptionFilter)
 @Controller('gsm-gateway')
 export class GsmGatewayApiController {
   constructor(
