@@ -7,6 +7,8 @@ import { HttpModule } from '@nestjs/axios';
 import { RedisModule } from '@app/redis/redis.module';
 import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Amocrm, AmocrmSchema } from './amocrm.schema';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
     LogModule,
     RedisModule,
     AsteriskCdrModule,
+    MongooseModule.forFeature([{ name: Amocrm.name, schema: AmocrmSchema }]),
     HttpModule.registerAsync({
       useFactory: () => ({
         timeout: 5000,
