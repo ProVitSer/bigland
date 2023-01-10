@@ -55,18 +55,6 @@ export class AsteriskAmi implements OnApplicationBootstrap {
       this.client.on('namiConnectionClose', () => this.connectionClose());
       this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
       this.client.on('namiInvalidPeer', () => this.invalidPeer());
-      // this.client.on('namiEventHangup', (event: AsteriskHungupEvent) => this.namiEvent(event, AsteriskEventType.HangupEvent));
-      this.client.on(
-        'namiEventBlindTransfer',
-        (event: AsteriskBlindTransferEvent) =>
-          this.namiEvent(event, AsteriskEventType.BlindTransferEvent),
-      );
-      this.client.on('namiEventDialBegin', (event: AsteriskDialBeginEvent) =>
-        this.namiEvent(event, AsteriskEventType.DialBeginEvent),
-      );
-      this.client.on('namiEventNewexten', (event: AsteriskHungupEvent) =>
-        this.namiEvent(event, AsteriskEventType.EventNewexten),
-      );
     } catch (e) {
       this.log.error(`AMI onApplicationBootstrap ${e}`, AsteriskAmi.name);
     }
