@@ -7,17 +7,17 @@ import Ari, {
   Channel,
   ChannelDtmfReceived,
   Playback,
+  PlaybackStarted,
   StasisStart,
 } from 'ari-client';
-import { ChannelDTMF } from '../interfaces/asterisk.interfaces';
 
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
-  private channelDTMF: ChannelDTMF;
+  private channelDTMF: { [key: string]: { dtmf: string[] } };
 
   constructor(
-    @Inject('ARI') private readonly ari: { ariClient: Ari.Client },
+    @Inject('CHANSPY') private readonly ari: { ariClient: Ari.Client },
     private readonly configService: ConfigService,
     private readonly log: LogService,
     private readonly redis: RedisService,
@@ -25,7 +25,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
 
   public async onApplicationBootstrap() {
     this.client = this.ari;
-    this.client.ariClient.once(
+    this.client.ariClient.on(
       'StasisStart',
       async (event: StasisStart, incoming: Channel) => {
         try {
@@ -34,8 +34,10 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
             AriChanSpyApplication.name,
           );
           await this.handleDTMF(incoming);
+          console.log('Вышли');
+          return;
         } catch (e) {
-          this.log.info(
+          this.log.error(
             `ARI AriChanSpyApplication ${e}`,
             AriChanSpyApplication.name,
           );
@@ -43,27 +45,30 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
       },
     );
     this.client.ariClient.start(
-      this.configService.get('asterisk.ari.application.chanSpy'),
+      this.configService.get('asterisk.ari.application.chanspy.stasis'),
     );
   }
 
   private async handleDTMF(incomingChannel: Channel): Promise<void> {
     await incomingChannel.answer();
-    await this.playSound(incomingChannel, 'sound:vm-password');
-    incomingChannel.on(
-      'ChannelDtmfReceived',
-      async (event: ChannelDtmfReceived, channel: Channel) => {
-        const digit = event.digit;
-        if (this.channelDTMF[channel.id].dtmf.length == 4) {
-          const isValid = await this.checkDTMFPassword(
-            this.channelDTMF[channel.id].dtmf.join(''),
-          );
-          await this.continueDialplan(incomingChannel, isValid);
-        } else {
-          this.channelDTMF[channel.id].dtmf.push(digit);
-        }
-      },
-    );
+    await this.playSound(incomingChannel, 'sound:agent-pass');
+    const channelDTMF: string[] = [];
+    return await new Promise(async (resolve: any) => {
+      incomingChannel.on(
+        'ChannelDtmfReceived',
+        async (event: ChannelDtmfReceived, channel: Channel) => {
+          const digit = event.digit;
+          if (channelDTMF.length == 4) {
+            const isValid = await this.checkDTMFPassword(channelDTMF.join(''));
+            await this.continueDialplan(channel, isValid);
+            resolve({});
+          } else {
+            channelDTMF.push(digit);
+            resolve({});
+          }
+        },
+      );
+    });
   }
 
   private async checkDTMFPassword(dtmfPassword: string): Promise<boolean> {
@@ -82,10 +87,13 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
           this.client.ariClient.channels.continueInDialplan(
             { channelId: channel.id },
             (event: any) => {
+              console.log(event);
               this.log.info(
                 `ARI AriChanSpyApplication continueDialplan ${channel.id}`,
                 AriChanSpyApplication.name,
               );
+              console.log(event);
+
               resolve(event);
             },
           );
@@ -93,6 +101,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
       } else {
         await this.playSound(channel, 'sound:vm-incorrect');
         await this.playSound(channel, 'sound:vm-goodbye');
+        return await channel.hangup();
       }
     } catch (e) {
       this.log.info(
@@ -105,10 +114,24 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
   private async playSound(
     incomingChannel: Channel,
     sound: string,
-  ): Promise<Playback> {
+  ): Promise<any> {
     try {
-      const playback = this.client.ariClient.Playback();
-      return await incomingChannel.play({ media: sound }, playback);
+      await new Promise(async (resolve: any) => {
+        const playback = this.client.ariClient.Playback();
+        const play = await incomingChannel.play(
+          {
+            media: sound,
+          },
+          playback,
+        );
+
+        play.once(
+          'PlaybackFinished',
+          async (event: PlaybackStarted, playback: Playback) => {
+            resolve({});
+          },
+        );
+      });
     } catch (e) {
       this.log.info(
         `PlaybackFinished playback ${e}`,
