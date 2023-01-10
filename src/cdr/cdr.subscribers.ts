@@ -12,7 +12,7 @@ export class CdrMessagingService {
     queue: 'cdr',
   })
   public async pubSubHandler(msg: any) {
-    await UtilsService.sleep(60000);
+    await UtilsService.sleep(20000);
     await this.cdrService.sendCdrInfo(msg.data as Cdr);
   }
 }
