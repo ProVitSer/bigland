@@ -10,7 +10,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
 
   constructor(
-    @Inject('ARI') private readonly ari: { ariClient: Ari.Client },
+    @Inject('BLACKLIST') private readonly ari: { ariClient: Ari.Client },
     private readonly log: LogService,
     private readonly configService: ConfigService,
     private readonly redis: RedisService,
@@ -38,7 +38,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
       },
     );
     this.client.ariClient.start(
-      this.configService.get('asterisk.ari.application.blackList'),
+      this.configService.get('asterisk.ari.application.blackList.stasis'),
     );
   }
 

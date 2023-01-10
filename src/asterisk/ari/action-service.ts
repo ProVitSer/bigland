@@ -15,7 +15,7 @@ export class AriActionService implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
   private ariChanel: Ari.Channel;
   constructor(
-    @Inject('ARI') private readonly ari: { ariClient: Ari.Client },
+    @Inject('ARICALL') private readonly ari: { ariClient: Ari.Client },
     private readonly amocrm: AmocrmService,
     private readonly amocrmUsers: AmocrmUsersService,
   ) {}

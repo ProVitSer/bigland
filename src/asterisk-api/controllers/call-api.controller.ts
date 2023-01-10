@@ -37,7 +37,6 @@ import {
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
-@UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @ApiTags('call')
 @ApiBadRequestResponse(
@@ -49,6 +48,7 @@ import { Role } from '@app/users/interfaces/users.enum';
   ],
 )
 @UseGuards(RoleGuard(Role.Admin))
+@UseGuards(JwtGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('call')
 export class CallApiController {

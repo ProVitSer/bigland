@@ -32,8 +32,6 @@ import {
 } from '@app/http/interfaces/http.interfaces';
 import { Role } from '@app/users/interfaces/users.enum';
 
-@UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
 @ApiTags('freepbx-api')
 @ApiBadRequestResponse(
   SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
@@ -44,6 +42,9 @@ import { Role } from '@app/users/interfaces/users.enum';
   ],
 )
 @ApiBearerAuth('JWT-auth')
+@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(JwtGuard)
+@UseFilters(HttpExceptionFilter)
 @Controller('freepbx-api')
 export class FreepbxApiController {
   constructor(
@@ -58,7 +59,6 @@ export class FreepbxApiController {
     type: ResultCreateUsers,
   })
   @ApiBody({ type: CreateUsersDto })
-  @UseGuards(RoleGuard(Role.Admin))
   @Post('users')
   async createUsers(
     @Req() req: Request,

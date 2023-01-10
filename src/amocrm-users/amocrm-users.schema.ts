@@ -8,6 +8,12 @@ export class AmocrmUsers {
 
   @Prop()
   localExtension: number;
+
+  @Prop({ type: Date, default: Date.now })
+  stamp?: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  changed?: Date;
 }
 
 export const AmocrmUsersSchema = SchemaFactory.createForClass(AmocrmUsers);

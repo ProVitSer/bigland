@@ -90,12 +90,7 @@ export class AsteriskCdrService {
       });
 
       this.log.info(result, AsteriskCdrService.name);
-
-      if (result.length !== 0) {
-        return result[0];
-      } else {
-        return result[0];
-      }
+      return result[0];
     } catch (e) {
       this.log.error(
         `searchOutgoingCallInfoInCdr ${e}`,

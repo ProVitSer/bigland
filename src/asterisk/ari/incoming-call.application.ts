@@ -9,7 +9,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
 
   constructor(
-    @Inject('ARI') private readonly ari: { ariClient: Ari.Client },
+    @Inject('AMOCRM') private readonly ari: { ariClient: Ari.Client },
     private readonly configService: ConfigService,
     private readonly log: LogService,
     private readonly amocrmApi: AmocrmService,
@@ -36,7 +36,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
       },
     );
     this.client.ariClient.start(
-      this.configService.get('asterisk.ari.application.amocrm'),
+      this.configService.get('asterisk.ari.application.amocrm.stasis'),
     );
   }
 

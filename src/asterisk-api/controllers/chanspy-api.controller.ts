@@ -33,8 +33,6 @@ import {
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
-@UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
 @ApiTags('chanspy')
 @ApiBadRequestResponse(
   SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
@@ -44,8 +42,10 @@ import { Role } from '@app/users/interfaces/users.enum';
     SwaggerApiBadResponse.ApiInternalServerErrorResponse
   ],
 )
-@UseGuards(RoleGuard(Role.Admin))
 @ApiBearerAuth('JWT-auth')
+@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(JwtGuard)
+@UseFilters(HttpExceptionFilter)
 @Controller('chanspy')
 export class ChanspyApiController {
   constructor(

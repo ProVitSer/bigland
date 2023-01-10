@@ -1,3 +1,5 @@
+import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
+import { ObjectId } from 'mongoose';
 import { TaskTypeId } from '../amocrm.config';
 
 export interface AmocrmTokenResponse {
@@ -288,4 +290,17 @@ export interface AmocrmCreateTasksResponse {
       },
     ];
   };
+}
+
+export type AmocrmReponse =
+  | AmocrmAddCallInfoResponse
+  | AmocrmCreateTasksResponse
+  | AmocrmCreateLeadResponse
+  | AmocrmCreateContactResponse;
+
+export interface SendCallInfoToCRM {
+  cdrId: ObjectId;
+  result: AsteriskCdr;
+  amocrmId: number;
+  direction: directionType;
 }
