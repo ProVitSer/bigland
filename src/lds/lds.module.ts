@@ -27,5 +27,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
   ],
   providers: [Lds, LdsService, LdsSynchUserSchedule],
+  exports: [LdsService],
 })
 export class LdsModule {}

@@ -55,4 +55,8 @@ export class LdsService {
       throw e;
     }
   }
+
+  public async getLdsUser(): Promise<Lds[]> {
+    return await this.lsdModel.find();
+  }
 }
