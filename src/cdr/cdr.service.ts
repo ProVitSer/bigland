@@ -24,7 +24,6 @@ export class CdrService {
   public async sendCdrInfo(msg: Cdr) {
     try {
       this.log.info(msg, CdrService.name);
-      this.log.info(msg.callType, CdrService.name);
       let asteriskCdrInfo: AsteriskCdr[] | AsteriskCdr = [];
       switch (msg.callType) {
         case CallType.incoming:
@@ -77,7 +76,7 @@ export class CdrService {
     await Promise.all(
       cdr.map(async (c: AsteriskCdr) => {
         const amocrmUser = await this.amocrmUsersService.getAmocrmUser(
-          UtilsService.replaceChannel(c.channel),
+          UtilsService.replaceChannel(c.channel || c.dstchannel),
         );
         await this.amocrmService.sendCallInfoToCRM({
           cdrId,
