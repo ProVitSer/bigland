@@ -42,10 +42,10 @@ export class Cdr {
   })
   complete?: boolean;
 
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   stamp?: Date;
 
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   changed?: Date;
 }
 

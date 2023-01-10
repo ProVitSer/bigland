@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Cdr } from './cdr.schema';
 import { CdrService } from './cdr.service';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class CdrMessagingService {
@@ -10,7 +11,8 @@ export class CdrMessagingService {
     exchange: 'presence',
     queue: 'cdr',
   })
-  public async pubSubHandler(msg: Cdr) {
-    console.log(`Received message: ${JSON.stringify(msg)}`);
+  public async pubSubHandler(msg: any) {
+    await UtilsService.sleep(60000);
+    await this.cdrService.sendCdrInfo(msg.data as Cdr);
   }
 }
