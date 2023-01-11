@@ -84,15 +84,15 @@ export class CdrService {
           amocrmId: amocrmUser[0]?.amocrmId,
           direction: callType,
         });
-        await this.cdrCallComplite(cdrId);
+        await this.cdrCallComplite(cdrId, c);
       }),
     );
   }
 
-  private async cdrCallComplite(cdrId: ObjectId) {
+  private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr) {
     return await this.cdrModel.findOneAndUpdate(
       { _id: cdrId },
-      { $set: { complete: true } },
+      { $set: { complete: true, cdrData } },
     );
   }
 }
