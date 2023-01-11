@@ -16,10 +16,9 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forFeature([{ name: Lds.name, schema: LdsSchema }]),
     HttpModule.registerAsync({
       imports: [ConfigModule],
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       useFactory: async (configService: ConfigService) => ({
         headers: {
-          'User-Agent': 'Backend/1.0.2',
+          'User-Agent': configService.get('userAgent'),
           'Content-Type': 'application/json',
         },
       }),

@@ -12,8 +12,8 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmocrmUsers } from '@app/amocrm-users/amocrm-users.schema';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
-import { AmocrmService } from '@app/amocrm/amocrm.service';
-import { directionType } from '@app/amocrm/interfaces/amocrm.interfaces';
+import { AmocrmV4Service } from '@app/amocrm/amocrm.service';
+import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
 
 @Injectable()
 export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
@@ -38,11 +38,7 @@ export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
   private async parseNewExtenEvent(event: AsteriskNewExten) {
     try {
       if (
-        [
-          HangupHandler.outbound,
-          HangupHandler.inbound,
-          HangupHandler.pozvonim,
-        ].includes(event.context as HangupHandler) &&
+        [HangupHandler.outbound, HangupHandler.inbound, HangupHandler.pozvonim].includes(event.context as HangupHandler) &&
         event.application === 'NoOp'
       ) {
         await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
@@ -53,9 +49,7 @@ export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
     }
   }
 
-  private getProvider(
-    context: HangupHandler,
-  ): AsteriskHangupHandlerProviderInterface {
+  private getProvider(context: HangupHandler): AsteriskHangupHandlerProviderInterface {
     return this.providers[context];
   }
 }
@@ -65,39 +59,25 @@ export class BaseHangupHandlerService {
   constructor(
     protected readonly log: LogService,
     protected readonly asteriskCdr: AsteriskCdrService,
-    protected readonly amocrmApi: AmocrmService,
+    protected readonly amocrmV4Service: AmocrmV4Service,
     protected readonly amocrmUsers: AmocrmUsersService,
   ) {}
 
-  async sendCallInfoEvent(
-    asteriskCdr: AsteriskCdr,
-    channel: string,
-    callType: directionType,
-  ) {
+  async sendCallInfoEvent(asteriskCdr: AsteriskCdr, channel: string, callType: DirectionType) {
     try {
       const amocrmUsers = await this.getUserId(channel);
-      return await this.sendCallInfoToCRM(
-        asteriskCdr,
-        amocrmUsers.amocrmId,
-        callType,
-      );
+      return await this.sendCallInfoToCRM(asteriskCdr, amocrmUsers.amocrmId, callType);
     } catch (e) {
       this.log.error(e, BaseHangupHandlerService.name);
     }
   }
 
   private async getUserId(channel: string): Promise<AmocrmUsers> {
-    return (
-      await this.amocrmUsers.getAmocrmUser(UtilsService.replaceChannel(channel))
-    )[0];
+    return (await this.amocrmUsers.getAmocrmUser(UtilsService.replaceChannel(channel)))[0];
   }
 
-  private async sendCallInfoToCRM(
-    asteriskCdr: AsteriskCdr,
-    amocrmId: number,
-    callType: directionType,
-  ) {
-    await this.amocrmApi.sendCallInfoToCRM({
+  private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType) {
+    await this.amocrmV4Service.sendCallInfoToCRM({
       result: asteriskCdr,
       amocrmId,
       direction: callType,
@@ -105,44 +85,26 @@ export class BaseHangupHandlerService {
   }
 }
 
-export class OutboundHangupHandler
-  extends BaseHangupHandlerService
-  implements AsteriskHangupHandlerProviderInterface
-{
+export class OutboundHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
-      const asteriskCdr = await this.asteriskCdr.searchOutgoingCallInfoInCdr(
-        event.uniqueid,
-      );
+      const asteriskCdr = await this.asteriskCdr.searchOutgoingCallInfoInCdr(event.uniqueid);
       if (!!!asteriskCdr && asteriskCdr == null) return;
-      await this.sendCallInfoEvent(
-        asteriskCdr,
-        asteriskCdr.channel,
-        directionType.outbound,
-      );
+      await this.sendCallInfoEvent(asteriskCdr, asteriskCdr.channel, DirectionType.outbound);
     } catch (e) {
       this.log.error(e, OutboundHangupHandler.name);
     }
   }
 }
 
-export class InboundHangupHandler
-  extends BaseHangupHandlerService
-  implements AsteriskHangupHandlerProviderInterface
-{
+export class InboundHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
-      const asteriskCdr = await this.asteriskCdr.searchIncomingCallInfoInCdr(
-        event.uniqueid,
-      );
+      const asteriskCdr = await this.asteriskCdr.searchIncomingCallInfoInCdr(event.uniqueid);
       if (asteriskCdr.length == 0) return;
       await Promise.all(
         asteriskCdr.map(async (asteriskCdr: AsteriskCdr) => {
-          await this.sendCallInfoEvent(
-            asteriskCdr,
-            asteriskCdr.dstchannel,
-            directionType.inbound,
-          );
+          await this.sendCallInfoEvent(asteriskCdr, asteriskCdr.dstchannel, DirectionType.inbound);
         }),
       );
     } catch (e) {
@@ -151,21 +113,12 @@ export class InboundHangupHandler
   }
 }
 
-export class PozvonimHangupHandler
-  extends BaseHangupHandlerService
-  implements AsteriskHangupHandlerProviderInterface
-{
+export class PozvonimHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
-      const asteriskCdr = await this.asteriskCdr.searchPozvonimCallInfoInCdr(
-        event.uniqueid,
-      );
+      const asteriskCdr = await this.asteriskCdr.searchPozvonimCallInfoInCdr(event.uniqueid);
       if (!!!asteriskCdr && asteriskCdr == null) return;
-      await this.sendCallInfoEvent(
-        asteriskCdr,
-        asteriskCdr.channel,
-        directionType.outbound,
-      );
+      await this.sendCallInfoEvent(asteriskCdr, asteriskCdr.channel, DirectionType.outbound);
     } catch (e) {
       this.log.error(e, PozvonimHangupHandler.name);
     }

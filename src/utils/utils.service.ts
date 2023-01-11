@@ -4,6 +4,10 @@ import { Request } from 'express';
 
 @Injectable()
 export class UtilsService {
+  static formatIncomingNumber(number: string): string {
+    return number.length == 10 ? number : number.substr(number.length - 10);
+  }
+
   static replaceChannel(channel: string): string {
     return channel.replace(/(PJSIP\/)(\d{3})-(.*)/, `$2`);
   }
@@ -55,9 +59,7 @@ export class UtilsService {
   }
 
   static formatNumber(number: string): string {
-    return number.length == 12
-      ? `8${number.slice(2, 12)}`
-      : `8${number.slice(1, 11)}`;
+    return number.length == 12 ? `8${number.slice(2, 12)}` : `8${number.slice(1, 11)}`;
   }
 
   static stringToArray(str: string): Array<string> {

@@ -1,13 +1,9 @@
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
-import { AmocrmService } from '@app/amocrm/amocrm.service';
+import { AmocrmV2Service } from '@app/amocrm/amocrm.service';
 import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
-import {
-  ARIOUTBOUNDCALL,
-  ARIOUTBOUNDCALLOPERATOR,
-  POZVONIMOUTBOUNDCALL,
-} from '../asterisk.config';
+import { ARIOUTBOUNDCALL, ARIOUTBOUNDCALLOPERATOR, POZVONIMOUTBOUNDCALL } from '../asterisk.config';
 import { ChannelType } from '../interfaces/asterisk.enum';
 
 @Injectable()
@@ -16,7 +12,7 @@ export class AriActionService implements OnApplicationBootstrap {
   private ariChanel: Ari.Channel;
   constructor(
     @Inject('ARICALL') private readonly ari: { ariClient: Ari.Client },
-    private readonly amocrm: AmocrmService,
+    private readonly amocrmV2Service: AmocrmV2Service,
     private readonly amocrmUsers: AmocrmUsersService,
   ) {}
 
@@ -45,10 +41,7 @@ export class AriActionService implements OnApplicationBootstrap {
   public async pozvonimOutboundCall(data: PozvominCall): Promise<Channel> {
     try {
       const amocrmUsers = await this.amocrmUsers.getAmocrmUser(data.SIP_ID);
-      await this.amocrm.incomingCallEvent(
-        data.DST_NUM,
-        String(amocrmUsers[0]?.amocrmId),
-      );
+      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, String(amocrmUsers[0]?.amocrmId));
       const originateData = this.getPozvonimOriginateStruct(data);
       return await this.ariChanel.originate(originateData);
     } catch (e) {
