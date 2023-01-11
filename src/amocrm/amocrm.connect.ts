@@ -1,65 +1,66 @@
-import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { writeFile, readFile, access } from 'fs/promises';
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
-import {
-  amocrmAPI,
-  AmocrmTokenResponse,
-  httpMethod,
-} from './interfaces/amocrm.interfaces';
 import { LogService } from '@app/log/log.service';
+import { AmocrmAPI, AmoCRMAPIV2 } from './interfaces/amocrm.enum';
+import { Client } from 'amocrm-js';
+import { ITokenData } from 'amocrm-js/dist/interfaces/common';
+import { INIT_AMO, INIT_AMO_ERROR, INIT_AMO_SUCCESS } from './amocrm.constants';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AmocrmConnector implements OnApplicationBootstrap {
-  public amocrmClient: any;
+  public amocrmClient: Client = this.amocrm;
 
   constructor(
-    @Inject('Amocrm') private readonly amocrm: any,
+    @Inject('Amocrm') private readonly amocrm: Client,
     private readonly configService: ConfigService,
     private readonly log: LogService,
   ) {}
 
   public async onApplicationBootstrap() {
     try {
-      this.log.info('Init Amocrm', AmocrmConnector.name);
-      this.amocrmClient = this.amocrm;
-      const currentToken = await this.getConfigToken();
-      await this.amocrmClient.connection.setToken(currentToken);
+      this.log.info(INIT_AMO, AmocrmConnector.name);
+      await this.setToken();
       await this.logConnection();
-      const response = await this.amocrmClient.request(
-        httpMethod.get,
-        amocrmAPI.account,
-      );
-      if (!response.data.hasOwnProperty('id')) {
-        this.log.error(
-          `Init Amocrm error ${JSON.stringify(response)}`,
-          AmocrmConnector.name,
-        );
-      }
-      this.log.info('Init Amocrm successfully', AmocrmConnector.name);
+      await this.checkAmocrmInteraction();
     } catch (e) {
       this.log.error(e, AmocrmConnector.name);
     }
   }
 
-  public async connect() {
+  public async getAmocrmClient() {
     return this.amocrmClient;
+  }
+
+  private async checkAmocrmInteraction() {
+    try {
+      const response = await this.amocrmClient.request.get(AmocrmAPI.account);
+      if (!response.data.hasOwnProperty('id')) {
+        this.log.error(`${INIT_AMO_ERROR} ${JSON.stringify(response)}`, AmocrmConnector.name);
+      }
+      this.log.info(INIT_AMO_SUCCESS, AmocrmConnector.name);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async setToken() {
+    const currentToken = await this.getConfigToken();
+    this.amocrmClient.token.setValue(currentToken);
   }
 
   private async getConfigToken() {
     try {
-      const isFileExist = await this.isAccessible(
-        path.join(__dirname, this.configService.get('amocrm.tokenPath')),
-      );
+      const isFileExist = await this.isAccessible(path.join(__dirname, this.configService.get('amocrm.tokenPath')));
       if (!isFileExist) {
         await this.amocrmAuth();
       }
-      const token = await readFile(
-        path.join(__dirname, this.configService.get('amocrm.tokenPath')),
-      );
+      const token = await readFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')));
       return JSON.parse(token.toString());
     } catch (e) {
-      this.log.error(e, AmocrmConnector.name);
+      throw e;
     }
   }
 
@@ -69,34 +70,22 @@ export class AmocrmConnector implements OnApplicationBootstrap {
       .catch(() => false);
   }
 
-  public async amocrmAuth(): Promise<void> {
+  private async amocrmAuth(): Promise<void> {
     try {
-      const authUrl = await this.amocrmClient.connection.getAuthUrl();
-      console.log(
-        'Вам нужно перейти по ссылке и выдать права на аккаунт, а после перезагрузить приложение',
-        authUrl,
-      );
-      await this.amocrmClient.request('GET', '/api/v4/account');
-      const tokenInit: AmocrmTokenResponse =
-        await this.amocrmClient.connection.getToken();
-      await writeFile(
-        path.join(__dirname, this.configService.get('amocrm.tokenPath')),
-        JSON.stringify(tokenInit),
-      );
+      const authUrl = this.amocrmClient.auth.getUrl('popup');
+      console.log('Вам нужно перейти по ссылке и выдать права на аккаунт, а после перезагрузить приложение', authUrl);
+      await this.amocrmClient.request.get(AmocrmAPI.account);
+      const tokenInit: ITokenData = this.amocrmClient.token.getValue();
+      await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(tokenInit));
       return;
     } catch (e) {
-      this.log.error(e, AmocrmConnector.name);
+      throw e;
     }
   }
 
   private async refreshToken(): Promise<void> {
-    const token: AmocrmTokenResponse = (
-      await this.amocrmClient.connection.refreshToken()
-    ).data;
-    return await writeFile(
-      path.join(__dirname, this.configService.get('amocrm.tokenPath')),
-      JSON.stringify(token),
-    );
+    const token: ITokenData = await this.amocrmClient.token.refresh();
+    return await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(token));
   }
 
   private async logConnection(): Promise<void> {
@@ -106,14 +95,8 @@ export class AmocrmConnector implements OnApplicationBootstrap {
     });
 
     this.amocrmClient.on('connection:newToken', async (response: any) => {
-      this.log.info(
-        `connection:newToken ${JSON.stringify(response)}`,
-        AmocrmConnector.name,
-      );
-      await writeFile(
-        path.join(__dirname, this.configService.get('amocrm.tokenPath')),
-        JSON.stringify(response.data),
-      );
+      this.log.info(`connection:newToken ${JSON.stringify(response)}`, AmocrmConnector.name);
+      await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(response.data));
     });
 
     this.amocrmClient.on('connection:authError', async (error: any) => {
@@ -126,12 +109,56 @@ export class AmocrmConnector implements OnApplicationBootstrap {
     });
 
     this.amocrmClient.on('connection:beforeRefreshToken', (response: any) => {
-      this.log.info(
-        `connection:beforeRefreshToken ${JSON.stringify(response)}`,
-        AmocrmConnector.name,
-      );
+      this.log.info(`connection:beforeRefreshToken ${JSON.stringify(response)}`, AmocrmConnector.name);
     });
 
     return;
+  }
+}
+
+@Injectable()
+export class AmocrmV2Auth {
+  public readonly amocrmApiV2Domain = this.configService.get('amocrm.v2.apiV2Domain');
+  public authCookies: string[];
+  constructor(private readonly configService: ConfigService, private httpService: HttpService) {}
+
+  public async auth() {
+    try {
+      const isAuth = await this.checkAuth();
+      if (isAuth) {
+        return;
+      } else {
+        return await this.authAmocrm();
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async checkAuth(): Promise<boolean> {
+    try {
+      const result = await this.httpService.get(`${this.amocrmApiV2Domain}${AmoCRMAPIV2.account}`).toPromise();
+      return !!result.data.name;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async authAmocrm(): Promise<void> {
+    try {
+      const body = {
+        USER_LOGIN: this.configService.get('amocrm.v2.login'),
+        USER_HASH: this.configService.get('amocrm.v2.hash'),
+      };
+      const result = await this.httpService.post(`${this.amocrmApiV2Domain}${AmoCRMAPIV2.auth}`, body).toPromise();
+      if (!!result.status && !!result.headers['set-cookie'] && result.status == HttpStatus.OK) {
+        this.authCookies = result.headers['set-cookie'];
+      } else {
+        throw String(result);
+      }
+      return;
+    } catch (e) {
+      throw e;
+    }
   }
 }
