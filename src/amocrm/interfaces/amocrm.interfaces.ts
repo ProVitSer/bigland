@@ -299,7 +299,7 @@ export type AmocrmReponse =
   | AmocrmCreateContactResponse;
 
 export interface SendCallInfoToCRM {
-  cdrId: ObjectId;
+  cdrId?: ObjectId;
   result: AsteriskCdr;
   amocrmId: number;
   direction: directionType;

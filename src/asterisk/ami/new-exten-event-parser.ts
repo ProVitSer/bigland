@@ -97,7 +97,11 @@ export class BaseHangupHandlerService {
     amocrmId: number,
     callType: directionType,
   ) {
-    await this.amocrmApi.sendCallInfoToCRM(asteriskCdr, amocrmId, callType);
+    await this.amocrmApi.sendCallInfoToCRM({
+      result: asteriskCdr,
+      amocrmId,
+      direction: callType,
+    });
   }
 }
 
