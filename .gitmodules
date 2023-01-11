@@ -1,0 +1,3 @@
+[submodule "src/platform-types"]
+	path = src/platform-types
+	url = git@github.com:ProVitSer/platform-types.git
