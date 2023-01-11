@@ -1,3 +1,4 @@
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { TelegramService } from '@app/telegram/telegram.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -35,14 +36,10 @@ export class LogService {
     this.Tg.tgAlert(message, logcontext);
   }
 
-  public async saveLog(
-    logEventType: LogEventType,
-    messages: string | any,
-    field?: { [key: string]: any },
-  ): Promise<void> {
+  public async saveLog(logEventType: LogEventType, messages: string | any, field?: DataObject): Promise<void> {
     if (Array.isArray(messages)) {
       Promise.all(
-        messages.map(async (message: string | { [key: string]: any }) => {
+        messages.map(async (message: string | DataObject) => {
           const info = this.getLogInfo(message, field);
           await this.createLog(logEventType, info);
         }),
@@ -54,24 +51,18 @@ export class LogService {
     return;
   }
 
-  private getLogInfo(
-    message: string | { [key: string]: any },
-    field?: { [key: string]: any },
-  ): { [key: string]: any } {
+  private getLogInfo(message: string | DataObject, field?: DataObject): DataObject {
     const data = typeof message === 'string' ? { message: message } : undefined;
     const userData = field ? field : {};
 
     return {
       ...data,
-      ...(!!data ? {} : (message as { [key: string]: any })),
+      ...(!!data ? {} : (message as DataObject)),
       ...userData,
     };
   }
 
-  private async createLog(
-    logEventType: LogEventType,
-    info: { [key: string]: any },
-  ): Promise<any> {
+  private async createLog(logEventType: LogEventType, info: DataObject): Promise<any> {
     const log = new this.logModel({
       logEventType,
       data: info,

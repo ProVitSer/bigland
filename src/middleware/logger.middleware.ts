@@ -27,11 +27,7 @@ export class LoggerMiddleware implements NestMiddleware {
     this.requestErrorMessage = error.message;
   }
 
-  private logMiddleware(
-    request: Request,
-    response: Response,
-    errorMessage: string,
-  ) {
+  private logMiddleware(request: Request, response: Response, errorMessage: string) {
     const { httpVersion, method, socket, url } = request;
     const { remoteAddress, remoteFamily } = socket;
     const { statusCode, statusMessage } = response;

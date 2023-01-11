@@ -1,3 +1,4 @@
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -45,7 +46,7 @@ export class CreateLeadData {
   statusId: string;
 
   @Prop()
-  customFieldsValues: [{ [key: string]: any }];
+  customFieldsValues: DataObject[];
 }
 
 @Schema()

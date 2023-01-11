@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpException,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-  UseFilters,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CallApiService } from '../services/call-api.service';
 import { MonitoringCallDTO } from '../dto/monitoring-call.dto';
@@ -24,38 +14,23 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import {
-  MonitoringCallResult,
-  PozvonimCallResult,
-} from '../interfaces/asterisk-api.interfaces';
+import { MonitoringCallResult, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
-import {
-  SwaggerApiBadResponse,
-  SwaggerHttpErrorResponseMap,
-} from '@app/http/interfaces/http.interfaces';
+import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
 @UseFilters(HttpExceptionFilter)
 @ApiTags('call')
-@ApiBadRequestResponse(
-  SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
-)
-@ApiInternalServerErrorResponse(
-  SwaggerHttpErrorResponseMap[
-    SwaggerApiBadResponse.ApiInternalServerErrorResponse
-  ],
-)
+@ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
+@ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
 @UseGuards(RoleGuard(Role.Admin))
 @UseGuards(JwtGuard)
 @ApiBearerAuth('JWT-auth')
 @Controller('call')
 export class CallApiController {
-  constructor(
-    private readonly apiService: CallApiService,
-    private readonly http: HttpResponseService,
-  ) {}
+  constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 
   @ApiOperation({ summary: 'Отправка тестового вызова' })
   @ApiOkResponse({
@@ -66,19 +41,12 @@ export class CallApiController {
   })
   @ApiBody({ type: MonitoringCallDTO })
   @Post('monitoringCall')
-  async monitoringCall(
-    @Req() req: Request,
-    @Body() body: MonitoringCallDTO,
-    @Res() res: Response,
-  ) {
+  async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
     try {
       const callResult = await this.apiService.sendMonitoringCall(body);
       return this.http.response(req, res, HttpStatus.OK, callResult);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -90,19 +58,12 @@ export class CallApiController {
   })
   @ApiBody({ type: PozvonimCallDTO })
   @Post('pozvonim')
-  async pozvonimCall(
-    @Req() req: Request,
-    @Body() body: PozvonimCallDTO,
-    @Res() res: Response,
-  ) {
+  async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
     try {
       const callResult = await this.apiService.pozvonimOutCall(body);
       return this.http.response(req, res, HttpStatus.OK, callResult);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

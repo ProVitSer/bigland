@@ -5,10 +5,7 @@ import { SystemService } from './system.service';
 
 @Injectable()
 export class SystemUpdateListener {
-  constructor(
-    private readonly redis: RedisService,
-    private readonly systemConfig: SystemService,
-  ) {}
+  constructor(private readonly redis: RedisService, private readonly systemConfig: SystemService) {}
 
   @OnEvent('system.change')
   async updateSystemConf() {

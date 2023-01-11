@@ -1,13 +1,10 @@
 import * as Docker from 'dockerode';
 import { Inject, Injectable } from '@nestjs/common';
-import { LogService } from '@app/log/log.service';
+import { DOCKER_NOT_RUNNING } from './docker.constants';
 
 @Injectable()
 export class DockerService {
-  constructor(
-    @Inject('DOCKER_SERVICE') private docker: Docker,
-    private readonly log: LogService,
-  ) {}
+  constructor(@Inject('DOCKER_SERVICE') private docker: Docker) {}
 
   public async checkImgUp(img: string): Promise<any> {
     try {
@@ -24,9 +21,7 @@ export class DockerService {
   public async checkImgRunning(img: string): Promise<boolean> {
     try {
       const runningImages = await this.getRunningContainers();
-      return runningImages.some(
-        (image: Docker.ContainerInfo) => image.Image == img,
-      );
+      return runningImages.some((image: Docker.ContainerInfo) => image.Image == img);
     } catch (e) {
       throw e;
     }
@@ -35,7 +30,7 @@ export class DockerService {
   public async checkDocker(): Promise<boolean> {
     try {
       const dockerRun = await this.isDockerUp();
-      if (!dockerRun) throw 'Сервис docker не запущен';
+      if (!dockerRun) throw new Error(DOCKER_NOT_RUNNING);
       return dockerRun;
     } catch (e) {
       throw e;
@@ -45,13 +40,11 @@ export class DockerService {
   private async startImg(img: string) {
     try {
       const containers = await this.getAllContainers();
-      const needContImg = containers.filter(
-        (container: Docker.ContainerInfo) => {
-          if (container.Image == img) {
-            return container;
-          }
-        },
-      );
+      const needContImg = containers.filter((container: Docker.ContainerInfo) => {
+        if (container.Image == img) {
+          return container;
+        }
+      });
       if (!needContImg.length) throw `Нужный образ ${img} отсутствует`;
       const container = this.docker.getContainer(needContImg[0].Id);
       return await container.start();

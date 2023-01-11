@@ -4,13 +4,8 @@ import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUsersDto, Users } from './dto/create-users.dto';
 import { FreepbxApi, FreepbxApiDocument } from './freepbx-api.schema';
-import { FreepbxCreateUser } from './selenium/create-user';
-import {
-  CreateFreepbxUser,
-  CreateUserResult,
-  ResultCreateUsers,
-  UpdateCreateUser,
-} from './interfaces/freepbx-api.interfaces';
+import { FreepbxCreateUser } from './freepbx-selenium/create-user';
+import { CreateFreepbxUser, CreateUserResult, ResultCreateUsers, UpdateCreateUser } from './interfaces/freepbx-api.interfaces';
 import { FreepbxApiStatus } from './interfaces/freepbx-api.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -25,6 +20,7 @@ export class FreepbxUsersApiService {
     @InjectModel(FreepbxApi.name)
     private freepbxApiModel: Model<FreepbxApiDocument>,
   ) {}
+
   public async createUsers(users: CreateUsersDto): Promise<ResultCreateUsers> {
     try {
       const apiId = (await this.create(users)).apiId;
@@ -40,9 +36,7 @@ export class FreepbxUsersApiService {
       Promise.all(
         data.users.map(async (user: Users) => {
           this.user = user.username;
-          const createUserData = await this.freepbxCreateser.createPbxUser(
-            user,
-          );
+          const createUserData = await this.freepbxCreateser.createPbxUser(user);
           await this.sendDataToUser(user, createUserData);
           await this.updateCreateUser(data.apiId, this.user, {
             status: FreepbxApiStatus.success,
@@ -83,17 +77,10 @@ export class FreepbxUsersApiService {
     }
   }
 
-  private async updateCreateUser(
-    apiId: string,
-    username: string,
-    info: UpdateCreateUser,
-  ) {
+  private async updateCreateUser(apiId: string, username: string, info: UpdateCreateUser) {
     try {
       const setData = UtilsService.createSetObj('users', info);
-      await this.freepbxApiModel.updateOne(
-        { apiId, 'users.username': username },
-        { $set: { ...setData } },
-      );
+      await this.freepbxApiModel.updateOne({ apiId, 'users.username': username }, { $set: { ...setData } });
     } catch (e) {
       this.log.error(e, FreepbxUsersApiService.name);
     }

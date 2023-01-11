@@ -11,24 +11,14 @@ import {
   hintStatusMap,
   SetDNDStatusResult,
 } from '../interfaces/asterisk.interfaces';
-import {
-  ChannelType,
-  DbFamilyType,
-  statusHint,
-} from '../interfaces/asterisk.enum';
+import { ChannelType, DbFamilyType, statusHint } from '../interfaces/asterisk.enum';
 import { LogService } from '@app/log/log.service';
 
 @Injectable()
 export class AmiActionService {
-  constructor(
-    private readonly log: LogService,
-    private readonly ami: AsteriskAmi,
-  ) {}
+  constructor(private readonly log: LogService, private readonly ami: AsteriskAmi) {}
 
-  public async sendAmiCall(
-    localExtension: string,
-    outgoingNumber: string,
-  ): Promise<void> {
+  public async sendAmiCall(localExtension: string, outgoingNumber: string): Promise<void> {
     try {
       this.log.info(
         `Исходящий вызов из webhook CRM: внутренний номер ${localExtension} внешний номер ${outgoingNumber}`,
@@ -43,17 +33,11 @@ export class AmiActionService {
       action.exten = outgoingNumber;
       action.async = AMIOUTBOUNDCALL.async;
       const resultInitCall: any = await this.ami.amiClientSend(action);
-      this.log.info(
-        `Результат инициации вызова ${resultInitCall}`,
-        AmiActionService.name,
-      );
+      this.log.info(`Результат инициации вызова ${resultInitCall}`, AmiActionService.name);
     } catch (e) {}
   }
 
-  private async setHintStatus(
-    extension: string,
-    hint: statusHint,
-  ): Promise<void> {
+  private async setHintStatus(extension: string, hint: statusHint): Promise<void> {
     try {
       const action = new namiLib.Actions.Command();
       action.Command = `devstate change Custom:DND${extension} ${hint}`;
@@ -72,10 +56,7 @@ export class AmiActionService {
             extensionStatusList[sip_id] = { status: 'error' };
             return;
           }
-          const resultSend: AsteriskStatusResponse = await this.dndPut(
-            sip_id,
-            data.dnd_status,
-          );
+          const resultSend: AsteriskStatusResponse = await this.dndPut(sip_id, data.dnd_status);
           this.log.info(resultSend, AmiActionService.name);
           const hint = hintStatusMap[data.dnd_status];
 
@@ -93,10 +74,7 @@ export class AmiActionService {
     } catch (e) {}
   }
 
-  private async dndPut(
-    sipId: string,
-    dndStatus: string,
-  ): Promise<AsteriskStatusResponse> {
+  private async dndPut(sipId: string, dndStatus: string): Promise<AsteriskStatusResponse> {
     const action = new namiLib.Actions.DbPut();
     action.Family = DbFamilyType.DND;
     action.Key = sipId;
@@ -104,9 +82,7 @@ export class AmiActionService {
     return await this.ami.amiClientSend(action);
   }
 
-  private async getDNDStatus(
-    extension: string,
-  ): Promise<AsteriskDNDStatusResponse> {
+  private async getDNDStatus(extension: string): Promise<AsteriskDNDStatusResponse> {
     const action = new namiLib.Actions.DbGet();
     action.Family = DbFamilyType.DND;
     action.Key = extension;
@@ -115,9 +91,7 @@ export class AmiActionService {
 
   public async getCallStatus(): Promise<AsteriskStatusResponse> {
     const action = new namiLib.Actions.Status();
-    const callInfo: AsteriskStatusResponse = await this.ami.amiClientSend(
-      action,
-    );
+    const callInfo: AsteriskStatusResponse = await this.ami.amiClientSend(action);
     return this.deleteNoUserProp(callInfo) as AsteriskStatusResponse;
   }
 

@@ -1,14 +1,8 @@
 import { LogEventType } from '@app/log/interfaces/log.interfaces';
 import { Role } from '@app/users/interfaces/users.enum';
-import {
-  CanActivate,
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-  mixin,
-  Type,
-} from '@nestjs/common';
-import { RequestWithUser } from '../types/interfaces';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, mixin, Type } from '@nestjs/common';
+import { LIMITED_ACCESS } from '../auth.constants';
+import { RequestWithUser } from '../interfaces/auth.interfaces';
 
 export const RoleGuard = (role: Role): Type<CanActivate> => {
   class RoleGuardMixin implements CanActivate {
@@ -21,7 +15,7 @@ export const RoleGuard = (role: Role): Type<CanActivate> => {
         throw new HttpException(
           {
             logEventType: LogEventType.auth_fail,
-            message: 'Пользователю ограничны доступы на данный роут',
+            message: LIMITED_ACCESS,
           },
           HttpStatus.UNAUTHORIZED,
         );

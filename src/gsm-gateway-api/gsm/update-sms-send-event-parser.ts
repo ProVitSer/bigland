@@ -11,13 +11,8 @@ import { LogService } from '@app/log/log.service';
 import { SmsService } from '../sms/sms.service';
 
 @Injectable()
-export class UpdateSMSSendEventParser
-  implements GsmGatewayEventProviderInterface
-{
-  constructor(
-    private readonly sms: SmsService,
-    private readonly log: LogService,
-  ) {}
+export class UpdateSMSSendEventParser implements GsmGatewayEventProviderInterface {
+  constructor(private readonly sms: SmsService, private readonly log: LogService) {}
 
   async parseEvent(event: UpdateSMSSendEvent): Promise<void> {
     try {

@@ -5,10 +5,7 @@ import { LdsService } from '../lds.service';
 
 @Injectable()
 export class LdsSynchUserSchedule {
-  constructor(
-    private readonly ldsService: LdsService,
-    private readonly log: LogService,
-  ) {}
+  constructor(private readonly ldsService: LdsService, private readonly log: LogService) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async updateLdsUserStatus() {

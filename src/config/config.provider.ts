@@ -13,11 +13,7 @@ export default () => {
 
 @Injectable()
 export class InitSystemConfig implements OnModuleInit {
-  constructor(
-    private readonly redis: RedisService,
-    private readonly systemColService: SystemService,
-    private readonly log: LogService,
-  ) {}
+  constructor(private readonly redis: RedisService, private readonly systemColService: SystemService, private readonly log: LogService) {}
   async onModuleInit() {
     try {
       const systemConf = await this.systemColService.getConfig();

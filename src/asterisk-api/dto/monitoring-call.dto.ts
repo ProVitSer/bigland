@@ -3,8 +3,7 @@ import { IsNotEmpty, IsArray } from 'class-validator';
 
 export class MonitoringCallDTO {
   @ApiProperty({
-    description:
-      'Номера на который будет произведен вызов, и при поднятие трубки будет сразу сброшен',
+    description: 'Номера на который будет произведен вызов, и при поднятие трубки будет сразу сброшен',
     nullable: false,
     isArray: true,
     type: String,

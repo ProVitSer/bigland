@@ -27,10 +27,7 @@ export class ChanspyApiService {
   public async updatePassword(data: ChanspyDto): Promise<void> {
     try {
       const currentConfig = await this.configProject.getConfig();
-      return await this.systemService.updateChanSpyPassword(
-        currentConfig._id,
-        data.password,
-      );
+      return await this.systemService.updateChanSpyPassword(currentConfig._id, data.password);
     } catch (e) {
       throw e;
     }
@@ -40,10 +37,7 @@ export class ChanspyApiService {
     try {
       const newPassword = UtilsService.generateRandomNumber(4);
       const currentConfig = await this.configProject.getConfig();
-      await this.systemService.updateChanSpyPassword(
-        currentConfig._id,
-        newPassword,
-      );
+      await this.systemService.updateChanSpyPassword(currentConfig._id, newPassword);
       return { password: newPassword };
     } catch (e) {
       throw e;

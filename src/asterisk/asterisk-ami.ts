@@ -1,22 +1,13 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  AsteriskAmiEventProviderInterface,
-  AsteriskBlindTransferEvent,
-  AsteriskDialBeginEvent,
-  AsteriskHungupEvent,
-  AsteriskUnionEvent,
-} from './interfaces/asterisk.interfaces';
+import { AsteriskAmiEventProviderInterface, AsteriskUnionEvent } from './interfaces/asterisk.interfaces';
 import { HangupEventParser } from './ami/hangup-event-parser';
 import { AsteriskEventType } from './interfaces/asterisk.enum';
 import { BlindTransferEventParser } from './ami/blind-transfer-event-parser';
 import { DialBeginEventParser } from './ami/dial-begin-event-parser';
 import { NewExtenEventParser } from './ami/new-exten-event-parser';
 import { LogService } from '@app/log/log.service';
-
-export interface PlainObject {
-  [key: string]: any;
-}
+import { AMI_CONNECT_SUCCESS, AMI_INCORRECT_LOGIN, AMI_RECONECT, ERROR_AMI, INVALIDE_PEER } from './asterisk.constants';
 
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {
@@ -46,17 +37,12 @@ export class AsteriskAmi implements OnApplicationBootstrap {
       this.client = await this.ami;
       this.client.logLevel = this.configService.get('asterisk.ami.logLevel');
       this.client.open();
-      this.client.on('namiConnected', () =>
-        this.log.info(
-          'Подключение к AMI успешно установлено',
-          AsteriskAmi.name,
-        ),
-      );
+      this.client.on('namiConnected', () => this.log.info(AMI_CONNECT_SUCCESS, AsteriskAmi.name));
       this.client.on('namiConnectionClose', () => this.connectionClose());
       this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
       this.client.on('namiInvalidPeer', () => this.invalidPeer());
     } catch (e) {
-      this.log.error(`AMI onApplicationBootstrap ${e}`, AsteriskAmi.name);
+      this.log.error(`${ERROR_AMI}: ${e}`, AsteriskAmi.name);
     }
   }
 
@@ -69,9 +55,7 @@ export class AsteriskAmi implements OnApplicationBootstrap {
     }
   }
 
-  private getProvider(
-    eventType: AsteriskEventType,
-  ): AsteriskAmiEventProviderInterface {
+  private getProvider(eventType: AsteriskEventType): AsteriskAmiEventProviderInterface {
     return this.providers[eventType];
   }
 
@@ -85,19 +69,19 @@ export class AsteriskAmi implements OnApplicationBootstrap {
   }
 
   private connectionClose() {
-    this.log.error(`Переподключение к AMI ...`, AsteriskAmi.name);
+    this.log.error(AMI_RECONECT, AsteriskAmi.name);
     setTimeout(() => {
       this.client.open();
     }, 5000);
   }
 
   private loginIncorrect() {
-    this.log.error(`Некорректный логин или пароль от AMI`, AsteriskAmi.name);
+    this.log.error(AMI_INCORRECT_LOGIN, AsteriskAmi.name);
     // process.exit();
   }
 
   private invalidPeer() {
-    this.log.error(`Invalid AMI Salute. Not an AMI?`, AsteriskAmi.name);
+    this.log.error(INVALIDE_PEER, AsteriskAmi.name);
     // process.exit();
   }
 }

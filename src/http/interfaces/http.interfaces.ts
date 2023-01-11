@@ -1,9 +1,6 @@
 import { LogEventType } from '@app/log/interfaces/log.interfaces';
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { HttpStatus } from '@nestjs/common';
-
-export interface DataObject {
-  [key: string]: any;
-}
 
 export class IHttpResponse {
   statusCode: HttpStatus;
@@ -15,10 +12,6 @@ export class IHttpResponse {
   timestamp: string;
   createdBy: string;
 }
-
-// export class IHttpErrorResponse extends IHttpResponse {
-//     errors?: string | DataObject;
-// }
 
 export interface HttpExeptionInfo {
   logEventType: LogEventType;

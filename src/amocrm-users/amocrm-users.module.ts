@@ -7,13 +7,7 @@ import { LdsModule } from '@app/lds/lds.module';
 import { LogModule } from '@app/log/log.module';
 
 @Module({
-  imports: [
-    LdsModule,
-    LogModule,
-    MongooseModule.forFeature([
-      { name: AmocrmUsers.name, schema: AmocrmUsersSchema },
-    ]),
-  ],
+  imports: [LdsModule, LogModule, MongooseModule.forFeature([{ name: AmocrmUsers.name, schema: AmocrmUsersSchema }])],
   providers: [AmocrmUsersService, AmocrmSynchUserSchedule],
   exports: [AmocrmUsersService],
 })

@@ -18,8 +18,10 @@ import { MongooseModule } from '@nestjs/mongoose';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         headers: {
-          'User-Agent': configService.get('userAgent'),
           'Content-Type': 'application/json',
+          'User-Agent': configService.get('userAgent'),
+          Authorization: `Bearer ${configService.get('lds.bearer')}`,
+          Cookie: configService.get('lds.cookie'),
         },
       }),
       inject: [ConfigService],

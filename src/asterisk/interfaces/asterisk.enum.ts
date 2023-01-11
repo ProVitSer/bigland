@@ -129,3 +129,9 @@ export enum HangupHandler {
   inbound = 'inbound-hangup-handler',
   pozvonim = 'pozvonim-hangup-handler',
 }
+
+export enum PlaybackSounds {
+  IncorrectPass = 'sound:vm-incorrect',
+  Goodbye = 'sound:vm-goodbye',
+  DialPass = 'sound:agent-pass',
+}

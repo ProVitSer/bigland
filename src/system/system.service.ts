@@ -6,10 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class SystemService {
-  constructor(
-    @InjectModel(System.name) private systemModel: Model<SystemDocument>,
-    private eventEmitter: EventEmitter2,
-  ) {}
+  constructor(@InjectModel(System.name) private systemModel: Model<SystemDocument>, private eventEmitter: EventEmitter2) {}
 
   public async getConfig(): Promise<System> {
     try {
@@ -21,25 +18,16 @@ export class SystemService {
 
   public async updateGsmGatewayConfig(data: GsmGateway): Promise<void> {
     try {
-      await this.systemModel.updateOne(
-        { 'gsmGateway.port': data.port },
-        { $set: { balance: data.balance } },
-      );
+      await this.systemModel.updateOne({ 'gsmGateway.port': data.port }, { $set: { balance: data.balance } });
       this.eventEmitter.emit(`system.change`);
     } catch (e) {
       throw e;
     }
   }
 
-  public async updateChanSpyPassword(
-    id: string,
-    password: string,
-  ): Promise<void> {
+  public async updateChanSpyPassword(id: string, password: string): Promise<void> {
     try {
-      await this.systemModel.updateOne(
-        { _id: id },
-        { $set: { chanSpyPassword: password } },
-      );
+      await this.systemModel.updateOne({ _id: id }, { $set: { chanSpyPassword: password } });
       this.eventEmitter.emit(`system.change`);
     } catch (e) {
       throw e;

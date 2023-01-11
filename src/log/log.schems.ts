@@ -1,3 +1,4 @@
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { LogEventType } from './interfaces/log.interfaces';
@@ -11,7 +12,7 @@ export class Log {
   data: Record<string, unknown>;
 
   @Prop({ type: Object })
-  message?: string | { [key: string]: any };
+  message?: string | DataObject;
 
   @Prop()
   user?: string;

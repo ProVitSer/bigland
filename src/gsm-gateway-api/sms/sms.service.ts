@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SmsStatusDescription } from '../interfaces/gsm-gateway-api.enum';
-import {
-  ScheduledSMSData,
-  UpdateSMSData,
-} from '../interfaces/gsm-gateway-api.interfaces';
+import { ScheduledSMSData, UpdateSMSData } from '../interfaces/gsm-gateway-api.interfaces';
 import { Sms, SmsDocument } from './sms.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -26,10 +23,7 @@ export class SmsService {
     }
   }
 
-  public async updateSmsStatusById(
-    unicid: string,
-    info: UpdateSMSData,
-  ): Promise<void> {
+  public async updateSmsStatusById(unicid: string, info: UpdateSMSData): Promise<void> {
     try {
       await this.smsModel.updateOne({ unicid }, { $set: { ...info } });
     } catch (e) {

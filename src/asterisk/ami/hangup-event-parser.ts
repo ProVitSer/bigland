@@ -1,8 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  AsteriskAmiEventProviderInterface,
-  AsteriskHungupEvent,
-} from '../interfaces/asterisk.interfaces';
+import { AsteriskAmiEventProviderInterface, AsteriskHungupEvent } from '../interfaces/asterisk.interfaces';
 import { AsteriskCause } from '../interfaces/asterisk.enum';
 import { LogService } from '@app/log/log.service';
 
@@ -26,11 +23,7 @@ export class HangupEventParser implements AsteriskAmiEventProviderInterface {
       event.calleridnum.toString().length < 4 &&
       event.uniqueid == event.linkedid &&
       event.connectedlinenum.toString().length > 4 &&
-      [
-        AsteriskCause.NORMAL_CLEARING,
-        AsteriskCause.USER_BUSY,
-        AsteriskCause.INTERWORKING,
-      ].includes(event?.cause) &&
+      [AsteriskCause.NORMAL_CLEARING, AsteriskCause.USER_BUSY, AsteriskCause.INTERWORKING].includes(event?.cause) &&
       event.connectedlinenum.toString() !== '<unknown>'
     ) {
       checkCDR = false;
@@ -50,11 +43,7 @@ export class HangupEventParser implements AsteriskAmiEventProviderInterface {
       event.calleridnum.toString().length > 4 &&
       event.uniqueid == event.linkedid &&
       event.connectedlinenum.toString().length > 4 &&
-      [
-        AsteriskCause.NORMAL_CLEARING,
-        AsteriskCause.USER_BUSY,
-        AsteriskCause.INTERWORKING,
-      ].includes(event?.cause) &&
+      [AsteriskCause.NORMAL_CLEARING, AsteriskCause.USER_BUSY, AsteriskCause.INTERWORKING].includes(event?.cause) &&
       event.connectedlinenum.toString() !== '<unknown>'
     ) {
       checkCDR = false;

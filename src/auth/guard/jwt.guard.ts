@@ -1,18 +1,12 @@
 import { LogEventType } from '@app/log/interfaces/log.interfaces';
-import {
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { ExecutionContext, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
+import { INVALALID_TOKEN } from '../auth.constants';
 
 @Injectable()
 export class JwtGuard extends AuthGuard('jwt') {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     return super.canActivate(context);
   }
 
@@ -21,7 +15,7 @@ export class JwtGuard extends AuthGuard('jwt') {
       throw new HttpException(
         {
           logEventType: LogEventType.token_fail,
-          message: 'Некорректный token или истек срок его действия',
+          message: INVALALID_TOKEN,
         },
         HttpStatus.UNAUTHORIZED,
       );

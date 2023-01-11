@@ -2,24 +2,13 @@ import { AmiActionService } from '@app/asterisk/ami/action-service';
 import { AriActionService } from '@app/asterisk/ari/action-service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
-import {
-  MonitoringCall,
-  MonitoringCallResult,
-  PozvominCall,
-  PozvonimCallResult,
-} from '../interfaces/asterisk-api.interfaces';
+import { MonitoringCall, MonitoringCallResult, PozvominCall, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 
 @Injectable()
 export class CallApiService {
-  constructor(
-    private readonly ami: AmiActionService,
-    private readonly ari: AriActionService,
-    private readonly log: LogService,
-  ) {}
+  constructor(private readonly ami: AmiActionService, private readonly ari: AriActionService, private readonly log: LogService) {}
 
-  public async sendMonitoringCall(
-    data: MonitoringCall,
-  ): Promise<MonitoringCallResult[]> {
+  public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
     try {
       const result: MonitoringCallResult[] = [];
       await Promise.all(
@@ -37,9 +26,7 @@ export class CallApiService {
     }
   }
 
-  public async pozvonimOutCall(
-    data: PozvominCall,
-  ): Promise<PozvonimCallResult> {
+  public async pozvonimOutCall(data: PozvominCall): Promise<PozvonimCallResult> {
     try {
       const channelInfo = await this.ari.pozvonimOutboundCall(data);
       return {

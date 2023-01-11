@@ -1,18 +1,12 @@
-import {
-  GsmPortsActionService,
-  GsmUSSDActionService,
-} from '@app/gsm-gateway-api/gsm/gsm-action-service';
-import {
-  GsmPortFormatInfo,
-  GsmUSSDInfo,
-  OperatoBalanceCodeMap,
-} from '@app/gsm-gateway-api/interfaces/gsm-gateway-api.interfaces';
+import { GsmPortsActionService, GsmUSSDActionService } from '@app/gsm-gateway-api/gsm/gsm-action-service';
+import { GsmPortFormatInfo, GsmUSSDInfo, OperatoBalanceCodeMap } from '@app/gsm-gateway-api/interfaces/gsm-gateway-api.interfaces';
 import { LogService } from '@app/log/log.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { GsmGateway } from './system.schema';
-import { SystemService } from './system.service';
+import { BALANCE_ERROR, CHANSPY_UPDATE_ERROR } from '../system.constants';
+import { GsmGateway } from '../system.schema';
+import { SystemService } from '../system.service';
 
 @Injectable()
 export class UpdateSystemConfigSchedule {
@@ -29,20 +23,14 @@ export class UpdateSystemConfigSchedule {
       const newPassword = UtilsService.generateRandomNumber(4);
       await this.updateChanSpy(newPassword);
     } catch (e) {
-      this.log.error(
-        `Crone job updateChanSpyPassword ${e}`,
-        UpdateSystemConfigSchedule.name,
-      );
+      this.log.error(`${CHANSPY_UPDATE_ERROR} ${e}`, UpdateSystemConfigSchedule.name);
     }
   }
 
   private async updateChanSpy(password: string): Promise<void> {
     const actuialConfig = await this.systemService.getConfig();
     if (!!actuialConfig[0]._id) {
-      await this.systemService.updateChanSpyPassword(
-        actuialConfig[0]._id,
-        password,
-      );
+      await this.systemService.updateChanSpyPassword(actuialConfig[0]._id, password);
     } else {
       await this.systemService.addNewChanSpyPassword(password);
     }
@@ -55,10 +43,7 @@ export class UpdateSystemConfigSchedule {
       const gsmPorts = await this.gsmPorts.getActiveGsmPorts();
       await Promise.all(
         gsmPorts.map(async (port: string) => {
-          const portInfo = (await this.gsmPorts.getPortInfo(
-            port,
-            true,
-          )) as GsmPortFormatInfo;
+          const portInfo = (await this.gsmPorts.getPortInfo(port, true)) as GsmPortFormatInfo;
           const ussdRequset: GsmUSSDInfo = {
             gsmPort: port,
             ussdRequest: OperatoBalanceCodeMap[portInfo.operator],
@@ -72,10 +57,7 @@ export class UpdateSystemConfigSchedule {
         }),
       );
     } catch (e) {
-      this.log.error(
-        `Crone job updateGsmGatewayBalance ${e}`,
-        UpdateSystemConfigSchedule.name,
-      );
+      this.log.error(`${BALANCE_ERROR} ${e}`, UpdateSystemConfigSchedule.name);
     }
   }
 
@@ -87,10 +69,7 @@ export class UpdateSystemConfigSchedule {
         }),
       );
     } catch (e) {
-      this.log.error(
-        `Crone job updateBalance ${e}`,
-        UpdateSystemConfigSchedule.name,
-      );
+      throw e;
     }
   }
 }

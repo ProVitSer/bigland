@@ -1,18 +1,10 @@
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SMSDto {
   @ApiProperty({
-    description:
-      'Порт GSM шлюза через который должна быть отправлена смс. Если не указан, отправляется через рандомный порт',
+    description: 'Порт GSM шлюза через который должна быть отправлена смс. Если не указан, отправляется через рандомный порт',
     nullable: true,
   })
   @IsOptional()

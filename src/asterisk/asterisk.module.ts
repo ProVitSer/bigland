@@ -19,14 +19,7 @@ import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    AsteriskCdrModule,
-    RedisModule,
-    AmocrmUsersModule,
-    AmocrmModule,
-  ],
+  imports: [ConfigModule, LogModule, AsteriskCdrModule, RedisModule, AmocrmUsersModule, AmocrmModule],
   providers: [
     {
       provide: 'CHANSPY',

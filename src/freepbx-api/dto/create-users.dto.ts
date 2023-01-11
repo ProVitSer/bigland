@@ -1,19 +1,10 @@
 import { Type } from 'class-transformer';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsDefined,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsDefined, IsEmail, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class Users {
   @ApiProperty({
-    description:
-      'Имя пользователя, должно быть уникальным. Желательно Фамилия Имя через пробел',
+    description: 'Имя пользователя, должно быть уникальным. Желательно Фамилия Имя через пробел',
     nullable: false,
   })
   @IsString()
@@ -21,8 +12,7 @@ export class Users {
   username: string;
 
   @ApiProperty({
-    description:
-      'Email пользователя куда будет отправлено письмо с данными для подключения к АТС',
+    description: 'Email пользователя куда будет отправлено письмо с данными для подключения к АТС',
     nullable: false,
   })
   @IsDefined()
@@ -34,8 +24,7 @@ export class Users {
 
 export class CreateUsersDto {
   @ApiProperty({
-    description:
-      'Массив пользователей, для которых требуется создать пару логин/пароль на АТС',
+    description: 'Массив пользователей, для которых требуется создать пару логин/пароль на АТС',
     nullable: false,
     type: Users,
     isArray: true,

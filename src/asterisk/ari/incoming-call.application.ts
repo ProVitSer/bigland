@@ -3,6 +3,7 @@ import { LogService } from '@app/log/log.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR } from './ari.constants';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {
@@ -23,7 +24,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
         await this.checkInAmo(stasisStartEvent);
         return this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
-        this.log.error(`ARI AriIncomingCallApplication error ${e}`, AriIncomingCallApplication.name);
+        this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriIncomingCallApplication.name);
       }
     });
     this.client.ariClient.start(this.configService.get('asterisk.ari.application.amocrm.stasis'));
@@ -42,12 +43,12 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
     try {
       return await new Promise((resolve) => {
         this.client.ariClient.channels.continueInDialplan({ channelId: channelId }, (event: any) => {
-          this.log.info(`ARI AriIncomingCallApplication continueDialplan ${channelId}`, AriIncomingCallApplication.name);
+          this.log.info(`${CONTINUE_DIALPLAN}: ${channelId}`, AriIncomingCallApplication.name);
           resolve(event);
         });
       });
     } catch (e) {
-      this.log.error(`ARI AriIncomingCallApplication continueDialplan error ${e}`, AriIncomingCallApplication.name);
+      throw e;
     }
   }
 }

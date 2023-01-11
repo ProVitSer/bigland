@@ -14,15 +14,8 @@ export class AmocrmApiController {
   ) {}
 
   @Get('amocrm*')
-  async amocrmGet(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query() query: AmocrmDto,
-  ) {
-    if (
-      query._login == this.config.get('amocrm.widget.login') &&
-      query._secret == this.config.get('amocrm.widget.secret')
-    ) {
+  async amocrmGet(@Req() req: Request, @Res() res: Response, @Query() query: AmocrmDto) {
+    if (query._login == this.config.get('amocrm.widget.login') && query._secret == this.config.get('amocrm.widget.secret')) {
       try {
         const result = await this.amocrmApiService.amocrmWidget(query);
         return res.status(HttpStatus.OK).send(result);

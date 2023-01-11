@@ -18,27 +18,9 @@ import { LogModule } from '@app/log/log.module';
 import { SystemModule } from '@app/system/system.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    AsteriskModule,
-    AuthModule,
-    HttpResponseModule,
-    RedisModule,
-    SystemModule,
-  ],
-  controllers: [
-    CallApiController,
-    AmocrmApiController,
-    ServiceCodeApiController,
-    ChanspyApiController,
-  ],
-  providers: [
-    CallApiService,
-    AmocrmApiService,
-    ServiceCodeApiService,
-    ChanspyApiService,
-  ],
+  imports: [ConfigModule, LogModule, AsteriskModule, AuthModule, HttpResponseModule, RedisModule, SystemModule],
+  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController],
+  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
 })
 export class AsteriskApiModule {
   configure(consumer: MiddlewareConsumer): void {

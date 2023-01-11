@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RedisModule } from '@app/redis/redis.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SystemUpdateListener } from './system.listener';
-import { UpdateSystemConfigSchedule } from './update-system-config-schedule';
+import { UpdateSystemConfigSchedule } from './schedule/update-system-config-schedule';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LogModule } from '@app/log/log.module';
 import { GsmGatewayApiModule } from '@app/gsm-gateway-api/gsm-gateway-api.module';
@@ -19,12 +19,7 @@ import { GsmGatewayApiModule } from '@app/gsm-gateway-api/gsm-gateway-api.module
     forwardRef(() => GsmGatewayApiModule),
     MongooseModule.forFeature([{ name: System.name, schema: SystemSchema }]),
   ],
-  providers: [
-    SystemService,
-    System,
-    SystemUpdateListener,
-    UpdateSystemConfigSchedule,
-  ],
+  providers: [SystemService, System, SystemUpdateListener, UpdateSystemConfigSchedule],
   exports: [System, SystemService],
 })
 export class SystemModule {}

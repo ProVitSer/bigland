@@ -16,11 +16,7 @@ import {
 } from '../interfaces/gsm-gateway-api.interfaces';
 import * as namiLib from 'nami';
 import { ConfigService } from '@nestjs/config';
-import {
-  Operators,
-  SmsStatusDescription,
-  SmsType,
-} from '../interfaces/gsm-gateway-api.enum';
+import { Operators, SmsStatusDescription, SmsType } from '../interfaces/gsm-gateway-api.enum';
 import {
   GSM_PORT_D_CHANEL_PARSE_IS_ACTIVE,
   GSM_PORT_D_CHANEL_PARSE_OPERATOR,
@@ -31,13 +27,11 @@ import { SendSMSScheduledTime } from '../dto/sms.dto';
 import { SmsService } from '../sms/sms.service';
 import { LogService } from '@app/log/log.service';
 import { SystemService } from '@app/system/system.service';
+import { ERROR_UNACTIVE_PORT } from './gsm.constants';
 
 @Injectable()
 export class GsmUSSDActionService {
-  constructor(
-    private readonly gsmGateway: GsmGateway,
-    private readonly log: LogService,
-  ) {}
+  constructor(private readonly gsmGateway: GsmGateway, private readonly log: LogService) {}
 
   public async sendUSSD(data: GsmUSSDInfo): Promise<string> {
     try {
@@ -75,69 +69,42 @@ export class GsmPortsActionService {
   }
 
   public async isPortActive(port: string): Promise<boolean> {
-    const portInfo = (await this.getPortInfo(
-      port,
-      false,
-    )) as GetGsmPortInfoEvent;
+    const portInfo = (await this.getPortInfo(port, false)) as GetGsmPortInfoEvent;
 
-    const isActive = this.getDChannelString(
-      UtilsService.stringToArray(portInfo.d_channel),
-      GSM_PORT_D_CHANEL_PARSE_STATUS,
-    );
+    const isActive = this.getDChannelString(UtilsService.stringToArray(portInfo.d_channel), GSM_PORT_D_CHANEL_PARSE_STATUS);
     return this.isActive(isActive);
   }
 
-  public async getPortInfo(
-    port: string,
-    format: boolean,
-  ): Promise<GetGsmPortInfoEvent | GsmPortFormatInfo> {
+  public async getPortInfo(port: string, format: boolean): Promise<GetGsmPortInfoEvent | GsmPortFormatInfo> {
     const action = new namiLib.Actions.Smscommand();
     action.Command = `gsm show span ${Number(port) + 1}`;
-    const portInfo = await this.gsmGateway.gmsClientSend<GetGsmPortInfoEvent>(
-      action,
-    );
-    return !!format
-      ? await this.formatPortInfo(port, portInfo.d_channel)
-      : portInfo;
+    const portInfo = await this.gsmGateway.gmsClientSend<GetGsmPortInfoEvent>(action);
+    return !!format ? await this.formatPortInfo(port, portInfo.d_channel) : portInfo;
   }
 
   public async getAllPorts(): Promise<GsmPortsFormatInfo[]> {
     const action = new namiLib.Actions.Smscommand();
     action.Command = `gsm show spans`;
-    const portsInfo = await this.gsmGateway.gmsClientSend<GetGsmPortsInfoEvent>(
-      action,
-    );
+    const portsInfo = await this.gsmGateway.gmsClientSend<GetGsmPortsInfoEvent>(action);
     return this.formatPortsInfo(portsInfo);
   }
 
-  private async formatPortInfo(
-    port: string,
-    dChanelInfo: string,
-  ): Promise<GsmPortFormatInfo> {
-    const operator = this.getDChannelString(
-      UtilsService.stringToArray(dChanelInfo),
-      GSM_PORT_D_CHANEL_PARSE_OPERATOR,
-    ).match(/.*:\s(\w+)/)[1] as Operators;
+  private async formatPortInfo(port: string, dChanelInfo: string): Promise<GsmPortFormatInfo> {
+    const operator = this.getDChannelString(UtilsService.stringToArray(dChanelInfo), GSM_PORT_D_CHANEL_PARSE_OPERATOR).match(
+      /.*:\s(\w+)/,
+    )[1] as Operators;
 
     const formatPortInfo = {
       port,
       operator,
-      isActive: this.isActive(
-        this.getDChannelString(
-          UtilsService.stringToArray(dChanelInfo),
-          GSM_PORT_D_CHANEL_PARSE_STATUS,
-        ),
-      ),
+      isActive: this.isActive(this.getDChannelString(UtilsService.stringToArray(dChanelInfo), GSM_PORT_D_CHANEL_PARSE_STATUS)),
       ...(await this.getAdditionalPortInfo(port, operator)),
     };
     await this.system.updateGsmGatewayConfig(formatPortInfo);
     return formatPortInfo;
   }
 
-  private async getAdditionalPortInfo(
-    port: string,
-    operator: Operators,
-  ): Promise<{ balance: string; number: string }> {
+  private async getAdditionalPortInfo(port: string, operator: Operators): Promise<{ balance: string; number: string }> {
     const balance = await this.ussd.sendUSSD({
       gsmPort: port,
       ussdRequest: OperatoBalanceCodeMap[operator],
@@ -158,10 +125,7 @@ export class GsmPortsActionService {
     return !!status && GSM_PORT_D_CHANEL_PARSE_IS_ACTIVE.test(status);
   }
 
-  private getDChannelString(
-    dChanelArray: string[],
-    needString: RegExp,
-  ): string {
+  private getDChannelString(dChanelArray: string[], needString: RegExp): string {
     return dChanelArray.filter((i) => needString.test(i))[0];
   }
 
@@ -193,9 +157,7 @@ export class GsmPortsActionService {
 
 @Injectable()
 export class GsmSendSMSActionService {
-  private readonly gsmConfigPorts: string[] = this.configService.get(
-    'gsmGateway.gatewayPorts',
-  );
+  private readonly gsmConfigPorts: string[] = this.configService.get('gsmGateway.gatewayPorts');
 
   constructor(
     private readonly gsmGateway: GsmGateway,
@@ -212,17 +174,12 @@ export class GsmSendSMSActionService {
     }
   }
 
-  public async scheduledSend(
-    data: SendScheduledSMSInfo,
-  ): Promise<ScheduledSMSData[]> {
+  public async scheduledSend(data: SendScheduledSMSInfo): Promise<ScheduledSMSData[]> {
     try {
       const smsData: ScheduledSMSData[] = [];
       await Promise.all(
         data.smsItems.map(async (sms: SendSMSScheduledTime) => {
-          const smsSendData = await this.getSendData(
-            sms,
-            SmsStatusDescription.scheduled,
-          );
+          const smsSendData = await this.getSendData(sms, SmsStatusDescription.scheduled);
           smsData.push({ ...smsSendData, scheduledTime: sms.scheduledTime });
           await this.sms.addSmsInfo({
             ...smsSendData,
@@ -245,26 +202,19 @@ export class GsmSendSMSActionService {
     }
   }
 
-  public async deleteSms(
-    unicid: string,
-  ): Promise<{ result: boolean; message: string }> {
+  public async deleteSms(unicid: string): Promise<{ result: boolean; message: string }> {
     try {
       const { deletedCount } = await this.sms.deleteSms(unicid);
       return {
         result: deletedCount === 0 ? false : true,
-        message:
-          deletedCount === 0
-            ? `Не найдена смс с unicid ${unicid}`
-            : 'Смс успешно удалена',
+        message: deletedCount === 0 ? `Не найдена смс с unicid ${unicid}` : 'Смс успешно удалена',
       };
     } catch (e) {
       throw e;
     }
   }
 
-  public async getSmsInfo(
-    unicid: string,
-  ): Promise<SMSData | Record<string, unknown>> {
+  public async getSmsInfo(unicid: string): Promise<SMSData | Record<string, unknown>> {
     try {
       const result = await this.sms.getSmsStatusById(unicid);
       return result.length != 0 ? (result[0] as SMSData) : {};
@@ -275,10 +225,7 @@ export class GsmSendSMSActionService {
 
   private async _sendSms(data: SendSMSInfo): Promise<SMSData> {
     try {
-      const sendSMSDataInfo = await this.getSendData(
-        data,
-        SmsStatusDescription.waiting,
-      );
+      const sendSMSDataInfo = await this.getSendData(data, SmsStatusDescription.waiting);
       await this.gatewaySendSms(sendSMSDataInfo);
       await this.sms.addSmsInfo(sendSMSDataInfo);
       return sendSMSDataInfo;
@@ -287,10 +234,7 @@ export class GsmSendSMSActionService {
     }
   }
 
-  private async getSendData(
-    data: SendSMSInfo,
-    status: SmsStatusDescription,
-  ): Promise<SMSData> {
+  private async getSendData(data: SendSMSInfo, status: SmsStatusDescription): Promise<SMSData> {
     try {
       const { mobileNumber, smsText, gsmPort } = data;
       const smsInfo: SMSData = {
@@ -317,19 +261,12 @@ export class GsmSendSMSActionService {
 
   private async getActiveGsmPort(): Promise<string> {
     if (!this.configService.get('gsmGateway.useRandomSendPort')) {
-      throw new Error('Порт который выбран для отправки смс не активен');
+      throw new Error(ERROR_UNACTIVE_PORT);
     }
-    return UtilsService.randomIntFromArray(
-      await this.gsmPorts.getActiveGsmPorts(),
-    );
+    return UtilsService.randomIntFromArray(await this.gsmPorts.getActiveGsmPorts());
   }
 
-  private async gatewaySendSms({
-    gsmPort,
-    mobileNumber,
-    smsText,
-    unicid,
-  }): Promise<void> {
+  private async gatewaySendSms({ gsmPort, mobileNumber, smsText, unicid }): Promise<void> {
     const action = new namiLib.Actions.Smscommand();
     action.command = `gsm send sms ${gsmPort} ${mobileNumber} "${smsText}" ${unicid}`;
     return await this.gsmGateway.gmsClientSend(action);

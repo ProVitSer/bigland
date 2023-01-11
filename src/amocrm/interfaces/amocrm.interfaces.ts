@@ -1,4 +1,5 @@
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { ObjectId } from 'mongoose';
 import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './amocrm.enum';
 
@@ -41,7 +42,7 @@ export interface AmocrmContact {
   updated_at: number;
   is_deleted: boolean;
   closest_task_at: number;
-  custom_fields_values: { [key: string]: any }[] | null;
+  custom_fields_values: DataObject[] | null;
   account_id: number;
   _embedded: ContactEmbedded;
 }
@@ -85,7 +86,7 @@ export interface AmocrmCreateContact {
   updated_by?: number;
   created_at?: number;
   updated_at?: number;
-  custom_fields_values: { [key: string]: any }[];
+  custom_fields_values: DataObject[];
   _embedded?: {
     tags: Tags[];
   };
@@ -112,7 +113,7 @@ export interface AmocrmCreateLead {
   updated_at?: number;
   loss_reason_id?: number;
   responsible_user_id: number;
-  custom_fields_values: { [key: string]: any }[];
+  custom_fields_values: DataObject[];
   _embedded?: {
     tags?: Tags[];
     contacts?: Contacts[];
@@ -158,7 +159,7 @@ export interface AmocrmAddTasks {
 
 export interface AmocrmAddCallInfoResponse {
   _total_items: number;
-  errors: { [key: string]: any }[];
+  errors: DataObject[];
   _embedded: {
     calls: [
       {

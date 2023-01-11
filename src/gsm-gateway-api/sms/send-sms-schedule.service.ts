@@ -6,10 +6,7 @@ import { Sms } from './sms.schema';
 
 @Injectable()
 export class SendSmsScheduleService {
-  constructor(
-    private readonly gsmSendSMSAction: GsmSendSMSActionService,
-    private readonly log: LogService,
-  ) {}
+  constructor(private readonly gsmSendSMSAction: GsmSendSMSActionService, private readonly log: LogService) {}
 
   @Cron(CronExpression.EVERY_MINUTE)
   async sendScheduledSms() {
@@ -21,7 +18,7 @@ export class SendSmsScheduleService {
         }),
       );
     } catch (e) {
-      this.log.error(`sendScheduledSms ${e}`, SendSmsScheduleService.name);
+      this.log.error(e, SendSmsScheduleService.name);
     }
   }
 }

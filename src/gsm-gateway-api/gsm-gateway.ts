@@ -9,6 +9,7 @@ import {
   UpdateSMSSendEvent,
 } from './interfaces/gsm-gateway-api.interfaces';
 import { GsmGatewaykEventType } from './interfaces/gsm-gateway-api.enum';
+import { CONNECT_SUCCESS, ERROR_GSM, GSM_RECONECT, INCORRECT_LOGIN } from './gsm-api-gateway.constants';
 
 @Injectable()
 export class GsmGateway implements OnApplicationBootstrap {
@@ -32,12 +33,7 @@ export class GsmGateway implements OnApplicationBootstrap {
       this.gmsClient = await this.gsm;
       this.gmsClient.logLevel = 5;
       this.gmsClient.open();
-      this.gmsClient.on('namiConnected', () =>
-        this.log.info(
-          'Подключение к GSM шлюзу успешно установлено',
-          GsmGateway.name,
-        ),
-      );
+      this.gmsClient.on('namiConnected', () => this.log.info(CONNECT_SUCCESS, GsmGateway.name));
       this.gmsClient.on('namiConnectionClose', () => this.connectionClose());
       this.gmsClient.on('namiLoginIncorrect', () => this.loginIncorrect());
       this.gmsClient.on('namiEventUpdateSMSSend', (event: UpdateSMSSendEvent) =>
@@ -47,14 +43,11 @@ export class GsmGateway implements OnApplicationBootstrap {
         this.parseGsmEvent(event, GsmGatewaykEventType.ReceivedSMSEvent),
       );
     } catch (e) {
-      this.log.error(`GSM onApplicationBootstrap ${e}`, GsmGateway.name);
+      this.log.error(`${ERROR_GSM} ${e}`, GsmGateway.name);
     }
   }
 
-  private parseGsmEvent(
-    event: GsmGatewayUnionEvent,
-    eventType: GsmGatewaykEventType,
-  ) {
+  private parseGsmEvent(event: GsmGatewayUnionEvent, eventType: GsmGatewaykEventType) {
     try {
       const provider = this.getProvider(eventType);
       return provider.parseEvent(event);
@@ -72,21 +65,19 @@ export class GsmGateway implements OnApplicationBootstrap {
     });
   }
 
-  private getProvider(
-    eventType: GsmGatewaykEventType,
-  ): GsmGatewayEventProviderInterface {
+  private getProvider(eventType: GsmGatewaykEventType): GsmGatewayEventProviderInterface {
     return this.providers[eventType];
   }
 
   private connectionClose() {
-    this.log.error(`Переподключение к GSM ...`, GsmGateway.name);
+    this.log.error(GSM_RECONECT, GsmGateway.name);
     setTimeout(() => {
       this.gmsClient.open();
     }, 5000);
   }
 
   private loginIncorrect() {
-    this.log.error(`Некорректный логин или пароль от GSM`, GsmGateway.name);
+    this.log.error(INCORRECT_LOGIN, GsmGateway.name);
     //process.exit();
   }
 }

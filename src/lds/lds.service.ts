@@ -9,8 +9,6 @@ import { Lds, LdsDocument } from './lds.schema';
 
 @Injectable()
 export class LdsService {
-  private ldsConf = this.configService.get('lds');
-
   constructor(
     private readonly log: LogService,
     private httpService: HttpService,
@@ -20,27 +18,13 @@ export class LdsService {
 
   public async getLSDUserStatus(): Promise<LdsUserStatusResponse> {
     try {
-      const header = this.getLDSConfig();
-      return (await this.httpService.get(this.ldsConf.url, header).toPromise())
-        .data;
+      return (await this.httpService.get(this.configService.get('lds.url')).toPromise()).data;
     } catch (e) {
       throw e;
     }
   }
 
-  private getLDSConfig(): { [key: string]: any } {
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.ldsConf.bearer}`,
-        Cookie: this.ldsConf.cookie,
-      },
-    };
-  }
-
-  public async renewLdsUserStatus(
-    ldsUsers: LdsUserStatusResponse,
-  ): Promise<void> {
+  public async renewLdsUserStatus(ldsUsers: LdsUserStatusResponse): Promise<void> {
     try {
       await this.lsdModel.deleteMany({});
       await Promise.all(

@@ -15,11 +15,7 @@ import {
 } from '@nestjs/common';
 import { SMSDto, SMSDtoScheduled } from './dto/sms.dto';
 import { Request, Response } from 'express';
-import {
-  GsmPortsActionService,
-  GsmSendSMSActionService,
-  GsmUSSDActionService,
-} from './gsm/gsm-action-service';
+import { GsmPortsActionService, GsmSendSMSActionService, GsmUSSDActionService } from './gsm/gsm-action-service';
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { USSDDto } from './dto/ussd.dto';
 import { HttpResponseService } from '@app/http/http-response';
@@ -32,30 +28,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  GsmPortFormatInfo,
-  GsmPortsFormatInfo,
-  ScheduledSMSData,
-  SMSData,
-} from './interfaces/gsm-gateway-api.interfaces';
+import { GsmPortFormatInfo, GsmPortsFormatInfo, ScheduledSMSData, SMSData } from './interfaces/gsm-gateway-api.interfaces';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
-import {
-  SwaggerApiBadResponse,
-  SwaggerHttpErrorResponseMap,
-} from '@app/http/interfaces/http.interfaces';
+import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
 import { Role } from '@app/users/interfaces/users.enum';
 import { Sms } from './sms/sms.schema';
 
 @ApiTags('gsm-gateway')
-@ApiBadRequestResponse(
-  SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse],
-)
-@ApiInternalServerErrorResponse(
-  SwaggerHttpErrorResponseMap[
-    SwaggerApiBadResponse.ApiInternalServerErrorResponse
-  ],
-)
+@ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
+@ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
 @ApiBearerAuth('JWT-auth')
 @UseGuards(RoleGuard(Role.Admin))
 @UseGuards(JwtGuard)
@@ -78,19 +60,12 @@ export class GsmGatewayApiController {
   @ApiBody({ type: SMSDto })
   @Post('sms/send')
   @HttpCode(200)
-  async sendSms(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() body: SMSDto,
-  ) {
+  async sendSms(@Req() req: Request, @Res() res: Response, @Body() body: SMSDto) {
     try {
       const result = await this.gsmSms.send(body);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -101,19 +76,12 @@ export class GsmGatewayApiController {
     type: SMSData,
   })
   @Get('sms')
-  async getSmsStatus(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query('unicid') unicid: string,
-  ) {
+  async getSmsStatus(@Req() req: Request, @Res() res: Response, @Query('unicid') unicid: string) {
     try {
       const result = await this.gsmSms.getSmsInfo(unicid);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -126,19 +94,12 @@ export class GsmGatewayApiController {
   @ApiBody({ type: SMSDtoScheduled })
   @Post('sms/scheduledSend')
   @HttpCode(200)
-  async scheduledSend(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() body: SMSDtoScheduled,
-  ) {
+  async scheduledSend(@Req() req: Request, @Res() res: Response, @Body() body: SMSDtoScheduled) {
     try {
       const result = await this.gsmSms.scheduledSend(body);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -155,10 +116,7 @@ export class GsmGatewayApiController {
       const result = await this.gsmSms.getScheduledSend();
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -174,25 +132,17 @@ export class GsmGatewayApiController {
     },
   })
   @Delete('sms')
-  async deleteSms(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query('unicid') unicid: string,
-  ) {
+  async deleteSms(@Req() req: Request, @Res() res: Response, @Query('unicid') unicid: string) {
     try {
       const result = await this.gsmSms.deleteSms(unicid);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @ApiOperation({
-    summary:
-      'Получить информацию по порту gsm шлюза. В не форматированном возвращает объект самого шлюза',
+    summary: 'Получить информацию по порту gsm шлюза. В не форматированном возвращает объект самого шлюза',
   })
   @ApiOkResponse({
     status: HttpStatus.OK,
@@ -200,21 +150,13 @@ export class GsmGatewayApiController {
     type: GsmPortFormatInfo,
   })
   @Get('port')
-  async getPortInfo(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query('portNumber') port: string,
-    @Query('format') format?: string,
-  ) {
+  async getPortInfo(@Req() req: Request, @Res() res: Response, @Query('portNumber') port: string, @Query('format') format?: string) {
     try {
       const bFormat = !!format && format === 'true' ? true : false;
       const result = await this.gsmPorts.getPortInfo(port, bFormat);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -231,16 +173,12 @@ export class GsmGatewayApiController {
       const result = await this.gsmPorts.getAllPorts();
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @ApiOperation({
-    summary:
-      'Отправить ussd запрос. На симках обязательно должен быть включен ussd иначе ошибка',
+    summary: 'Отправить ussd запрос. На симках обязательно должен быть включен ussd иначе ошибка',
   })
   @ApiOkResponse({
     status: HttpStatus.OK,
@@ -250,19 +188,12 @@ export class GsmGatewayApiController {
   @ApiBody({ type: USSDDto })
   @Post('ussd')
   @HttpCode(200)
-  async sendUSSD(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Body() body: USSDDto,
-  ) {
+  async sendUSSD(@Req() req: Request, @Res() res: Response, @Body() body: USSDDto) {
     try {
       const result = await this.ussd.sendUSSD(body);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
-      throw new HttpException(
-        { message: e?.message || e },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

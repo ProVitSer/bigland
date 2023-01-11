@@ -12,22 +12,13 @@ import { LogModule } from '@app/log/log.module';
 import { UsersModule } from '@app/users/users.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    PassportModule,
-    HttpResponseModule,
-    JwtModule.register({}),
-    UsersModule,
-  ],
+  imports: [ConfigModule, LogModule, PassportModule, HttpResponseModule, JwtModule.register({}), UsersModule],
   providers: [AuthTokenService, AuthUserService, LocalStrategy, JwtStrategy],
   exports: [AuthTokenService, AuthUserService],
   controllers: [AuthController],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(AuthController);
+    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(AuthController);
   }
 }

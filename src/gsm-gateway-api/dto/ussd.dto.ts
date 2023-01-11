@@ -3,8 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class USSDDto {
   @ApiProperty({
-    description:
-      'Порт GSM шлюза через который должна быть отправлен ussd запрос ',
+    description: 'Порт GSM шлюза через который должна быть отправлен ussd запрос ',
     nullable: false,
   })
   @IsString()

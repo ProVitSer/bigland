@@ -3,15 +3,12 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import {
-  GetApiTokenReponse,
-  JwtPayload,
-  RegisterResponse,
-} from './types/interfaces';
+import { GetApiTokenReponse, JwtPayload, RegisterResponse } from './interfaces/auth.interfaces';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
-import { JwtTokenConfType } from './types/types';
 import { UsersService } from '@app/users/users.service';
+import { JwtTokenConfType } from './interfaces/auth.enum';
+import { INVALALID_CREDENTIALS, USER_NOT_FOUND } from './auth.constants';
 
 @Injectable()
 export class AuthTokenService {
@@ -23,27 +20,19 @@ export class AuthTokenService {
 
   public async getCookieWithJwtAccessToken(userId: string) {
     const token = await this.getToken(userId, JwtTokenConfType.access);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${
-      this.configService.get(JwtTokenConfType.access).expiresIn
-    }`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.access).expiresIn}`;
   }
 
   public async getCookieWithJwtRefreshToken(userId: string) {
     const token = await this.getToken(userId, JwtTokenConfType.refresh);
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${
-      this.configService.get(JwtTokenConfType.refresh).expiresIn
-    }`;
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.refresh).expiresIn}`;
     return {
       cookie,
       token,
     };
   }
 
-  private async getToken(
-    userId: string,
-    jwtConfType: JwtTokenConfType,
-    expiresIn?: string,
-  ) {
+  private async getToken(userId: string, jwtConfType: JwtTokenConfType, expiresIn?: string) {
     const payload: JwtPayload = { userId };
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get(jwtConfType).tokenSecretKey,
@@ -53,24 +42,14 @@ export class AuthTokenService {
     return token;
   }
 
-  public async getApiToken(
-    userId: string,
-    expiresIn: string,
-  ): Promise<GetApiTokenReponse> {
+  public async getApiToken(userId: string, expiresIn: string): Promise<GetApiTokenReponse> {
     return {
-      accessToken: await this.getToken(
-        userId,
-        JwtTokenConfType.access,
-        expiresIn,
-      ),
+      accessToken: await this.getToken(userId, JwtTokenConfType.access, expiresIn),
     };
   }
 
   public getCookiesForLogOut() {
-    return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0',
-    ];
+    return ['Authentication=; HttpOnly; Path=/; Max-Age=0', 'Refresh=; HttpOnly; Path=/; Max-Age=0'];
   }
 
   public async removeRefreshToken(userId: string) {
@@ -79,10 +58,7 @@ export class AuthTokenService {
 
   public async varifyToken(token: string, jwtConfType: JwtTokenConfType) {
     try {
-      return await this.jwtService.verify(
-        token,
-        this.configService.get(jwtConfType).tokenSecretKey,
-      );
+      return await this.jwtService.verify(token, this.configService.get(jwtConfType).tokenSecretKey);
     } catch (e) {
       throw e;
     }
@@ -106,9 +82,7 @@ export class AuthUserService {
     private readonly usersService: UsersService,
   ) {}
 
-  public async register(
-    registrationData: RegisterDto,
-  ): Promise<RegisterResponse> {
+  public async register(registrationData: RegisterDto): Promise<RegisterResponse> {
     const { username, email, password } = registrationData;
     const hashedPassword = await bcrypt.hash(password, 10);
     try {
@@ -136,7 +110,7 @@ export class AuthUserService {
     try {
       const user = await this.usersService.getByEmail(email);
       if (user == null) {
-        throw 'Пользователь с таким логином не найден';
+        throw USER_NOT_FOUND;
       }
       await this.verifyPassword(plainTextPassword, user.passHash);
       user.passHash = undefined;
@@ -146,16 +120,10 @@ export class AuthUserService {
     }
   }
 
-  private async verifyPassword(
-    plainTextPassword: string,
-    hashedPassword: string,
-  ) {
-    const isPasswordMatching = await bcrypt.compare(
-      plainTextPassword,
-      hashedPassword,
-    );
+  private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+    const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
     if (!isPasswordMatching) {
-      throw 'Предоставленные неверные учетные данные';
+      throw INVALALID_CREDENTIALS;
     }
   }
 }

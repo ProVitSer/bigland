@@ -3,6 +3,7 @@ import { SeleniumWebdriver } from '@app/selenium/selenium-webdriver';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { By, WebDriver } from 'selenium-webdriver';
+import { LOGIN_ERROR } from './constants';
 
 @Injectable()
 export class Login {
@@ -32,9 +33,7 @@ export class Login {
 
   private async authorization(): Promise<WebDriver> {
     try {
-      await this.webDriver.get(
-        `https://${this.configService.get('freepbx.domain')}/admin`,
-      );
+      await this.webDriver.get(`https://${this.configService.get('freepbx.domain')}/admin`);
       await this.webDriver.manage().window().maximize();
       await this.webDriver.sleep(20000);
       await this.webDriver.findElement(By.id('login_admin')).click();
@@ -44,15 +43,13 @@ export class Login {
       await this.webDriver
         .findElement(By.xpath('/html/body/div[15]/div[2]/form/div[2]/input'))
         .sendKeys(this.configService.get('freepbx.password'));
-      await this.webDriver
-        .findElement(By.xpath(`//*[contains(text(), 'Перегрузка')]`))
-        .click();
+      await this.webDriver.findElement(By.xpath(`//*[contains(text(), 'Перегрузка')]`)).click();
       await this.webDriver.sleep(5000);
       return this.webDriver;
     } catch (e) {
       !!this.webDriver ? await this.webDriver.quit() : '';
       this.log.error(e, Login.name);
-      throw new Error('Проблемы с авторизацией на веб интерфейсе АТС');
+      throw new Error(LOGIN_ERROR);
     }
   }
 }

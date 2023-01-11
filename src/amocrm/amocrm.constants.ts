@@ -1,9 +1,9 @@
 import { AmocrmCallStatus, PbxCallStatus } from './interfaces/amocrm.enum';
 
 export const RECORD_PATH_FROMAT = 'YYYY/MM/DD';
-export const INIT_AMO_ERROR = 'Init Amocrm error';
-export const INIT_AMO_SUCCESS = 'Init Amocrm successfully';
-export const INIT_AMO = 'Init Amocrm';
+export const INIT_AMO_ERROR = 'Ошибка подключения к Amocrm';
+export const INIT_AMO_SUCCESS = 'Подключение к Amocrm успешно';
+export const INIT_AMO = 'Попытка подключения к Amocrm';
 
 export const CALL_STATUS_MAP: { [code in PbxCallStatus]?: AmocrmCallStatus } = {
   [PbxCallStatus.ANSWERED]: AmocrmCallStatus.Answer,

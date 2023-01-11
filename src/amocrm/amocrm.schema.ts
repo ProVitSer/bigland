@@ -1,20 +1,21 @@
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
+import { DataObject } from '@app/platform-types/common/interfaces';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 
 @Schema({ collection: 'amocrm', versionKey: false })
 export class Amocrm {
-  @Prop()
+  @Prop({ type: Object })
   cdrId?: ObjectId | undefined;
 
   @Prop()
   statusCode: number;
 
   @Prop({ type: Object })
-  amocrmResponseData: { [key: string]: any };
+  amocrmResponseData: DataObject;
 
   @Prop({ type: Object })
-  amocrmRequestData: { [key: string]: any };
+  amocrmRequestData: DataObject;
 
   @Prop({ type: Object })
   cdrData?: AsteriskCdr;

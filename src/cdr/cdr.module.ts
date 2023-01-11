@@ -19,9 +19,7 @@ import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
     MongooseModule.forFeature([{ name: Cdr.name, schema: CdrSchema }]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
-      useFactory: async (
-        configService: ConfigService,
-      ): Promise<RabbitMQConfig> => ({
+      useFactory: async (configService: ConfigService): Promise<RabbitMQConfig> => ({
         exchanges: [
           {
             name: 'presence',

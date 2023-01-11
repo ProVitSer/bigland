@@ -3,3 +3,7 @@ export enum CallType {
   incoming = 'incoming',
   pozvonim = 'pozvonim',
 }
+
+export enum QueueTypes {
+  cdr = 'cdr',
+}

@@ -250,10 +250,7 @@ export interface AsteriskBlindTransferEvent {
   extension: string;
 }
 
-export type AsteriskUnionEvent =
-  | AsteriskHungupEvent
-  | AsteriskBlindTransferEvent
-  | AsteriskDialBeginEvent;
+export type AsteriskUnionEvent = AsteriskHungupEvent | AsteriskBlindTransferEvent | AsteriskDialBeginEvent;
 
 export interface AsteriskAmiEventProviderInterface {
   parseEvent(event: AsteriskUnionEvent): Promise<void>;

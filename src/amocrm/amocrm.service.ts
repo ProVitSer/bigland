@@ -35,6 +35,7 @@ import { CALL_STATUS_MAP, DEFAULT_TASKS_TEXT, RECORD_PATH_FROMAT } from './amocr
 import { Client } from 'amocrm-js';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
 import { UtilsService } from '@app/utils/utils.service';
+import { DataObject } from '@app/platform-types/common/interfaces';
 
 @Injectable()
 export class AmocrmV4Service implements OnApplicationBootstrap {
@@ -234,7 +235,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
 class ResponseDataAdapter {
   public statusCode: number | undefined;
-  public data: { [key: string]: any };
+  public data: DataObject;
 
   constructor(response: IAPIResponse<unknown>) {
     this.statusCode = response.response.statusCode;

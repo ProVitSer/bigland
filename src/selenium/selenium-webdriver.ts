@@ -9,15 +9,9 @@ import { Capabilities } from './interfaces/selenium.interfaces';
 export class SeleniumWebdriver implements OnApplicationBootstrap {
   private capabilities: Capabilities;
   private readonly seleniumDockerImg: string;
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly log: LogService,
-    private readonly docker: DockerService,
-  ) {
+  constructor(private readonly configService: ConfigService, private readonly log: LogService, private readonly docker: DockerService) {
     this.capabilities = this.configService.get('selenium.capabilities');
-    this.seleniumDockerImg = this.configService.get(
-      'selenium.selenoidDockerImg',
-    );
+    this.seleniumDockerImg = this.configService.get('selenium.selenoidDockerImg');
   }
 
   async onApplicationBootstrap() {
@@ -30,11 +24,7 @@ export class SeleniumWebdriver implements OnApplicationBootstrap {
 
   public async getWebDriver() {
     try {
-      console.log(this.capabilities);
-      return await new Builder()
-        .usingServer(this.configService.get('selenium.host'))
-        .withCapabilities(this.capabilities)
-        .build();
+      return await new Builder().usingServer(this.configService.get('selenium.host')).withCapabilities(this.capabilities).build();
     } catch (e) {
       throw e;
     }

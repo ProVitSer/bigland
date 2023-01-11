@@ -40,9 +40,7 @@ import { Log, LogSchema } from './log.schems';
             timestamp(),
             splat(),
             printf(({ level, context, message, timestamp }) => {
-              return ` ${timestamp} [${context}] ${level}: ${JSON.stringify(
-                message,
-              )}`;
+              return ` ${timestamp} [${context}] ${level}: ${JSON.stringify(message)}`;
             }),
           ),
           transports,

@@ -1,10 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  SmsStatusDescription,
-  SmsType,
-} from '../interfaces/gsm-gateway-api.enum';
+import { SmsStatusDescription, SmsType } from '../interfaces/gsm-gateway-api.enum';
 
 @Schema({ collection: 'sms', versionKey: false })
 export class Sms {

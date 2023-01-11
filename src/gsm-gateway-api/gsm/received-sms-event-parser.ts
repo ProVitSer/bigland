@@ -1,25 +1,13 @@
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
-import {
-  GsmGatewayEventProviderInterface,
-  ReceivedSMSEvent,
-  SMSData,
-} from '../interfaces/gsm-gateway-api.interfaces';
-import {
-  SmsStatusDescription,
-  SmsType,
-} from '../interfaces/gsm-gateway-api.enum';
+import { GsmGatewayEventProviderInterface, ReceivedSMSEvent, SMSData } from '../interfaces/gsm-gateway-api.interfaces';
+import { SmsStatusDescription, SmsType } from '../interfaces/gsm-gateway-api.enum';
 import { LogService } from '@app/log/log.service';
 import { SmsService } from '../sms/sms.service';
 
 @Injectable()
-export class ReceivedSMSEventParser
-  implements GsmGatewayEventProviderInterface
-{
-  constructor(
-    private readonly sms: SmsService,
-    private readonly log: LogService,
-  ) {}
+export class ReceivedSMSEventParser implements GsmGatewayEventProviderInterface {
+  constructor(private readonly sms: SmsService, private readonly log: LogService) {}
 
   async parseEvent(event: ReceivedSMSEvent): Promise<void> {
     try {

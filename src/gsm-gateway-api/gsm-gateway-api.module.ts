@@ -1,14 +1,10 @@
-import { forwardRef, MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import * as namiLib from 'nami';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GsmGatewayApiController } from './gsm-gateway-api.controller';
 import { LoggerMiddleware } from '@app/middleware/logger.middleware';
 import { UpdateSMSSendEventParser } from './gsm/update-sms-send-event-parser';
-import {
-  GsmPortsActionService,
-  GsmSendSMSActionService,
-  GsmUSSDActionService,
-} from './gsm/gsm-action-service';
+import { GsmPortsActionService, GsmSendSMSActionService, GsmUSSDActionService } from './gsm/gsm-action-service';
 import { GsmGateway } from './gsm-gateway';
 import { ReceivedSMSEventParser } from './gsm/received-sms-event-parser';
 import { HttpResponseModule } from '@app/http/http.module';
@@ -21,13 +17,7 @@ import { Sms, SmsSchema } from './sms/sms.schema';
 import { SystemModule } from '@app/system/system.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    MongooseModule.forFeature([{ name: Sms.name, schema: SmsSchema }]),
-    LogModule,
-    HttpResponseModule,
-    SystemModule,
-  ],
+  imports: [ConfigModule, MongooseModule.forFeature([{ name: Sms.name, schema: SmsSchema }]), LogModule, HttpResponseModule, SystemModule],
   providers: [
     {
       provide: 'GSM',
@@ -63,8 +53,6 @@ import { SystemModule } from '@app/system/system.module';
 })
 export class GsmGatewayApiModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(GsmGatewayApiController);
+    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(GsmGatewayApiController);
   }
 }

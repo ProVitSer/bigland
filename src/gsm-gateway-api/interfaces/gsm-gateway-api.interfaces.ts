@@ -1,9 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  Operators,
-  SmsStatusDescription,
-  SmsType,
-} from './gsm-gateway-api.enum';
+import { Operators, SmsStatusDescription, SmsType } from './gsm-gateway-api.enum';
 
 export interface GsmGatewayEventProviderInterface {
   parseEvent(event: GsmGatewayUnionEvent): Promise<void>;

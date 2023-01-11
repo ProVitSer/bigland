@@ -6,11 +6,7 @@ import Redis from 'ioredis';
 export class RedisService {
   constructor(@InjectRedis() private readonly client: Redis) {}
 
-  public async setCustomKey(
-    key: string,
-    value: any,
-    expireTIme = 60 * 60 * 24,
-  ) {
+  public async setCustomKey(key: string, value: any, expireTIme = 60 * 60 * 24) {
     return await this.client.set(key, JSON.stringify(value), 'EX', expireTIme);
   }
 
@@ -18,11 +14,7 @@ export class RedisService {
     return await this.client.get(key);
   }
 
-  public async updateCustomKey(
-    key: string,
-    value: any,
-    expireTIme = 60 * 60 * 24,
-  ) {
+  public async updateCustomKey(key: string, value: any, expireTIme = 60 * 60 * 24) {
     await this.client.del(key);
     return await this.setCustomKey(key, value, expireTIme);
   }

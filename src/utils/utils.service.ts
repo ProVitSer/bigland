@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as uuid from 'uuid';
 import { Request } from 'express';
+import { DataObject } from '@app/platform-types/common/interfaces';
 
 @Injectable()
 export class UtilsService {
@@ -79,7 +80,7 @@ export class UtilsService {
     }
   }
 
-  static createSetObj(propName: string, setObj: { [key: string]: any }) {
+  static createSetObj(propName: string, setObj: DataObject) {
     const newObj = {};
     for (const key in setObj) {
       newObj[`${propName}.$.${key}`] = setObj[key];

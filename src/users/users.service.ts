@@ -3,13 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Users, UsersDocument } from './users.schema';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/createUser.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { USER_NOT_FOUND } from './users.constants';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(Users.name) private usersModel: Model<UsersDocument>,
-  ) {}
+  constructor(@InjectModel(Users.name) private usersModel: Model<UsersDocument>) {}
 
   public async getByEmail(email: string): Promise<Users> {
     try {
@@ -25,10 +24,7 @@ export class UsersService {
     if (user) {
       return user;
     }
-    throw new HttpException(
-      'User with this id does not exist',
-      HttpStatus.NOT_FOUND,
-    );
+    throw new HttpException(USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   public async create(userData: CreateUserDto): Promise<Users> {
@@ -44,10 +40,7 @@ export class UsersService {
 
   public async setCurrentRefreshToken(refreshToken: string, userId: string) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-    const user = await this.usersModel.findByIdAndUpdate(
-      userId,
-      currentHashedRefreshToken,
-    );
+    const user = await this.usersModel.findByIdAndUpdate(userId, currentHashedRefreshToken);
     return user;
   }
 
@@ -58,16 +51,10 @@ export class UsersService {
     return user;
   }
 
-  public async getUserIfRefreshTokenMatches(
-    refreshToken: string,
-    userId: string,
-  ) {
+  public async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.getById(userId);
 
-    const isRefreshTokenMatching = await bcrypt.compare(
-      refreshToken,
-      user.currentHashedRefreshToken,
-    );
+    const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.currentHashedRefreshToken);
 
     if (isRefreshTokenMatching) {
       return user;
