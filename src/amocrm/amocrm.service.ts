@@ -2,6 +2,7 @@ import { HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { AmocrmConnector } from './amocrm.connect';
 import {
   AmocrmAddCallInfo,
+  AmocrmAddCallInfoResponse,
   AmocrmAddTasks,
   amocrmAPI,
   AmocrmCreateContact,
@@ -33,7 +34,7 @@ import { LogService } from '@app/log/log.service';
 import { NumberInfo, System } from '@app/system/system.schema';
 import { Amocrm, AmocrmDocument } from './amocrm.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 
 @Injectable()
 export class AmocrmService implements OnApplicationBootstrap {
@@ -68,11 +69,14 @@ export class AmocrmService implements OnApplicationBootstrap {
   ): Promise<void> {
     try {
       const resultSearchContact = await this.searchContact(incomingNumber);
+      console.log('resultSearchContact', resultSearchContact);
+
       if (resultSearchContact == false) {
         const idCreateContact = await this.createContact(
           incomingNumber,
           incomingTrunk,
         );
+        console.log(idCreateContact);
         const resultCreateLead = await this.createLeads(
           incomingNumber,
           incomingTrunk,
@@ -106,8 +110,9 @@ export class AmocrmService implements OnApplicationBootstrap {
     }
   }
 
-  public async sendCallInfoToCRM(data: SendCallInfoToCRM): Promise<any> {
-    //AmocrmAddCallInfoResponse
+  public async sendCallInfoToCRM(
+    data: SendCallInfoToCRM,
+  ): Promise<AmocrmAddCallInfoResponse> {
     try {
       const { result, direction, amocrmId, cdrId } = data;
       const {
@@ -140,11 +145,14 @@ export class AmocrmService implements OnApplicationBootstrap {
       };
 
       this.log.info(callInfo, AmocrmService.name);
-      // const response = await this.amocrm.request.post(amocrmAPI.call, [
-      //   callInfo,
-      // ]);
-      // this.log.info(response.data, AmocrmService.name);
-      // return await this.checkResponseData<AmocrmAddCallInfoResponse>(response, cdrId);
+      const response = await this.amocrm.request.post(amocrmAPI.call, [
+        callInfo,
+      ]);
+      this.log.info(response.data, AmocrmService.name);
+      return await this.checkResponseData<AmocrmAddCallInfoResponse>(
+        response,
+        cdrId,
+      );
     } catch (e) {
       throw e;
     }
@@ -225,12 +233,13 @@ export class AmocrmService implements OnApplicationBootstrap {
   ): Promise<AmocrmCreateLeadResponse> {
     try {
       const numberConfig = await this.getIncomingNumberConfig(incomingTrunk);
-
       const lead: AmocrmCreateLead = {
         name: numberConfig.createLead.description,
         responsible_user_id: ResponsibleUserId.AdminCC,
         created_by: CreatedById.AdminCC,
-        pipeline_id: Number(numberConfig.createLead.pipelineId),
+        ...(numberConfig.createLead.pipelineId.length > 0
+          ? { pipeline_id: Number(numberConfig.createLead.pipelineId) }
+          : {}),
         status_id: Number(numberConfig.createLead.statusId),
         custom_fields_values: numberConfig.createLead.customFieldsValues,
         _embedded: {
@@ -329,7 +338,10 @@ export class AmocrmService implements OnApplicationBootstrap {
     }
   }
 
-  private async checkResponseData<T>(response: any, cdrId?: any): Promise<T> {
+  private async checkResponseData<T>(
+    response: any,
+    cdrId?: ObjectId,
+  ): Promise<T> {
     await this.saveResponse(response, cdrId);
     if (!!response.status && [400, 401].includes(response.status)) {
       throw String(response.data);
@@ -354,10 +366,9 @@ export class AmocrmService implements OnApplicationBootstrap {
     return await this.amocrmConnect.connect();
   }
 
-  private async saveResponse(response: any, cdrCollId: any) {
-    const cdrId = !!cdrCollId ? cdrCollId : {};
+  private async saveResponse(response: any, cdrId?: ObjectId) {
     const amocrm = new this.amocrmModel({
-      cdrId,
+      cdrId: !!cdrId ? cdrId : '',
       statusCode: response.status || 0,
       amocrmResponse: response.data || '',
     });
