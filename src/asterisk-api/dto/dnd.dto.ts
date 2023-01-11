@@ -9,7 +9,7 @@ export class DNDDto {
   })
   @IsNotEmpty({ message: 'Поле sip_id не может быть пустым. ' })
   @IsArray({ message: 'Поле sip_id должно быть массивом. ' })
-  sip_id: Array<string>;
+  sip_id: string[];
 
   @ApiProperty({
     description: 'Статус DND',

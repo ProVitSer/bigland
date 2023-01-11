@@ -7,7 +7,7 @@ export interface DataObject {
 
 export class IHttpResponse {
   statusCode: HttpStatus;
-  message?: string | Array<string> | any;
+  message?: string | string[] | any;
   result: boolean;
   errors?: string | DataObject;
   data?: string | DataObject;

@@ -159,7 +159,7 @@ export class GsmPortsActionService {
   }
 
   private getDChannelString(
-    dChanelArray: Array<string>,
+    dChanelArray: string[],
     needString: RegExp,
   ): string {
     return dChanelArray.filter((i) => needString.test(i))[0];

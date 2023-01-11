@@ -53,7 +53,7 @@ export interface AsteriskExtensionStatusEvent {
 export interface AsteriskARIStasisStartEvent {
   type: string;
   timestamp: string;
-  args: Array<string>;
+  args: string[];
   channel: {
     id: string;
     name: string;
@@ -82,7 +82,7 @@ export interface AsteriskARIStasisStartEvent {
 }
 
 export interface AsteriskStatusResponse {
-  lines: Array<string>;
+  lines: string[];
   EOL: string;
   variables: object;
   response: string;
@@ -93,7 +93,7 @@ export interface AsteriskStatusResponse {
 }
 
 export interface EventsStatus {
-  lines: Array<string>;
+  lines: string[];
   EOL: string;
   variables: object;
   event: string;
@@ -135,7 +135,7 @@ export interface EventsStatus {
 }
 
 export interface AsteriskDNDStatusResponse {
-  lines: Array<string>;
+  lines: string[];
   EOL: string;
   variables: object;
   response: string;
@@ -146,7 +146,7 @@ export interface AsteriskDNDStatusResponse {
 }
 
 export interface DNDStatus {
-  lines: Array<string>;
+  lines: string[];
   EOL: string;
   variables: object;
   event: string;
@@ -261,7 +261,7 @@ export interface AsteriskAmiEventProviderInterface {
 
 export interface ChannelDTMF {
   [key: string]: {
-    dtmf: Array<string>;
+    dtmf: string[];
   };
 }
 

@@ -2,12 +2,12 @@ import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface IDnd {
-  sip_id: Array<string>;
+  sip_id: string[];
   dnd_status: apiStatusDND;
 }
 
 export interface MonitoringCall {
-  numbers: Array<string>;
+  numbers: string[];
   description: string;
 }
 

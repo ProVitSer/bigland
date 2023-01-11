@@ -49,7 +49,7 @@ export interface AmocrmContact {
   updated_at: number;
   is_deleted: boolean;
   closest_task_at: number;
-  custom_fields_values: Array<any> | null;
+  custom_fields_values: { [key: string]: any }[] | null;
   account_id: number;
   _embedded: ContactEmbedded;
 }
@@ -93,7 +93,7 @@ export interface AmocrmCreateContact {
   updated_by?: number;
   created_at?: number;
   updated_at?: number;
-  custom_fields_values: Array<any>;
+  custom_fields_values: { [key: string]: any }[];
   _embedded?: {
     tags: Tags[];
   };
@@ -120,7 +120,7 @@ export interface AmocrmCreateLead {
   updated_at?: number;
   loss_reason_id?: number;
   responsible_user_id: number;
-  custom_fields_values: Array<any>;
+  custom_fields_values: { [key: string]: any }[];
   _embedded?: {
     tags?: Tags[];
     contacts?: Contacts[];
@@ -166,7 +166,7 @@ export interface AmocrmAddTasks {
 
 export interface AmocrmAddCallInfoResponse {
   _total_items: number;
-  errors: Array<any>;
+  errors: { [key: string]: any }[];
   _embedded: {
     calls: [
       {

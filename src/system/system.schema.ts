@@ -39,7 +39,7 @@ export class CreateLeadData {
   description: string;
 
   @Prop()
-  pipelineId: string;
+  pipelineId?: string;
 
   @Prop()
   statusId: string;
