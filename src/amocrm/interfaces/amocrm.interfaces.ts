@@ -1,21 +1,13 @@
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { ObjectId } from 'mongoose';
-import { TaskTypeId } from '../amocrm.config';
-
-export interface AmocrmTokenResponse {
-  token_type: string;
-  expires_in: number;
-  access_token: string;
-  refresh_token: string;
-  expires_at: number;
-}
+import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './amocrm.enum';
 
 export interface AmocrmGetContactsRequest {
   with?: string;
   page?: number;
   limit?: number;
   query: string;
-  order?: contactsOrder;
+  order?: ContactsOrder;
 }
 
 export interface BasicResponse {
@@ -129,14 +121,14 @@ export interface AmocrmCreateLead {
 }
 
 export interface AmocrmAddCallInfo {
-  direction: directionType;
+  direction: DirectionType;
   uniq?: string;
   duration: number;
   source: string;
   link?: string;
   phone: string;
   call_result?: string;
-  call_status?: amocrmCallStatus;
+  call_status?: AmocrmCallStatus;
   responsible_user_id: number;
   created_by?: number;
   updated_by?: number;
@@ -232,45 +224,6 @@ export interface AmocrmCreateLeadResponse {
   };
 }
 
-export enum contactsOrder {
-  update = 'updated_at',
-  id = 'id',
-}
-
-export enum amocrmAPI {
-  contacts = '/api/v4/contacts',
-  leads = '/api/v4/leads',
-  account = '/api/v4/account',
-  call = '/api/v4/calls',
-  tasks = '/api/v4/tasks',
-}
-
-export enum httpMethod {
-  get = 'GET',
-  port = 'POST',
-}
-
-export enum pbxCallStatus {
-  ANSWERED = 'ANSWERED',
-  NOANSWER = 'NO ANSWER',
-  BUSY = 'BUSY',
-}
-
-export enum directionType {
-  inbound = 'inbound',
-  outbound = 'outbound',
-}
-
-export enum amocrmCallStatus {
-  Message = 1,
-  CallBackLater = 2,
-  Absent = 3,
-  Answer = 4,
-  WrongNumber = 5,
-  NoAnswer = 6,
-  Busy = 7,
-}
-
 export interface AmocrmCreateTasksResponse {
   _links: {
     self: {
@@ -292,15 +245,11 @@ export interface AmocrmCreateTasksResponse {
   };
 }
 
-export type AmocrmReponse =
-  | AmocrmAddCallInfoResponse
-  | AmocrmCreateTasksResponse
-  | AmocrmCreateLeadResponse
-  | AmocrmCreateContactResponse;
+export type AmocrmReponse = AmocrmAddCallInfoResponse | AmocrmCreateTasksResponse | AmocrmCreateLeadResponse | AmocrmCreateContactResponse;
 
 export interface SendCallInfoToCRM {
   cdrId?: ObjectId;
   result: AsteriskCdr;
   amocrmId: number;
-  direction: directionType;
+  direction: DirectionType;
 }

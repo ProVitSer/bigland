@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigService, ConfigModule } from '@nestjs/config';
-import { AmocrmConnector } from './amocrm.connect';
-import * as AmoCRM from 'amocrm-js';
-import { AmocrmService } from './amocrm.service';
+import { AmocrmConnector, AmocrmV2Auth } from './amocrm.connect';
+import { Client } from 'amocrm-js';
+import { AmocrmV2Service, AmocrmV4Service } from './amocrm.service';
 import { HttpModule } from '@nestjs/axios';
 import { RedisModule } from '@app/redis/redis.module';
 import { LogModule } from '@app/log/log.module';
@@ -18,18 +18,24 @@ import { Amocrm, AmocrmSchema } from './amocrm.schema';
     AsteriskCdrModule,
     MongooseModule.forFeature([{ name: Amocrm.name, schema: AmocrmSchema }]),
     HttpModule.registerAsync({
-      useFactory: () => ({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        headers: {
+          'User-Agent': configService.get('userAgent'),
+          'Content-Type': configService.get('amocrm.v2.contentType'),
+        },
         timeout: 5000,
         maxRedirects: 5,
         validateStatus: () => true,
       }),
+      inject: [ConfigService],
     }),
   ],
   providers: [
     {
       provide: 'Amocrm',
       useFactory: (configService: ConfigService) => {
-        return new AmoCRM({
+        return new Client({
           domain: configService.get('amocrm.domain'),
           auth: {
             client_id: configService.get('amocrm.clientId'),
@@ -44,8 +50,10 @@ import { Amocrm, AmocrmSchema } from './amocrm.schema';
       inject: [ConfigService],
     },
     AmocrmConnector,
-    AmocrmService,
+    AmocrmV4Service,
+    AmocrmV2Service,
+    AmocrmV2Auth,
   ],
-  exports: [AmocrmService],
+  exports: [AmocrmV4Service, AmocrmV2Service],
 })
 export class AmocrmModule {}
