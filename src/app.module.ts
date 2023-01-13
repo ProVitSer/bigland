@@ -28,8 +28,7 @@ import { AmocrmModule } from './amocrm/amocrm.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const { username, password, database, host } =
-          configService.get('mongo');
+        const { username, password, database, host } = configService.get('mongo');
 
         return {
           uri: `mongodb://${username}:${password}@${host}/${database}`,

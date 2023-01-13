@@ -117,6 +117,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       // const response = new ResponseDataAdapter(testRes as IAPIResponse<unknown>);
       return await this.getDataAndSave<AmocrmAddCallInfoResponse>(response, new AmocrmSaveDataAdapter(response, callInfo, result, cdrId));
     } catch (e) {
+      console.log(e);
       throw e;
     }
   }

@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigService, ConfigModule } from '@nestjs/config';
-import * as ARI from 'ari-client';
-import * as namiLib from 'nami';
 import { HangupEventParser } from './ami/hangup-event-parser';
 import { AsteriskAmi } from './asterisk-ami';
 import { AmiActionService } from './ami/action-service';
@@ -17,72 +15,17 @@ import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
+import { ASTERISK_ARI_PROVIDER, createAsteriskAri, getAsteriskAmiFactory } from '@app/config/asterisk.config';
+
+const asteriskAriProviders = createAsteriskAri();
 
 @Module({
   imports: [ConfigModule, LogModule, AsteriskCdrModule, RedisModule, AmocrmUsersModule, AmocrmModule],
   providers: [
-    {
-      provide: 'CHANSPY',
-      useFactory: async (configService: ConfigService) => {
-        return {
-          ariClient: await ARI.connect(
-            configService.get('asterisk.ari.url'),
-            configService.get('asterisk.ari.application.chanspy.user'),
-            configService.get('asterisk.ari.application.chanspy.password'),
-          ),
-        };
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: 'AMOCRM',
-      useFactory: async (configService: ConfigService) => {
-        return {
-          ariClient: await ARI.connect(
-            configService.get('asterisk.ari.url'),
-            configService.get('asterisk.ari.application.amocrm.user'),
-            configService.get('asterisk.ari.application.amocrm.password'),
-          ),
-        };
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: 'BLACKLIST',
-      useFactory: async (configService: ConfigService) => {
-        return {
-          ariClient: await ARI.connect(
-            configService.get('asterisk.ari.url'),
-            configService.get('asterisk.ari.application.blackList.user'),
-            configService.get('asterisk.ari.application.blackList.password'),
-          ),
-        };
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: 'ARICALL',
-      useFactory: async (configService: ConfigService) => {
-        return {
-          ariClient: await ARI.connect(
-            configService.get('asterisk.ari.url'),
-            configService.get('asterisk.ari.application.aricall.user'),
-            configService.get('asterisk.ari.application.aricall.password'),
-          ),
-        };
-      },
-      inject: [ConfigService],
-    },
+    ...asteriskAriProviders,
     {
       provide: 'AMI',
-      useFactory: async (configService: ConfigService) => {
-        return new namiLib.Nami({
-          username: configService.get('asterisk.ami.username'),
-          secret: configService.get('asterisk.ami.password'),
-          host: configService.get('asterisk.ami.host'),
-          port: configService.get('asterisk.ami.port'),
-        });
-      },
+      useFactory: getAsteriskAmiFactory,
       inject: [ConfigService],
     },
     AriIncomingCallApplication,
@@ -97,10 +40,7 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     AriActionService,
   ],
   exports: [
-    'CHANSPY',
-    'AMOCRM',
-    'BLACKLIST',
-    'ARICALL',
+    ...ASTERISK_ARI_PROVIDER,
     'AMI',
     AriIncomingCallApplication,
     AriBlackListApplication,
