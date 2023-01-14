@@ -47,7 +47,7 @@ export const createLogger = (level: LogLevel[]): WinstonModuleOptions => {
       timestamp(),
       splat(),
       printf(({ level, context, message, timestamp }) => {
-        return `[${level}] [${context}] ${timestamp} : ${JSON.stringify(message)}`;
+        return `[${level}] [${context}] ${timestamp} : ${message}`;
       }),
     ),
     transports: getTransports(level),

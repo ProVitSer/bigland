@@ -15,6 +15,7 @@ import {
 } from '@app/config/project-configs/asterisk.config';
 import { AsteriskUtilsService } from './asterisk.utils';
 import { AriChanSpyApplication, AriBlackListApplication, AriActionService, AriIncomingCallApplication } from './ari';
+import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami';
 
 const asteriskAriProviders = createAsteriskAri();
 const asteriskAmiProviders = createAsteriskAmi();
@@ -33,6 +34,10 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     AmiActionService,
     AriActionService,
     AsteriskUtilsService,
+    HangupEventParser,
+    BlindTransferEventParser,
+    DialBeginEventParser,
+    NewExtenEventParser,
   ],
   exports: [
     ...ariProvidersName,

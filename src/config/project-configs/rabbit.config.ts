@@ -11,5 +11,6 @@ export const getRabbitMQConfig = async (configService: ConfigService): Promise<R
     ],
     uri: configService.get<string>('rabbitMqUrl'),
     connectionInitOptions: { wait: false },
+    prefetchCount: 1,
   };
 };

@@ -1,5 +1,6 @@
 import { DataObject } from '@app/platform-types/common/interfaces';
 import { TelegramService } from '@app/telegram/telegram.service';
+import { UtilsService } from '@app/utils/utils.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -23,17 +24,20 @@ export class LogService {
   }
 
   info(message: any, context?: string): void {
-    this.logger.info(message, { context: `${this.context}.${context}` });
+    const messageString = UtilsService.dataToString(message);
+    this.logger.info(messageString, { context: `${this.context}.${context}` });
   }
 
   debug(message: string, context?: string): void {
-    this.logger.debug(message, { context: `${this.context}.${context}` });
+    const messageString = UtilsService.dataToString(message);
+    this.logger.debug(messageString, { context: `${this.context}.${context}` });
   }
 
   error(message: string, context?: string): void {
+    const messageString = UtilsService.dataToString(message);
     const logcontext = `${this.context}.${context}`;
-    this.logger.error(message, { context: logcontext });
-    this.Tg.tgAlert(message, logcontext);
+    this.logger.error(messageString, { context: logcontext });
+    this.Tg.tgAlert(messageString, logcontext);
   }
 
   public async saveLog(logEventType: LogEventType, messages: string | any, field?: DataObject): Promise<void> {

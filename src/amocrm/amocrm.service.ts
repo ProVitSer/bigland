@@ -112,10 +112,10 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
       this.log.info(callInfo, AmocrmV4Service.name);
       const apiResponse = await this.amocrm.request.post(AmocrmAPI.call, [callInfo]);
+      this.log.info(apiResponse.data, AmocrmV4Service.name);
       const response = new ResponseDataAdapter(apiResponse);
       return await this.getDataAndSave<AmocrmAddCallInfoResponse>(response, new AmocrmSaveDataAdapter(response, callInfo, result, cdrId));
     } catch (e) {
-      console.log(e);
       throw e;
     }
   }
@@ -206,7 +206,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   private async getDataAndSave<T>(response: ResponseDataAdapter, data: AmocrmSaveDataAdapter): Promise<T> {
     await this.saveData(data);
     if (!!response.statusCode && [HttpStatus.BAD_REQUEST].includes(response.statusCode)) {
-      if (AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
+      if (!AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
     }
     if (!!response.statusCode && AMOCRM_ERROR_RESPONSE_CODE.includes(response.statusCode)) {
       throw UtilsService.dataToString(response.data);

@@ -17,7 +17,7 @@ export class TelegramService {
         })
         .toPromise();
     } catch (e) {
-      console.log(JSON.stringify(e));
+      console.log(e);
     }
   }
 }

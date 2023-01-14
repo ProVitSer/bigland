@@ -88,23 +88,27 @@ export class UtilsService {
     return newObj;
   }
 
-  static dataToString<T>(data: T): string | undefined {
-    if (Array.isArray(data)) {
-      return data.toString();
-    }
-    switch (typeof data) {
-      case 'string':
-        return data;
-      case 'number':
-      case 'symbol':
-      case 'bigint':
-      case 'boolean':
-      case 'function':
-        return data.toString();
-      case 'object':
+  static dataToString<T>(data: T): string | undefined | T {
+    try {
+      if (Array.isArray(data)) {
         return JSON.stringify(data);
-      default:
-        return undefined;
+      }
+      switch (typeof data) {
+        case 'string':
+          return data;
+        case 'number':
+        case 'symbol':
+        case 'bigint':
+        case 'boolean':
+        case 'function':
+          return data.toString();
+        case 'object':
+          return JSON.stringify(data);
+        default:
+          return undefined;
+      }
+    } catch (e) {
+      return data;
     }
   }
 }

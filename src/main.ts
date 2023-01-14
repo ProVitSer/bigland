@@ -4,12 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import configuration from '@app/config/config.provider';
 import * as cookieParser from 'cookie-parser';
 import { WsAdapter } from '@nestjs/platform-ws';
-import {
-  HttpException,
-  HttpStatus,
-  ValidationError,
-  ValidationPipe,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common';
 import { LogEventType } from './log/interfaces/log.interfaces';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import httpsConfig from './https.provider';
@@ -31,10 +26,7 @@ async function bootstrap() {
               field: error.property,
               error: error.constraints,
             };
-          } else if (
-            Array.isArray(error.children) &&
-            error.children.length > 0
-          ) {
+          } else if (Array.isArray(error.children) && error.children.length > 0) {
             return formatError(error);
           }
         });
@@ -71,27 +63,16 @@ async function bootstrap() {
   await app.listen(config.get('appPort'));
 }
 
-function formatError(
-  error: ValidationError,
-): Array<{ field: string; error: { [type: string]: string } }> {
-  const message: Array<{ field: string; error: { [type: string]: string } }> =
-    [];
+function formatError(error: ValidationError): Array<{ field: string; error: { [type: string]: string } }> {
+  const message: Array<{ field: string; error: { [type: string]: string } }> = [];
 
   function getChildren(childrenError: ValidationError, prop: string) {
-    if (
-      Array.isArray(childrenError.children) &&
-      childrenError.children.length != 0
-    ) {
+    if (Array.isArray(childrenError.children) && childrenError.children.length != 0) {
       for (let i = 0; i < childrenError.children.length; i++) {
-        getChildren(
-          childrenError.children[i],
-          `${prop}.${childrenError.children[i].property}`,
-        );
+        getChildren(childrenError.children[i], `${prop}.${childrenError.children[i].property}`);
       }
     }
-    !!childrenError.constraints
-      ? message.push({ field: prop, error: childrenError.constraints })
-      : '';
+    !!childrenError.constraints ? message.push({ field: prop, error: childrenError.constraints }) : '';
   }
 
   getChildren(error, error.property);

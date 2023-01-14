@@ -43,7 +43,7 @@ export class CdrService {
           break;
       }
     } catch (e) {
-      this.log.error(`${e}: ${JSON.stringify(msg)}`, CdrService.name);
+      this.log.error(`${e}: ${msg}`, CdrService.name);
     }
   }
 
