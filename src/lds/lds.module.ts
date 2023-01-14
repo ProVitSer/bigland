@@ -7,6 +7,7 @@ import { LdsSynchUserSchedule } from './schedule/lds-synch-user.schedule';
 import { Lds, LdsSchema } from './lds.schema';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
+import { getLdsConfig } from '@app/config/project-configs/lds.config';
 
 @Module({
   imports: [
@@ -16,14 +17,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forFeature([{ name: Lds.name, schema: LdsSchema }]),
     HttpModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': configService.get('userAgent'),
-          Authorization: `Bearer ${configService.get('lds.bearer')}`,
-          Cookie: configService.get('lds.cookie'),
-        },
-      }),
+      useFactory: getLdsConfig,
       inject: [ConfigService],
     }),
   ],

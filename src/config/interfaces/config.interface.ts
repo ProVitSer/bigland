@@ -1,4 +1,4 @@
-import { AppProtocol } from './config.enum';
+import { AppProtocol, AsteriskAmiProvider, AsteriskAriProvider, GsmGatewayProvider } from './config.enum';
 
 export interface ConfigEnvironmentVariables {
   appProtocol: AppProtocol;
@@ -19,15 +19,12 @@ export interface ConfigEnvironmentVariables {
     bearer: string;
     cookie: string;
   };
-  docker: {
-    host: string;
-    port: string;
-  };
+  docker: DockerEnvironmentVariables[];
   selenium: SeleniumEnvironmentVariables;
-  gsmGateway: GsmGatewayEnvironmentVariables;
+  gsmGateway: GsmGatewayEnvironmentVariables[];
   mail: MailEnvironmentVariables;
   freepbx: FreepbxEnvironmentVariables;
-  redis: RedisEnvironmentVariables;
+  redis: RedisEnvironmentVariables | RedisEnvironmentVariables[];
   amocrm: AmocrmEnvironmentVariables;
   asterisk: AsteriskEnvironmentVariables;
   customConf: {
@@ -35,47 +32,47 @@ export interface ConfigEnvironmentVariables {
   };
 }
 
-interface SecurityEnvironmentVariables {
+export interface SecurityEnvironmentVariables {
   key: string;
   cert: string;
   ipWhiteList: string[];
 }
 
-interface AuthEnvironmentVariables {
+export interface AuthEnvironmentVariables {
   jwtAccess: JwtEnvironmentVariables;
   jwtRefresh: JwtEnvironmentVariables;
 }
 
-interface JwtEnvironmentVariables {
+export interface JwtEnvironmentVariables {
   tokenSecretKey: string;
   algorithm: string;
   expiresIn: string;
 }
 
-interface LogEnvironmentVariables {
+export interface LogEnvironmentVariables {
   path: string;
   formatDate: string;
   mixSize: string;
   maxFiles: string;
 }
 
-interface TelegramEnvironmentVariables {
+export interface TelegramEnvironmentVariables {
   token: string;
   chartId: any;
 }
 
-interface DefaultConnectEnvironmentVariables {
+export interface DefaultConnectEnvironmentVariables {
   host: string;
   port: number;
   username: string;
   password: string;
 }
 
-interface DatabaseEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+export interface DatabaseEnvironmentVariables extends DefaultConnectEnvironmentVariables {
   database: string;
 }
 
-interface SeleniumEnvironmentVariables {
+export interface SeleniumEnvironmentVariables {
   host: string;
   selenoidDockerImg: string;
   capabilities: {
@@ -87,7 +84,8 @@ interface SeleniumEnvironmentVariables {
   };
 }
 
-interface GsmGatewayEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+export interface GsmGatewayEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+  providerName: GsmGatewayProvider;
   gatewayPorts: string[];
   useRandomSendPort: boolean;
   sms: {
@@ -99,19 +97,19 @@ interface GsmGatewayEnvironmentVariables extends DefaultConnectEnvironmentVariab
   };
 }
 
-interface MailEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+export interface MailEnvironmentVariables extends DefaultConnectEnvironmentVariables {
   secure: boolean;
   from: string;
 }
 
-interface FreepbxEnvironmentVariables {
+export interface FreepbxEnvironmentVariables {
   domain: string;
   username: string;
   password: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface RedisEnvironmentVariables extends Omit<DefaultConnectEnvironmentVariables, 'username'> {}
+export interface RedisEnvironmentVariables extends Omit<DefaultConnectEnvironmentVariables, 'username'> {}
 
 export interface AmocrmEnvironmentVariables {
   domain: string;
@@ -134,23 +132,25 @@ export interface AmocrmEnvironmentVariables {
 }
 
 export interface AsteriskEnvironmentVariables {
-  ami: AmiAsteriskEnvironmentVariables;
-  ari: AriAsteriskEnvironmentVariables;
+  ami: AmiAsteriskEnvironmentVariables[];
+  ari: AriAsteriskEnvironmentVariables[];
 }
 
 export interface AmiAsteriskEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+  providerName: AsteriskAmiProvider;
   logLevel: number;
 }
 
 export interface AriAsteriskEnvironmentVariables {
+  providerName: AsteriskAriProvider;
   url: string;
-  application: AriAppAsteriskEnvironmentVariables;
+  stasis: string;
+  user: string;
+  password: string;
 }
 
-export interface AriAppAsteriskEnvironmentVariables {
-  [key: string]: {
-    stasis: string;
-    user: string;
-    password: string;
-  };
+export interface DockerEnvironmentVariables {
+  providerName: string;
+  host: string;
+  port: string;
 }

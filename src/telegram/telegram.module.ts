@@ -2,17 +2,14 @@ import { Module } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { TelegramModule as TgModule } from 'nestjs-telegram';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { getTelegramConfig } from '@app/config/telegram.config';
 
 @Module({
   imports: [
     ConfigModule,
     TgModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        return {
-          botKey: configService.get('telegram.token'),
-        };
-      },
+      useFactory: getTelegramConfig,
       inject: [ConfigService],
     }),
   ],

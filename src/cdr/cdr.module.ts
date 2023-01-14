@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CdrService } from './cdr.service';
-import { RabbitMQConfig, RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CdrMessagingService } from './cdr.subscribers';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,6 +9,7 @@ import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
+import { getRabbitMQConfig } from '@app/config/project-configs/rabbit.config';
 
 @Module({
   imports: [
@@ -19,16 +20,7 @@ import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
     MongooseModule.forFeature([{ name: Cdr.name, schema: CdrSchema }]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService): Promise<RabbitMQConfig> => ({
-        exchanges: [
-          {
-            name: 'presence',
-            type: 'topic',
-          },
-        ],
-        uri: configService.get('rabbitMqUrl'),
-        connectionInitOptions: { wait: false },
-      }),
+      useFactory: getRabbitMQConfig,
       inject: [ConfigService],
     }),
   ],

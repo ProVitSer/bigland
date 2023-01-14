@@ -1,7 +1,7 @@
 import { HttpModuleOptions } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'amocrm-js';
-import { AmocrmEnvironmentVariables } from './interfaces/config.interface';
+import { AmocrmEnvironmentVariables } from '../interfaces/config.interface';
 
 export const getAmocrmV2Config = async (configService: ConfigService): Promise<HttpModuleOptions> => {
   return {

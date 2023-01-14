@@ -1,22 +1,12 @@
-import * as Docker from 'dockerode';
 import { DockerService } from './docker.service';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { LogModule } from '@app/log/log.module';
+import { createDocker } from '@app/config/project-configs/docker.config';
 
-const providers = [
-  DockerService,
-  {
-    provide: 'DOCKER_SERVICE',
-    useFactory: (configService: ConfigService) => {
-      return new Docker({
-        host: configService.get('docker.host'),
-        port: configService.get('docker.port'),
-      });
-    },
-    inject: [ConfigService],
-  },
-];
+const dockerProviders = createDocker();
+
+const providers = [DockerService, ...dockerProviders];
 
 @Module({
   providers,

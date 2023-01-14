@@ -21,19 +21,14 @@ import { AsteriskCdrModule } from './asterisk-cdr/asterisk-cdr.module';
 import { AmocrmUsersModule } from './amocrm-users/amocrm-users.module';
 import { AsteriskApiModule } from './asterisk-api/asterisk-api.module';
 import { AmocrmModule } from './amocrm/amocrm.module';
+import { getMongoUseFactory } from './config/project-configs/mongo.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        const { username, password, database, host } = configService.get('mongo');
-
-        return {
-          uri: `mongodb://${username}:${password}@${host}/${database}`,
-        };
-      },
+      useFactory: getMongoUseFactory,
       inject: [ConfigService],
     }),
     LogModule,

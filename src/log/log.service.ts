@@ -22,15 +22,15 @@ export class LogService {
     this.context = context;
   }
 
-  info(message: any, context?: any): void {
+  info(message: any, context?: string): void {
     this.logger.info(message, { context: `${this.context}.${context}` });
   }
 
-  debug(message: string, context?: any): void {
+  debug(message: string, context?: string): void {
     this.logger.debug(message, { context: `${this.context}.${context}` });
   }
 
-  error(message: string, context?: any): void {
+  error(message: string, context?: string): void {
     const logcontext = `${this.context}.${context}`;
     this.logger.error(message, { context: logcontext });
     this.Tg.tgAlert(message, logcontext);

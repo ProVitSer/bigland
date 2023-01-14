@@ -1,6 +1,7 @@
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AmocrmV2Service } from '@app/amocrm/amocrm.service';
 import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
+import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
 import { ARIOUTBOUNDCALL, ARIOUTBOUNDCALLOPERATOR, POZVONIMOUTBOUNDCALL } from '../asterisk.config';
@@ -11,7 +12,7 @@ export class AriActionService implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
   private ariChanel: Ari.Channel;
   constructor(
-    @Inject('ARICALL') private readonly ari: { ariClient: Ari.Client },
+    @Inject(AsteriskAriProvider.aricall) private readonly ari: { ariClient: Ari.Client },
     private readonly amocrmV2Service: AmocrmV2Service,
     private readonly amocrmUsers: AmocrmUsersService,
   ) {}

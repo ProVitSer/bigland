@@ -1,9 +1,11 @@
+import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
 import { RedisService } from '@app/redis/redis.service';
 import { System } from '@app/system/system.schema';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart, PlaybackFinishedEventType } from 'ari-client';
+import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
+import { AsteriskUtilsService } from '../asterisk.utils';
 import { PlaybackSounds } from '../interfaces/asterisk.enum';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR, PLAYBACK_ERROR } from './ari.constants';
 
@@ -13,13 +15,14 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
   private channelDTMF: { [key: string]: { dtmf: string[] } };
 
   constructor(
-    @Inject('CHANSPY') private readonly ari: { ariClient: Ari.Client },
+    @Inject(AsteriskAriProvider.chanspy) private readonly ari: { ariClient: Ari.Client },
     private readonly configService: ConfigService,
     private readonly log: LogService,
     private readonly redis: RedisService,
   ) {}
 
   public async onApplicationBootstrap() {
+    const stasis = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
     this.client = this.ari;
     this.client.ariClient.on('StasisStart', async (event: StasisStart, incoming: Channel) => {
       try {
@@ -30,7 +33,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
         this.log.error(`${PLAYBACK_ERROR}: ${e}`, AriChanSpyApplication.name);
       }
     });
-    this.client.ariClient.start(this.configService.get('asterisk.ari.application.chanspy.stasis'));
+    this.client.ariClient.start(stasis);
   }
 
   private async handleDTMF(incomingChannel: Channel): Promise<void> {

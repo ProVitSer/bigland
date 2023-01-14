@@ -10,12 +10,13 @@ import {
 } from './interfaces/gsm-gateway-api.interfaces';
 import { GsmGatewaykEventType } from './interfaces/gsm-gateway-api.enum';
 import { CONNECT_SUCCESS, ERROR_GSM, GSM_RECONECT, INCORRECT_LOGIN } from './gsm-api-gateway.constants';
+import { GsmGatewayProvider } from '@app/config/interfaces/config.enum';
 
 @Injectable()
 export class GsmGateway implements OnApplicationBootstrap {
   private gmsClient: any;
   constructor(
-    @Inject('GSM') private readonly gsm: any,
+    @Inject(GsmGatewayProvider.gsm) private readonly gsm: any,
     private readonly updateSMSSend: UpdateSMSSendEventParser,
     private readonly receivedSMSEvent: ReceivedSMSEventParser,
     private readonly log: LogService,

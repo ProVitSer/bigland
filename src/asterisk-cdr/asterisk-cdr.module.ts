@@ -4,22 +4,14 @@ import { AsteriskCdrService } from './asterisk-cdr.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { LogModule } from '@app/log/log.module';
+import { getMariadbUseFactory } from '@app/config/project-configs//mariadb.config';
 
 @Module({
   imports: [
     LogModule,
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        dialect: 'mariadb',
-        host: configService.get('mariadb.host'),
-        port: configService.get('mariadb.port'),
-        username: configService.get('mariadb.username'),
-        password: configService.get('mariadb.password'),
-        database: configService.get('mariadb.databases'),
-        autoLoadModels: true,
-        synchronize: false,
-      }),
+      useFactory: getMariadbUseFactory,
       inject: [ConfigService],
     }),
     SequelizeModule.forFeature([AsteriskCdr]),

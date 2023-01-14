@@ -8,13 +8,14 @@ import { DialBeginEventParser } from './ami/dial-begin-event-parser';
 import { NewExtenEventParser } from './ami/new-exten-event-parser';
 import { LogService } from '@app/log/log.service';
 import { AMI_CONNECT_SUCCESS, AMI_INCORRECT_LOGIN, AMI_RECONECT, ERROR_AMI, INVALIDE_PEER } from './asterisk.constants';
+import { AsteriskAmiProvider } from '@app/config/interfaces/config.enum';
 
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {
   private client: any;
 
   constructor(
-    @Inject('AMI') private readonly ami: any,
+    @Inject(AsteriskAmiProvider.ami) private readonly ami: any,
     private readonly configService: ConfigService,
     private readonly log: LogService,
     private readonly hangupEvent: HangupEventParser,

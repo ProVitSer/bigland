@@ -1,9 +1,11 @@
+import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
 import { RedisService } from '@app/redis/redis.service';
 import { System } from '@app/system/system.schema';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
+import { AsteriskUtilsService } from '../asterisk.utils';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR } from './ari.constants';
 
 @Injectable()
@@ -11,13 +13,14 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
 
   constructor(
-    @Inject('BLACKLIST') private readonly ari: { ariClient: Ari.Client },
+    @Inject(AsteriskAriProvider.blacklist) private readonly ari: { ariClient: Ari.Client },
     private readonly log: LogService,
     private readonly configService: ConfigService,
     private readonly redis: RedisService,
   ) {}
 
   public async onApplicationBootstrap() {
+    const stasis = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
     this.client = this.ari;
     this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
       try {
@@ -29,7 +32,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
         this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriBlackListApplication.name);
       }
     });
-    this.client.ariClient.start(this.configService.get('asterisk.ari.application.blackList.stasis'));
+    this.client.ariClient.start(stasis);
   }
 
   private async checkInBlackList(event: StasisStart): Promise<boolean> {

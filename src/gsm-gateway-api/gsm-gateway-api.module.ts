@@ -15,22 +15,15 @@ import { SmsService } from './sms/sms.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Sms, SmsSchema } from './sms/sms.schema';
 import { SystemModule } from '@app/system/system.module';
+import { createGsmGatewayAmi, getGsmGatewayProvidesName } from '@app/config/project-configs/gsm-gateway.config';
+
+const gsmGatewayAmiProviders = createGsmGatewayAmi();
+const providersName = getGsmGatewayProvidesName();
 
 @Module({
   imports: [ConfigModule, MongooseModule.forFeature([{ name: Sms.name, schema: SmsSchema }]), LogModule, HttpResponseModule, SystemModule],
   providers: [
-    {
-      provide: 'GSM',
-      useFactory: async (configService: ConfigService) => {
-        return new namiLib.Nami({
-          username: configService.get('gsmGateway.username'),
-          secret: configService.get('gsmGateway.password'),
-          host: configService.get('gsmGateway.host'),
-          port: configService.get('gsmGateway.port'),
-        });
-      },
-      inject: [ConfigService],
-    },
+    ...gsmGatewayAmiProviders,
     GsmGateway,
     UpdateSMSSendEventParser,
     ReceivedSMSEventParser,
@@ -41,7 +34,7 @@ import { SystemModule } from '@app/system/system.module';
     SmsService,
   ],
   exports: [
-    'GSM',
+    ...providersName,
     GsmGateway,
     UpdateSMSSendEventParser,
     ReceivedSMSEventParser,
