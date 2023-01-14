@@ -1,9 +1,18 @@
+import { HttpStatus } from '@nestjs/common';
 import { AmocrmCallStatus, PbxCallStatus } from './interfaces/amocrm.enum';
 
 export const RECORD_PATH_FROMAT = 'YYYY/MM/DD';
 export const INIT_AMO_ERROR = 'Ошибка подключения к Amocrm';
 export const INIT_AMO_SUCCESS = 'Подключение к Amocrm успешно';
 export const INIT_AMO = 'Попытка подключения к Amocrm';
+export const AMOCRM_ERROR_RESPONSE_CODE: number[] = [
+  HttpStatus.UNAUTHORIZED,
+  HttpStatus.UNPROCESSABLE_ENTITY,
+  HttpStatus.METHOD_NOT_ALLOWED,
+  HttpStatus.PAYMENT_REQUIRED,
+  HttpStatus.FORBIDDEN,
+  HttpStatus.TOO_MANY_REQUESTS,
+];
 
 export const CALL_STATUS_MAP: { [code in PbxCallStatus]: AmocrmCallStatus } = {
   [PbxCallStatus.ANSWERED]: AmocrmCallStatus.Answer,

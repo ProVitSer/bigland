@@ -21,7 +21,7 @@ import { LogService } from '@app/log/log.service';
 import { NumberInfo, System } from '@app/system/system.schema';
 import { Amocrm, AmocrmDocument } from './amocrm.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   AmocrmAPI,
   AmoCRMAPIV2,
@@ -31,11 +31,11 @@ import {
   ResponsibleUserId,
   TaskTypeId,
 } from './interfaces/amocrm.enum';
-import { CALL_STATUS_MAP, DEFAULT_TASKS_TEXT, RECORD_PATH_FROMAT } from './amocrm.constants';
+import { AMOCRM_ERROR_RESPONSE_CODE, CALL_STATUS_MAP, DEFAULT_TASKS_TEXT, RECORD_PATH_FROMAT } from './amocrm.constants';
 import { Client } from 'amocrm-js';
-import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
 import { UtilsService } from '@app/utils/utils.service';
-import { DataObject } from '@app/platform-types/common/interfaces';
+import { AmocrmSaveDataAdapter, ResponseDataAdapter } from './amocrm.adapters';
+import { AmocrmErrors } from './amocrm.error';
 
 @Injectable()
 export class AmocrmV4Service implements OnApplicationBootstrap {
@@ -113,8 +113,6 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       this.log.info(callInfo, AmocrmV4Service.name);
       const apiResponse = await this.amocrm.request.post(AmocrmAPI.call, [callInfo]);
       const response = new ResponseDataAdapter(apiResponse);
-      // const testRes = { response: { statusCode: 200 }, data: {} };
-      // const response = new ResponseDataAdapter(testRes as IAPIResponse<unknown>);
       return await this.getDataAndSave<AmocrmAddCallInfoResponse>(response, new AmocrmSaveDataAdapter(response, callInfo, result, cdrId));
     } catch (e) {
       console.log(e);
@@ -207,11 +205,13 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
   private async getDataAndSave<T>(response: ResponseDataAdapter, data: AmocrmSaveDataAdapter): Promise<T> {
     await this.saveData(data);
-    if (!!response.statusCode && [HttpStatus.BAD_REQUEST, HttpStatus.UNAUTHORIZED].includes(response.statusCode)) {
-      throw String(response.data);
-    } else {
-      return response.data as T;
+    if (!!response.statusCode && [HttpStatus.BAD_REQUEST].includes(response.statusCode)) {
+      if (AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
     }
+    if (!!response.statusCode && AMOCRM_ERROR_RESPONSE_CODE.includes(response.statusCode)) {
+      throw UtilsService.dataToString(response.data);
+    }
+    return response.data as T;
   }
 
   private async getIncomingNumberConfig(incominNumber: string) {
@@ -231,33 +231,6 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   private async saveData(data: AmocrmSaveDataAdapter) {
     const amocrm = new this.amocrmModel({ ...data.amocrmData });
     return await amocrm.save();
-  }
-}
-
-class ResponseDataAdapter {
-  public statusCode: number | undefined;
-  public data: DataObject;
-
-  constructor(response: IAPIResponse<unknown>) {
-    this.statusCode = response.response.statusCode;
-    this.data = response.data;
-  }
-}
-
-class AmocrmSaveDataAdapter {
-  public amocrmData: Amocrm;
-  public readonly responseDataAdapter: ResponseDataAdapter;
-  private changed: Date = new Date();
-  constructor(private response: ResponseDataAdapter, amocrmRequestData: any, cdrData?: any, cdrId?: ObjectId | undefined) {
-    this.responseDataAdapter = response;
-    this.amocrmData = {
-      cdrId: cdrId || undefined,
-      statusCode: this.responseDataAdapter.statusCode,
-      amocrmResponseData: this.responseDataAdapter.data,
-      amocrmRequestData,
-      cdrData: cdrData || {},
-      changed: this.changed,
-    };
   }
 }
 
