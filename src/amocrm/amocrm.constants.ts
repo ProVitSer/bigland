@@ -4,7 +4,7 @@ import { AmocrmCallStatus, PbxCallStatus } from './interfaces/amocrm.enum';
 export const RECORD_PATH_FROMAT = 'YYYY/MM/DD';
 export const INIT_AMO_ERROR = 'Ошибка подключения к Amocrm';
 export const INIT_AMO_SUCCESS = 'Подключение к Amocrm успешно';
-export const INIT_AMO = 'Попытка подключения к Amocrm';
+export const INIT_AMO = 'Инициализация взаимодействия с Amocrm';
 export const AMOCRM_ERROR_RESPONSE_CODE: number[] = [
   HttpStatus.UNAUTHORIZED,
   HttpStatus.UNPROCESSABLE_ENTITY,

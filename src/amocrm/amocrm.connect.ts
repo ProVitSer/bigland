@@ -24,7 +24,8 @@ export class AmocrmConnector implements OnApplicationBootstrap {
       this.log.info(INIT_AMO, AmocrmConnector.name);
       await this.setToken();
       await this.logConnection();
-      await this.checkAmocrmInteraction();
+      // Убираем, так как не получаем ответ пока не стартанет сервис, переносим в health
+      //await this.checkAmocrmInteraction();
     } catch (e) {
       this.log.error(e, AmocrmConnector.name);
     }
