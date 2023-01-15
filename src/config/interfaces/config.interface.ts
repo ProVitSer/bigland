@@ -24,12 +24,14 @@ export interface ConfigEnvironmentVariables {
   gsmGateway: GsmGatewayEnvironmentVariables[];
   mail: MailEnvironmentVariables;
   freepbx: FreepbxEnvironmentVariables;
-  redis: RedisEnvironmentVariables | RedisEnvironmentVariables[];
+  redis: RedisEnvironmentVariables;
   amocrm: AmocrmEnvironmentVariables;
   asterisk: AsteriskEnvironmentVariables;
   customConf: {
     recordDomain: string;
   };
+  cdrMicroservice: string;
+  heath: HealthMailEnvironmentVariables;
 }
 
 export interface SecurityEnvironmentVariables {
@@ -153,4 +155,11 @@ export interface DockerEnvironmentVariables {
   providerName: string;
   host: string;
   port: string;
+}
+
+export interface HealthMailEnvironmentVariables {
+  mail: {
+    mailListNotifyer: string[];
+    from: string;
+  };
 }

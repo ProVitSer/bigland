@@ -100,24 +100,27 @@ export interface ReceivedSMSEvent {
   content: string;
 }
 
-export class GetGsmPortInfoEvent {
-  EOL: string;
-  variables: Record<string, unknown>;
-  response: string;
-  privilege: string;
-  actionid: string;
-  d_channel: string;
-  events: string[];
-}
-
-export interface GetGsmPortsInfoEvent {
+export interface DefaultEvent {
   lines: string[];
   EOL: string;
   variables: Record<string, unknown>;
-  response: string;
-  privilege: string;
   actionid: string;
   events: string[];
+}
+
+export interface GetGsmPortInfoEvent extends Omit<DefaultEvent, 'lines'> {
+  response: string;
+  privilege: string;
+  d_channel: string;
+}
+
+export interface GetGsmPortsInfoEvent extends DefaultEvent {
+  response: string;
+  privilege: string;
+}
+
+export interface GsmPingEvent extends DefaultEvent {
+  ping: string;
 }
 
 export class GsmPortsFormatInfo {
