@@ -20,7 +20,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    const stasis = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
+    const blacklistConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
     this.client = this.ari;
     this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
       try {
@@ -32,7 +32,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
         this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriBlackListApplication.name);
       }
     });
-    this.client.ariClient.start(stasis);
+    this.client.ariClient.start(blacklistConf.stasis);
   }
 
   private async checkInBlackList(event: StasisStart): Promise<boolean> {

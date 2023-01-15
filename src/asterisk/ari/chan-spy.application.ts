@@ -22,7 +22,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    const stasis = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
+    const chanspyConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
     this.client = this.ari;
     this.client.ariClient.on('StasisStart', async (event: StasisStart, incoming: Channel) => {
       try {
@@ -33,7 +33,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
         this.log.error(`${PLAYBACK_ERROR}: ${e}`, AriChanSpyApplication.name);
       }
     });
-    this.client.ariClient.start(stasis);
+    this.client.ariClient.start(chanspyConf.stasis);
   }
 
   private async handleDTMF(incomingChannel: Channel): Promise<void> {

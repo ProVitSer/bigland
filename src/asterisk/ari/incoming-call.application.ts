@@ -19,7 +19,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    const stasis = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.amocrm);
+    const amocrmConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.amocrm);
     this.client = this.ari;
     this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
       try {
@@ -30,7 +30,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
         this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriIncomingCallApplication.name);
       }
     });
-    this.client.ariClient.start(stasis);
+    this.client.ariClient.start(amocrmConf.stasis);
   }
 
   private async checkInAmo(event: StasisStart): Promise<void> {
