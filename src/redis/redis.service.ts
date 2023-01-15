@@ -18,4 +18,7 @@ export class RedisService {
     await this.client.del(key);
     return await this.setCustomKey(key, value, expireTIme);
   }
+  public async ping() {
+    return await this.client.ping();
+  }
 }
