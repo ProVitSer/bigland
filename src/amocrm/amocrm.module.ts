@@ -34,6 +34,6 @@ import { getAmocrmV2Config, getAmocrmV4Config } from '@app/config/project-config
     AmocrmV2Service,
     AmocrmV2Auth,
   ],
-  exports: [AmocrmV4Service, AmocrmV2Service],
+  exports: [AmocrmV4Service, AmocrmV2Service, AmocrmConnector],
 })
 export class AmocrmModule {}

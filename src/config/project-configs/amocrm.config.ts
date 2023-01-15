@@ -15,7 +15,7 @@ export const getAmocrmV2Config = async (configService: ConfigService): Promise<H
   };
 };
 
-export const getAmocrmV4Config = async (configService: ConfigService): Promise<Client> => {
+export const getAmocrmV4Config = (configService: ConfigService): Client => {
   const { domain, clientId, clientSecret, redirectUri, port } = configService.get('amocrm') as AmocrmEnvironmentVariables;
   return new Client({
     domain,

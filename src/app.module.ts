@@ -22,6 +22,7 @@ import { AmocrmUsersModule } from './amocrm-users/amocrm-users.module';
 import { AsteriskApiModule } from './asterisk-api/asterisk-api.module';
 import { AmocrmModule } from './amocrm/amocrm.module';
 import { getMongoUseFactory } from './config/project-configs/mongo.config';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { getMongoUseFactory } from './config/project-configs/mongo.config';
       useFactory: getMongoUseFactory,
       inject: [ConfigService],
     }),
+    HealthModule,
     LogModule,
     TelegramModule,
     CdrModule,
