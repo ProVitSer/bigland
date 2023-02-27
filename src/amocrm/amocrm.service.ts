@@ -125,9 +125,9 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       const info: AmocrmGetContactsRequest = {
         query: UtilsService.formatIncomingNumber(incomingNumber),
       };
-      const result: AmocrmGetContactsResponse = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPI.contacts, info))?.data;
+      const result = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPI.contacts, info))?.data;
       this.log.info(`Результат поиска контакта ${incomingNumber}: ${JSON.stringify(result)}`, AmocrmV4Service.name);
-      return !!result ? true : false;
+      return !!result?._embedded ? true : false;
     } catch (e) {
       throw `${e}: ${incomingNumber}`;
     }
