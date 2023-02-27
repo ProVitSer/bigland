@@ -63,9 +63,9 @@ export class HealthService {
 
   private customCheck() {
     return [
-      async () => this.amocrm.ping('Amocrm'),
+      //async () => this.amocrm.ping('Amocrm'),
       async () => this.redis.ping('Redis'),
-      async () => this.gsm.ping('Gsmgateway'),
+      //async () => this.gsm.ping('Gsmgateway'),
       async () => this.asteriskAri.ping('Asterisk_Ari_Application'),
       async () => this.asteriskConnection.ping('Asterisk_Connect'),
       async () => this.dockerService.isHealthy('Docker_Service'),
@@ -112,7 +112,6 @@ export class HealthFormatResult {
         });
       });
     }
-
     const resultInfo = this.result.status === 'error' ? { ...this.result.info, ...this.result.error } : { ...this.result.info };
     parseObj(resultInfo);
 
