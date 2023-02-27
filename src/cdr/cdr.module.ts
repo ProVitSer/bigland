@@ -10,9 +10,12 @@ import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { getRabbitMQConfig } from '@app/config/project-configs/rabbit.config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CdrSchedule } from './schedule/cdr.schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     LogModule,
     AsteriskCdrModule,
     AmocrmModule,
@@ -24,6 +27,6 @@ import { getRabbitMQConfig } from '@app/config/project-configs/rabbit.config';
       inject: [ConfigService],
     }),
   ],
-  providers: [CdrService, CdrMessagingService],
+  providers: [CdrService, CdrMessagingService, CdrSchedule],
 })
 export class CdrModule {}

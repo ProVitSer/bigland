@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Transform } from 'class-transformer';
-import { CallType } from './interfaces/cdr.enum';
+import { CallType, Disposition } from './interfaces/cdr.enum';
 
 export type CdrDocument = Cdr & Document;
 
@@ -28,7 +28,7 @@ export class Cdr {
   billsec: string;
 
   @Prop({})
-  disposition: string;
+  disposition: Disposition;
 
   @Prop({})
   startCall: string;
