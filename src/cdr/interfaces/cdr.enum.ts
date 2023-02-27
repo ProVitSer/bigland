@@ -7,3 +7,10 @@ export enum CallType {
 export enum QueueTypes {
   cdr = 'cdr',
 }
+
+export enum Disposition {
+  failed = 'FAILED',
+  answered = 'ANSWERED',
+  busy = 'BUSY',
+  noAnswer = 'NO ANSWER',
+}
