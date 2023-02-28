@@ -1,15 +1,6 @@
-import { CallType } from './cdr.enum';
+import { Cdr } from '../cdr.schema';
 
-export interface CdrInfo {
-  exten: string;
-  unicueid: string;
-  extensionNumber: string;
-  billsec: string;
-  disposition: string;
-  startCall: string;
-  endCall: string;
-}
-
-export interface CdrInfoWithTyp extends CdrInfo {
-  callType: CallType;
+export interface CdrPubSubInfo {
+  pattern: 'cdr';
+  data: Cdr;
 }
