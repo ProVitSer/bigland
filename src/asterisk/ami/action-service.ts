@@ -2,7 +2,7 @@ import { IDnd } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Injectable } from '@nestjs/common';
 import * as namiLib from 'nami';
 import { AsteriskAmi } from '../asterisk-ami';
-import { AMIOUTBOUNDCALL } from '../asterisk.config';
+import { AMI_OUTBOUND_CALL } from '../asterisk.config';
 import {
   AsteriskDNDStatusResponse,
   AsteriskStatusResponse,
@@ -27,11 +27,11 @@ export class AmiActionService {
       const action = new namiLib.Actions.Originate();
       action.channel = `${ChannelType.PJSIP}/${localExtension}`;
       action.callerid = localExtension;
-      action.priority = AMIOUTBOUNDCALL.priority;
-      action.timeout = AMIOUTBOUNDCALL.timeout;
-      action.context = AMIOUTBOUNDCALL.timeout;
+      action.priority = AMI_OUTBOUND_CALL.priority;
+      action.timeout = AMI_OUTBOUND_CALL.timeout;
+      action.context = AMI_OUTBOUND_CALL.timeout;
       action.exten = outgoingNumber;
-      action.async = AMIOUTBOUNDCALL.async;
+      action.async = AMI_OUTBOUND_CALL.async;
       const resultInitCall: any = await this.ami.amiClientSend(action);
       this.log.info(`Результат инициации вызова ${resultInitCall}`, AmiActionService.name);
     } catch (e) {}
