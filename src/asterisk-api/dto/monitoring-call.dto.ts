@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsArray } from 'class-validator';
+import { IsNotEmpty, IsArray, IsOptional, IsString } from 'class-validator';
 
 export class MonitoringCallDTO {
   @ApiProperty({
@@ -16,5 +16,7 @@ export class MonitoringCallDTO {
     description: 'Описание к вызову',
     nullable: true,
   })
+  @IsOptional()
+  @IsString()
   description: string;
 }

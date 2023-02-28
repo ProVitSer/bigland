@@ -1,30 +1,35 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { AmocrmActionStatus } from '../interfaces/asterisk-api.enum';
 
 export class AmocrmDto {
   @IsString()
-  @IsNotEmpty({ message: 'Поле sip_id не может быть пустым. ' })
+  @IsNotEmpty()
   _login: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'Поле sip_id не может быть пустым. ' })
+  @IsNotEmpty()
   _secret: string;
 
   @IsString()
   _action: AmocrmActionStatus;
 
+  @IsOptional()
   @IsString()
   rand?: string;
 
+  @IsOptional()
   @IsString()
   from?: string;
 
+  @IsOptional()
   @IsString()
   to?: string;
 
+  @IsOptional()
   @IsString()
   as?: string;
 
+  @IsOptional()
   @IsString()
   _?: string;
 }
