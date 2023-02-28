@@ -11,15 +11,13 @@ export class CallApiService {
   public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
     try {
       const result: MonitoringCallResult[] = [];
-      await Promise.all(
-        data.numbers.map(async (number: string) => {
-          await this.ari.sendAriCall(number);
-          result.push({
-            number,
-            isCallSuccessful: true,
-          });
-        }),
-      );
+      for (const number of data.numbers) {
+        await this.ari.sendAriCall(number);
+        result.push({
+          number,
+          isCallSuccessful: true,
+        });
+      }
       return result;
     } catch (e) {
       throw e;
