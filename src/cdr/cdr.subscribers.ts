@@ -1,20 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { Cdr } from './cdr.schema';
+import { Cdr, CdrDocument } from './cdr.schema';
 import { CdrService } from './cdr.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { QueueTypes } from './interfaces/cdr.enum';
 import { DEFAULT_TIMEOUT } from './cdr.config';
+import { LogService } from '@app/log/log.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CdrPubSubInfo } from './interfaces/cdr.interfaces';
 
 @Injectable()
 export class CdrMessagingService {
-  constructor(private readonly cdrService: CdrService) {}
+  constructor(
+    @InjectModel(Cdr.name) private cdrModel: Model<CdrDocument>,
+    private readonly cdrService: CdrService,
+    private readonly log: LogService,
+  ) {}
   @RabbitSubscribe({
     exchange: 'presence',
     queue: QueueTypes.cdr,
   })
-  public async pubSubHandler(msg: any) {
+  public async pubSubHandler(msg: CdrPubSubInfo): Promise<void> {
     await UtilsService.sleep(DEFAULT_TIMEOUT);
+    if (await this.checkComplete(msg)) return;
     await this.cdrService.sendCdrInfo(msg.data as Cdr);
+  }
+
+  private async checkComplete(msg: CdrPubSubInfo) {
+    const cdr = await this.cdrModel.find({ unicueid: msg.data.unicueid });
+    return cdr[0].complete;
   }
 }
