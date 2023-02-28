@@ -11,7 +11,7 @@ import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class AmocrmConnector implements OnApplicationBootstrap {
-  public amocrmClient: Client = this.amocrm;
+  public amocrmClient: Client;
 
   constructor(
     @Inject('Amocrm') private readonly amocrm: Client,
@@ -22,9 +22,9 @@ export class AmocrmConnector implements OnApplicationBootstrap {
   public async onApplicationBootstrap() {
     try {
       this.log.info(INIT_AMO, AmocrmConnector.name);
+      this.amocrmClient = this.amocrm;
       await this.setToken();
-      await this.logConnection();
-      // Убираем, так как не получаем ответ пока не стартанет сервис, переносим в health
+      await this.handleConnection();
       this.checkAmocrmInteraction();
     } catch (e) {
       this.log.error(e, AmocrmConnector.name);
@@ -89,7 +89,7 @@ export class AmocrmConnector implements OnApplicationBootstrap {
     return await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(token));
   }
 
-  private async logConnection(): Promise<void> {
+  private async handleConnection(): Promise<void> {
     this.amocrmClient.on('connection:beforeConnect', async (error: any) => {
       this.log.info(`connection:beforeConnect ${error}`, AmocrmConnector.name);
       await this.refreshToken();
