@@ -31,7 +31,13 @@ import {
   ResponsibleUserId,
   TaskTypeId,
 } from './interfaces/amocrm.enum';
-import { AMOCRM_ERROR_RESPONSE_CODE, CALL_STATUS_MAP, DEFAULT_TASKS_TEXT, RECORD_PATH_FROMAT } from './amocrm.constants';
+import {
+  AMOCRM_ERROR_RESPONSE_CODE,
+  CALL_DATE_SUBTRACT,
+  CALL_STATUS_MAP,
+  DEFAULT_TASKS_TEXT,
+  RECORD_PATH_FROMAT,
+} from './amocrm.constants';
 import { Client } from 'amocrm-js';
 import { UtilsService } from '@app/utils/utils.service';
 import { AmocrmSaveDataAdapter, ResponseDataAdapter } from './amocrm.adapters';
@@ -41,7 +47,6 @@ import { AmocrmErrors } from './amocrm.error';
 export class AmocrmV4Service implements OnApplicationBootstrap {
   public amocrm: Client;
   private readonly recordDomain = this.configService.get('amocrm.recordDomain');
-  private readonly recordLink: string = `${this.recordDomain}/rec/monitor/${moment().format(RECORD_PATH_FROMAT)}/`;
 
   constructor(
     @InjectModel(Amocrm.name)
@@ -92,14 +97,16 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
     try {
       const { result, direction, amocrmId, cdrId } = data;
       const { uniqueid, src, dst, calldate, billsec, disposition, recordingfile } = result;
-      const date = moment(calldate).subtract(3, 'hour').unix();
+      const date = moment(calldate).subtract(CALL_DATE_SUBTRACT, 'hour').unix();
 
       const callInfo: AmocrmAddCallInfo = {
         direction: direction,
         uniq: uniqueid,
         duration: billsec,
         source: 'amo_custom_widget',
-        link: `${this.recordLink}${recordingfile}`,
+        link: `${this.recordDomain}/rec/monitor/${moment(calldate)
+          .subtract(CALL_DATE_SUBTRACT, 'hour')
+          .format(RECORD_PATH_FROMAT)}/${recordingfile}`,
         phone: src !== undefined ? src : dst,
         call_result: '',
         call_status: CALL_STATUS_MAP[disposition],
