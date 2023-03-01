@@ -1,5 +1,5 @@
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
-import { AmocrmV2Service } from '@app/amocrm/amocrm.service';
+import { AmocrmV2Service } from '@app/amocrm/v2/amocrm-v2.service';
 import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';

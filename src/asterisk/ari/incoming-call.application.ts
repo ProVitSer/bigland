@@ -1,4 +1,4 @@
-import { AmocrmV4Service } from '@app/amocrm/amocrm.service';
+import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';

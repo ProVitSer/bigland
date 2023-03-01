@@ -12,7 +12,7 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmocrmUsers } from '@app/amocrm-users/amocrm-users.schema';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
-import { AmocrmV4Service } from '@app/amocrm/amocrm.service';
+import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
 
 @Injectable()

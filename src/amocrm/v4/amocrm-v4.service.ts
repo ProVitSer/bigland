@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { AmocrmConnector, AmocrmV2Auth } from './amocrm.connect';
+import { AmocrmV4Connector } from './amocrm-v4.connect';
 import {
   AmocrmAddCallInfo,
   AmocrmAddCallInfoResponse,
@@ -12,36 +12,34 @@ import {
   AmocrmGetContactsRequest,
   AmocrmGetContactsResponse,
   SendCallInfoToCRM,
-} from './interfaces/amocrm.interfaces';
+} from '../interfaces/amocrm.interfaces';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
 import { RedisService } from '@app/redis/redis.service';
 import { LogService } from '@app/log/log.service';
 import { NumberInfo, System } from '@app/system/system.schema';
-import { Amocrm, AmocrmDocument } from './amocrm.schema';
+import { Amocrm, AmocrmDocument } from '../amocrm.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
-  AmocrmAPI,
-  AmoCRMAPIV2,
+  AmocrmAPIV4,
   CreatedById,
   CustomFieldsValuesEnumId,
   CustomFieldsValuesId,
   ResponsibleUserId,
   TaskTypeId,
-} from './interfaces/amocrm.enum';
+} from '../interfaces/amocrm.enum';
 import {
   AMOCRM_ERROR_RESPONSE_CODE,
   CALL_DATE_SUBTRACT,
   CALL_STATUS_MAP,
   DEFAULT_TASKS_TEXT,
   RECORD_PATH_FROMAT,
-} from './amocrm.constants';
+} from '../amocrm.constants';
 import { Client } from 'amocrm-js';
 import { UtilsService } from '@app/utils/utils.service';
-import { AmocrmSaveDataAdapter, ResponseDataAdapter } from './amocrm.adapters';
-import { AmocrmErrors } from './amocrm.error';
+import { AmocrmSaveDataAdapter, ResponseDataAdapter } from '../amocrm.adapters';
+import { AmocrmErrors } from '../amocrm.error';
 
 @Injectable()
 export class AmocrmV4Service implements OnApplicationBootstrap {
@@ -51,7 +49,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   constructor(
     @InjectModel(Amocrm.name)
     private amocrmModel: Model<AmocrmDocument>,
-    private readonly amocrmConnect: AmocrmConnector,
+    private readonly amocrmConnect: AmocrmV4Connector,
     private readonly log: LogService,
     private readonly configService: ConfigService,
     private redis: RedisService,
@@ -85,7 +83,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
         complete_till: moment().unix(),
       };
       this.log.info(tasksInfo, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPI.tasks, [tasksInfo]);
+      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.tasks, [tasksInfo]);
       const response = new ResponseDataAdapter(apiResponse);
       return await this.getDataAndSave<AmocrmCreateTasksResponse>(response, new AmocrmSaveDataAdapter(response, tasksInfo));
     } catch (e) {
@@ -118,7 +116,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       };
 
       this.log.info(callInfo, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPI.call, [callInfo]);
+      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.call, [callInfo]);
       this.log.info(apiResponse.data, AmocrmV4Service.name);
       const response = new ResponseDataAdapter(apiResponse);
       return await this.getDataAndSave<AmocrmAddCallInfoResponse>(response, new AmocrmSaveDataAdapter(response, callInfo, result, cdrId));
@@ -132,7 +130,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       const info: AmocrmGetContactsRequest = {
         query: UtilsService.formatIncomingNumber(incomingNumber),
       };
-      const result = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPI.contacts, info))?.data;
+      const result = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPIV4.contacts, info))?.data;
       this.log.info(`Результат поиска контакта ${incomingNumber}: ${JSON.stringify(result)}`, AmocrmV4Service.name);
       return !!result?._embedded ? true : false;
     } catch (e) {
@@ -173,7 +171,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
         ],
       };
       this.log.info(contact, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPI.contacts, [contact]);
+      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.contacts, [contact]);
       const response = new ResponseDataAdapter(apiResponse);
       const data = await this.getDataAndSave<AmocrmCreateContactResponse>(response, new AmocrmSaveDataAdapter(response, contact));
       return data._embedded.contacts[0].id;
@@ -202,7 +200,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       };
 
       this.log.info(lead, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPI.leads, [lead]);
+      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.leads, [lead]);
       const response = new ResponseDataAdapter(apiResponse);
       return await this.getDataAndSave<AmocrmCreateLeadResponse>(response, new AmocrmSaveDataAdapter(response, lead));
     } catch (e) {
@@ -216,7 +214,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       if (!AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
     }
     if (!!response.statusCode && AMOCRM_ERROR_RESPONSE_CODE.includes(response.statusCode)) {
-      throw UtilsService.dataToString(response.data);
+      throw UtilsService.dataToString(response);
     }
     return response.data as T;
   }
@@ -238,39 +236,5 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   private async saveData(data: AmocrmSaveDataAdapter) {
     const amocrm = new this.amocrmModel({ ...data.amocrmData });
     return await amocrm.save();
-  }
-}
-
-@Injectable()
-export class AmocrmV2Service {
-  constructor(private readonly amocrm: AmocrmV2Auth, private readonly log: LogService, private httpService: HttpService) {}
-
-  public async incomingCallEvent(incomingNumber: string, eventResponsibleUserId: string): Promise<boolean> {
-    try {
-      await this.amocrm.auth();
-      const result = await this.httpService
-        .post(`${this.amocrm.amocrmApiV2Domain}${AmoCRMAPIV2.events}`, this.getEventsData(incomingNumber, eventResponsibleUserId), {
-          headers: { Cookie: this.amocrm.authCookies },
-        })
-        .toPromise();
-      return !!result.data;
-    } catch (e) {
-      this.log.error(e, AmocrmV2Service.name);
-      throw e;
-    }
-  }
-
-  private getEventsData(incomingNumber: string, eventResponsibleUserId: string): string {
-    const eventsData = JSON.stringify({
-      add: [
-        {
-          type: 'phone_call',
-          phone_number: UtilsService.formatIncomingNumber(incomingNumber),
-          users: [`"${eventResponsibleUserId}"`],
-        },
-      ],
-    });
-    this.log.info(eventsData, AmocrmV2Service.name);
-    return eventsData;
   }
 }
