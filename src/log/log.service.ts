@@ -28,12 +28,12 @@ export class LogService {
     this.logger.info(messageString, { context: `${this.context}.${context}` });
   }
 
-  debug(message: string, context?: string): void {
+  debug(message: any, context?: string): void {
     const messageString = UtilsService.dataToString(message);
     this.logger.debug(messageString, { context: `${this.context}.${context}` });
   }
 
-  error(message: string, context?: string): void {
+  error(message: any, context?: string): void {
     const messageString = UtilsService.dataToString(message);
     const logcontext = `${this.context}.${context}`;
     this.logger.error(messageString, { context: logcontext });
