@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { RabbitSubscribe, Nack } from '@golevelup/nestjs-rabbitmq';
 import { Cdr, CdrDocument } from './cdr.schema';
 import { CdrService } from './cdr.service';
 import { UtilsService } from '@app/utils/utils.service';
@@ -21,10 +21,14 @@ export class CdrMessagingService {
     exchange: 'presence',
     queue: QueueTypes.cdr,
   })
-  public async pubSubHandler(msg: CdrPubSubInfo): Promise<void> {
-    await UtilsService.sleep(DEFAULT_TIMEOUT);
-    if (await this.checkComplete(msg)) return;
-    await this.cdrService.sendCdrInfo(msg.data as Cdr);
+  public async pubSubHandler(msg: CdrPubSubInfo): Promise<void | Nack> {
+    try {
+      await UtilsService.sleep(DEFAULT_TIMEOUT);
+      if (await this.checkComplete(msg)) return;
+      await this.cdrService.sendCdrInfo(msg.data as Cdr);
+    } catch (e) {
+      return new Nack(true);
+    }
   }
 
   private async checkComplete(msg: CdrPubSubInfo) {
