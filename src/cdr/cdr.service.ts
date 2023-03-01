@@ -6,7 +6,7 @@ import { CallType } from './interfaces/cdr.enum';
 import { LogService } from '@app/log/log.service';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
-import { AmocrmV4Service } from '@app/amocrm/amocrm.service';
+import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
@@ -43,7 +43,9 @@ export class CdrService {
           break;
       }
     } catch (e) {
-      this.log.error(`${e}: ` + msg, CdrService.name);
+      this.log.error(e.data || e, CdrService.name);
+      this.log.error(msg, CdrService.name);
+      throw e;
     }
   }
 
