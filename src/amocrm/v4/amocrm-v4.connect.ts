@@ -85,9 +85,8 @@ export class AmocrmV4Connector {
       this.log.info(`Подключение к Amocrm успешно`, AmocrmV4Connector.name);
     });
 
-    this.amocrm.token.on('change', async (response: any) => {
-      this.log.info(`connection:newToken :` + response, AmocrmV4Connector.name);
-      await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(response.data));
+    this.amocrm.token.on('change', async () => {
+      this.log.info('token:newToken :', AmocrmV4Connector.name);
     });
 
     this.amocrm.connection.on('connectionError', async (error: any) => {
@@ -96,7 +95,11 @@ export class AmocrmV4Connector {
     });
 
     this.amocrm.token.on('beforeRefresh', (response: any) => {
-      this.log.info(`connection:beforeRefreshToken: ` + response, AmocrmV4Connector.name);
+      this.log.info('token:beforeRefreshToken', AmocrmV4Connector.name);
+    });
+
+    this.amocrm.token.on('refresh', () => {
+      this.log.info('token:refresh', AmocrmV4Connector.name);
     });
 
     return;

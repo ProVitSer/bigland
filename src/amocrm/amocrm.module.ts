@@ -11,9 +11,13 @@ import { AmocrmV2Connector } from './v2/amocrm-v2.connect';
 import { AmocrmV4Connector } from './v4/amocrm-v4.connect';
 import { AmocrmV4Service } from './v4/amocrm-v4.service';
 import { AmocrmV2Service } from './v2/amocrm-v2.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AmocrmUpdateTokenSchedule } from './schedule/update-token';
+import { TelegramModule } from '@app/telegram/telegram.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule,
     LogModule,
     RedisModule,
@@ -24,6 +28,7 @@ import { AmocrmV2Service } from './v2/amocrm-v2.service';
       useFactory: getAmocrmV2Config,
       inject: [ConfigService],
     }),
+    TelegramModule,
   ],
   providers: [
     {
@@ -35,6 +40,7 @@ import { AmocrmV2Service } from './v2/amocrm-v2.service';
     AmocrmV4Connector,
     AmocrmV4Service,
     AmocrmV2Service,
+    AmocrmUpdateTokenSchedule,
   ],
   exports: [AmocrmV4Service, AmocrmV2Service, AmocrmV4Connector],
 })
