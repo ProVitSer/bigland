@@ -82,7 +82,7 @@ export class AmocrmV4Connector {
 
   private handleConnection(): Promise<void> {
     this.amocrm.connection.on('beforeConnect', async () => {
-      this.log.info(`Подключение к Amocrm успешно`, AmocrmV4Connector.name);
+      //this.log.info(`Подключение к Amocrm успешно`, AmocrmV4Connector.name);
     });
 
     this.amocrm.token.on('change', async () => {
