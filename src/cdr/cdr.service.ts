@@ -65,6 +65,6 @@ export class CdrService {
   }
 
   private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr) {
-    return await this.cdrModel.findOneAndUpdate({ _id: cdrId }, { $set: { complete: true, cdrData } });
+    return await this.cdrModel.findOneAndUpdate({ _id: cdrId }, { $set: { complete: true } });
   }
 }
