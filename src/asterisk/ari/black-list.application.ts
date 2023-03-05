@@ -6,7 +6,8 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../asterisk.utils';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR } from './ari.constants';
+import { HangupReason } from '../interfaces/asterisk.enum';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from './ari.constants';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
@@ -26,7 +27,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
       try {
         this.log.info(`Событие входящего вызова ${JSON.stringify(stasisStartEvent)}`, AriBlackListApplication.name);
         (await this.checkInBlackList(stasisStartEvent))
-          ? this.hangupChannel(stasisStartEvent.channel.id)
+          ? this.hangupChannel(stasisStartEvent)
           : await this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
         this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriBlackListApplication.name);
@@ -47,7 +48,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   }
 
   private check(arr: string[], val: string) {
-    return arr.some((arrVal) => val === arrVal);
+    return arr.some((arrVal) => val.substring(val.length - NUMBER_FORMAT) === arrVal.substring(val.length - NUMBER_FORMAT));
   }
 
   private async continueDialplan(channelId: string): Promise<void> {
@@ -63,7 +64,8 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private hangupChannel(channelId: string) {
-    return this.client.ariClient.channels.hangup({ channelId: channelId });
+  private hangupChannel(event: StasisStart) {
+    this.log.info(`${NUMBER_IN_BLACK_LIST}:  ${JSON.stringify(event)}`, AriBlackListApplication.name);
+    return this.client.ariClient.channels.hangup({ channelId: event.channel.id, reason: HangupReason.busy });
   }
 }

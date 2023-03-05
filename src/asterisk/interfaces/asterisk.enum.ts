@@ -140,3 +140,10 @@ export enum EndpointState {
   offline = 'offline',
   online = 'online',
 }
+
+export enum HangupReason {
+  normal = 'normal',
+  busy = 'busy',
+  congestion = 'congestion',
+  noAnswer = 'no_answer',
+}
