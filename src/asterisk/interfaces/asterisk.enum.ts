@@ -135,3 +135,8 @@ export enum PlaybackSounds {
   Goodbye = 'sound:vm-goodbye',
   DialPass = 'sound:agent-pass',
 }
+
+export enum EndpointState {
+  offline = 'offline',
+  online = 'online',
+}

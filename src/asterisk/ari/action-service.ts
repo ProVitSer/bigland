@@ -5,7 +5,7 @@ import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
 import { ARI_OUTBOUND_CALL, ARI_OUTBOUND_CALL_OPERATOR, POZVONIM_OUTBOUND_CALL } from '../asterisk.config';
-import { ChannelType } from '../interfaces/asterisk.enum';
+import { ChannelType, EndpointState } from '../interfaces/asterisk.enum';
 
 @Injectable()
 export class AriActionService implements OnApplicationBootstrap {
@@ -40,6 +40,7 @@ export class AriActionService implements OnApplicationBootstrap {
 
   public async pozvonimOutboundCall(data: PozvominCall): Promise<Channel> {
     try {
+      if (!(await this.checkEndpointState(data.SIP_ID))) throw new Error(`Добавочный номер ${data.SIP_ID} не зарегистрирован`);
       const amocrmUsers = await this.amocrmUsers.getAmocrmUser(data.SIP_ID);
       await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, String(amocrmUsers[0]?.amocrmId));
       const originateData = this.getPozvonimOriginateStruct(data);
@@ -63,6 +64,11 @@ export class AriActionService implements OnApplicationBootstrap {
         var2: data.SIP_ID,
       },
     };
+  }
+
+  private async checkEndpointState(extension: string): Promise<boolean> {
+    const endpoints = await this.client.ariClient.endpoints.get({ tech: ChannelType.PJSIP, resource: extension });
+    return endpoints.state == EndpointState.online;
   }
 
   private getAriChannel(): Ari.Channel {
