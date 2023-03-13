@@ -17,17 +17,17 @@ export class CdrSchedule {
     private readonly log: LogService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_9PM)
-  async updateNoCompleteCall() {
-    try {
-      const noSendCdr = await this.cdrModel.find({ complete: { $ne: true }, disposition: { $ne: Disposition.failed } });
-      if (noSendCdr.length == 0) return;
-      for (const cdr of noSendCdr) {
-        await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
-        await this.cdrService.sendCdrInfo(cdr);
-      }
-    } catch (e) {
-      this.log.error(e, CdrSchedule.name);
-    }
-  }
+  // @Cron(CronExpression.EVERY_DAY_AT_9PM)
+  // async updateNoCompleteCall() {
+  //   try {
+  //     const noSendCdr = await this.cdrModel.find({ complete: { $ne: true }, disposition: { $ne: Disposition.failed } });
+  //     if (noSendCdr.length == 0) return;
+  //     for (const cdr of noSendCdr) {
+  //       await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
+  //       await this.cdrService.sendCdrInfo(cdr);
+  //     }
+  //   } catch (e) {
+  //     this.log.error(e, CdrSchedule.name);
+  //   }
+  // }
 }
