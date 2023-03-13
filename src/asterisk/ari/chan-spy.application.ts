@@ -1,7 +1,6 @@
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
-import { RedisService } from '@app/redis/redis.service';
-import { System } from '@app/system/system.schema';
+import { SystemService } from '@app/system/system.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
@@ -12,13 +11,12 @@ import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR, PLAYBACK_ERROR } from './ar
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
-  private channelDTMF: { [key: string]: { dtmf: string[] } };
 
   constructor(
     @Inject(AsteriskAriProvider.chanspy) private readonly ari: { ariClient: Ari.Client },
     private readonly configService: ConfigService,
     private readonly log: LogService,
-    private readonly redis: RedisService,
+    private readonly system: SystemService,
   ) {}
 
   public async onApplicationBootstrap() {
@@ -56,9 +54,8 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
   }
 
   private async checkDTMFPassword(dtmfPassword: string): Promise<boolean> {
-    const result = await this.redis.getCustomKey('config');
-    const configJson = JSON.parse(result) as System;
-    return dtmfPassword == configJson.chanSpyPassword;
+    const config = await this.system.getConfig();
+    return dtmfPassword == config.chanSpyPassword;
   }
 
   private async continueDialplan(channel: Channel, isValid: boolean): Promise<void> {

@@ -1,7 +1,6 @@
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
-import { RedisService } from '@app/redis/redis.service';
-import { System } from '@app/system/system.schema';
+import { SystemService } from '@app/system/system.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
@@ -17,7 +16,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     @Inject(AsteriskAriProvider.blacklist) private readonly ari: { ariClient: Ari.Client },
     private readonly log: LogService,
     private readonly configService: ConfigService,
-    private readonly redis: RedisService,
+    private readonly system: SystemService,
   ) {}
 
   public async onApplicationBootstrap() {
@@ -39,9 +38,8 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   private async checkInBlackList(event: StasisStart): Promise<boolean> {
     try {
       const incomingNumber = event.channel.caller.number;
-      const config = await this.redis.getCustomKey('config');
-      const configJson = JSON.parse(config) as System;
-      return this.check(configJson.blackListNumbers, incomingNumber);
+      const config = await this.system.getConfig();
+      return this.check(config.blackListNumbers, incomingNumber);
     } catch (e) {
       throw e;
     }

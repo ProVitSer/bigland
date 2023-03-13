@@ -28,3 +28,8 @@ export enum LogLevel {
   debug = 'debug',
   silly = 'silly',
 }
+
+export enum DatabaseType {
+  mongo = 'mongo',
+  mariadb = 'mariadb',
+}

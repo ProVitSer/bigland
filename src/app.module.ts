@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegramModule } from './telegram/telegram.module';
 import { CdrModule } from './cdr/cdr.module';
 import { LdsModule } from './lds/lds.module';
-import configuration, { InitSystemConfig } from './config/config.provider';
+import configuration from './config/config.provider';
 import { DockerModule } from './docker/docker.module';
 import { SeleniumModule } from './selenium/selenium.module';
 import { HttpResponseModule } from './http/http.module';
@@ -32,7 +32,7 @@ import { HealthModule } from './health/health.module';
       useFactory: getMongoUseFactory,
       inject: [ConfigService],
     }),
-    HealthModule,
+    //HealthModule,
     LogModule,
     TelegramModule,
     CdrModule,
@@ -54,7 +54,7 @@ import { HealthModule } from './health/health.module';
     AmocrmModule,
   ],
   controllers: [],
-  providers: [InitSystemConfig],
+  providers: [],
   exports: [ConfigModule],
 })
 export class AppModule {}

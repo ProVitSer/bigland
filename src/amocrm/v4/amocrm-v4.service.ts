@@ -15,9 +15,7 @@ import {
 } from '../interfaces/amocrm.interfaces';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '@app/redis/redis.service';
 import { LogService } from '@app/log/log.service';
-import { NumberInfo, System } from '@app/system/system.schema';
 import { Amocrm, AmocrmDocument } from '../amocrm.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -33,6 +31,7 @@ import {
   AMOCRM_ERROR_RESPONSE_CODE,
   CALL_DATE_SUBTRACT,
   CALL_STATUS_MAP,
+  DEFAULT_NUMBER,
   DEFAULT_TASKS_TEXT,
   RECORD_PATH_FROMAT,
 } from '../amocrm.constants';
@@ -40,6 +39,8 @@ import { Client } from 'amocrm-js';
 import { UtilsService } from '@app/utils/utils.service';
 import { AmocrmSaveDataAdapter, ResponseDataAdapter } from '../amocrm.adapters';
 import { AmocrmErrors } from '../amocrm.error';
+import { SystemService } from '@app/system/system.service';
+import { NumberInfo } from '@app/system/system.schema';
 
 @Injectable()
 export class AmocrmV4Service implements OnApplicationBootstrap {
@@ -52,7 +53,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
     private readonly amocrmConnect: AmocrmV4Connector,
     private readonly log: LogService,
     private readonly configService: ConfigService,
-    private redis: RedisService,
+    private system: SystemService,
   ) {}
 
   public async onApplicationBootstrap() {
@@ -164,7 +165,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
             field_code: null,
             values: [
               {
-                value: numberConfig.originNumber,
+                value: numberConfig.originNumber || DEFAULT_NUMBER,
               },
             ],
           },
@@ -219,11 +220,10 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
     return response.data as T;
   }
 
-  private async getIncomingNumberConfig(incominNumber: string) {
+  private async getIncomingNumberConfig(incominNumber: string): Promise<NumberInfo> {
     try {
-      const config = await this.redis.getCustomKey('config');
-      const configJson = JSON.parse(config) as System;
-      return configJson.numbersInfo.find((numberInfo: NumberInfo) => numberInfo.trunkNumber === incominNumber);
+      const config = await this.system.getConfig();
+      return config.numbersInfo.find((numberInfo: NumberInfo) => numberInfo.trunkNumber === incominNumber);
     } catch (e) {
       throw e;
     }

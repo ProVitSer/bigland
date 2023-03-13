@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
-import { RedisModule } from '@app/redis/redis.module';
 import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -14,13 +13,14 @@ import { AmocrmV2Service } from './v2/amocrm-v2.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AmocrmUpdateTokenSchedule } from './schedule/update-token';
 import { TelegramModule } from '@app/telegram/telegram.module';
+import { SystemModule } from '@app/system/system.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     ConfigModule,
     LogModule,
-    RedisModule,
+    SystemModule,
     AsteriskCdrModule,
     MongooseModule.forFeature([{ name: Amocrm.name, schema: AmocrmSchema }]),
     HttpModule.registerAsync({
