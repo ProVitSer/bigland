@@ -1,6 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { AmocrmCallStatus, PbxCallStatus } from './interfaces/amocrm.enum';
 
+export const DEFAULT_NUMBER = '74951234567';
 export const CALL_DATE_SUBTRACT = 3;
 export const RECORD_PATH_FROMAT = 'YYYY/MM/DD';
 export const INIT_AMO_ERROR = 'Ошибка подключения к Amocrm';
