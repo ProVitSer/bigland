@@ -17,13 +17,13 @@ export class CdrMessagingService {
     exchange: 'presence',
     queue: QueueTypes.cdr,
   })
-  public async pubSubHandler(msg: CdrPubSubInfo): Promise<void> {
+  public async pubSubHandler(msg: CdrPubSubInfo): Promise<void | Nack> {
     try {
       await UtilsService.sleep(DEFAULT_TIMEOUT);
       if (await this.checkComplete(msg)) return;
       await this.cdrService.sendCdrInfo(msg.data as Cdr);
     } catch (e) {
-      return; //new Nack(true);
+      return new Nack(true);
     }
   }
 

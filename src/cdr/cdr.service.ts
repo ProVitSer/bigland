@@ -50,6 +50,7 @@ export class CdrService {
   }
 
   private async sendInfoToAmo(cdr: AsteriskCdr[], callType: DirectionType, cdrId: ObjectId) {
+    if (cdr.length == 0) return;
     await Promise.all(
       cdr.map(async (c: AsteriskCdr) => {
         const amocrmUser = await this.amocrmUsersService.getAmocrmUser(UtilsService.replaceChannel(c.channel || c.dstchannel));
