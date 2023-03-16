@@ -13,17 +13,14 @@ const getMariadbConfig = (configService: ConfigService): SequelizeModuleOptions 
   const { username, password, database, host, port } = configService.get('database.mariadb') as DatabaseEnvironmentVariables;
   return {
     dialect: 'mariadb',
+    dialectOptions: {
+      connectTimeout: 5000,
+    },
     host,
     port,
     username,
     password,
     database,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
   };
 };
 
