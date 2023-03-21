@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../asterisk.utils';
 import { HangupReason } from '../interfaces/asterisk.enum';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from './ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from './ari.constants';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
@@ -29,7 +29,8 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
           ? this.hangupChannel(stasisStartEvent)
           : await this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
-        this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriBlackListApplication.name);
+        this.log.error(`${CONTINUE_DIALPLAN_BLACKLIST_ERROR}: ${e}`, AriBlackListApplication.name);
+        return await this.continueDialplan(stasisStartEvent.channel.id);
       }
     });
     this.client.ariClient.start(blacklistConf.stasis);

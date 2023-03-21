@@ -5,7 +5,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../asterisk.utils';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR } from './ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_INCOMINGCALL_ERROR } from './ari.constants';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {
@@ -27,8 +27,8 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
         await this.checkInAmo(stasisStartEvent);
         return this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
-        this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriIncomingCallApplication.name);
-        return this.continueDialplan(stasisStartEvent.channel.id);
+        this.log.error(`${CONTINUE_DIALPLAN_INCOMINGCALL_ERROR}: ${e}`, AriIncomingCallApplication.name);
+        return await this.continueDialplan(stasisStartEvent.channel.id);
       }
     });
     this.client.ariClient.start(amocrmConf.stasis);

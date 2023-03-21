@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../asterisk.utils';
 import { PlaybackSounds } from '../interfaces/asterisk.enum';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_ERROR, PLAYBACK_ERROR } from './ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_CHANSPY_ERROR, PLAYBACK_ERROR } from './ari.constants';
 
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {
@@ -73,7 +73,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
         return await channel.hangup();
       }
     } catch (e) {
-      this.log.info(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriChanSpyApplication.name);
+      this.log.info(`${CONTINUE_DIALPLAN_CHANSPY_ERROR}: ${e}`, AriChanSpyApplication.name);
       throw e;
     }
   }
