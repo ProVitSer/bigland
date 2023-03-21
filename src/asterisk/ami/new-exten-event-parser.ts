@@ -90,7 +90,7 @@ export class OutboundHangupHandler extends BaseHangupHandlerService implements A
     try {
       const asteriskCdr = await this.asteriskCdr.searchOutgoingCallInfoInCdr(event.uniqueid);
       if (!!!asteriskCdr && asteriskCdr == null) return;
-      await this.sendCallInfoEvent(asteriskCdr, asteriskCdr.channel, DirectionType.outbound);
+      await this.sendCallInfoEvent(asteriskCdr[0], asteriskCdr[0].channel, DirectionType.outbound);
     } catch (e) {
       this.log.error(e, OutboundHangupHandler.name);
     }
@@ -118,7 +118,7 @@ export class PozvonimHangupHandler extends BaseHangupHandlerService implements A
     try {
       const asteriskCdr = await this.asteriskCdr.searchPozvonimCallInfoInCdr(event.uniqueid);
       if (!!!asteriskCdr && asteriskCdr == null) return;
-      await this.sendCallInfoEvent(asteriskCdr, asteriskCdr.channel, DirectionType.outbound);
+      await this.sendCallInfoEvent(asteriskCdr[0], asteriskCdr[0].channel, DirectionType.outbound);
     } catch (e) {
       this.log.error(e, PozvonimHangupHandler.name);
     }
