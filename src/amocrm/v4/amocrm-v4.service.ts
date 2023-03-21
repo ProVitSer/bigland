@@ -223,7 +223,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
   private checkResponse<T>(response: ResponseDataAdapter<T>): void {
     if (!!response.statusCode && [HttpStatus.BAD_REQUEST].includes(response.statusCode)) {
-      if (!AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
+      if (!AmocrmErrors.isNormalBadRequestError<T>(response)) throw UtilsService.dataToString(response.data);
     }
     if (!!response.statusCode && AMOCRM_ERROR_RESPONSE_CODE.includes(response.statusCode)) {
       throw UtilsService.dataToString(response);
