@@ -247,10 +247,17 @@ export interface AmocrmCreateTasksResponse {
 }
 
 export type AmocrmReponse = AmocrmAddCallInfoResponse | AmocrmCreateTasksResponse | AmocrmCreateLeadResponse | AmocrmCreateContactResponse;
+export type AmocrmRequestData = AmocrmAddTasks | AmocrmAddCallInfo | AmocrmCreateContact | AmocrmCreateLead;
 
 export interface SendCallInfoToCRM {
   cdrId?: ObjectId;
   result: AsteriskCdr;
   amocrmId: number;
   direction: DirectionType;
+}
+
+export interface AmocrmSaveData {
+  amocrmRequestData: AmocrmRequestData;
+  cdrData?: AsteriskCdr;
+  cdrId?: ObjectId | undefined;
 }

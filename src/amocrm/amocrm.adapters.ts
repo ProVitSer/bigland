@@ -1,30 +1,30 @@
-import { DataObject } from '@app/platform-types/common/interfaces';
+import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
-import { ObjectId } from 'mongoose';
 import { Amocrm } from './amocrm.schema';
+import { AmocrmSaveData } from './interfaces/amocrm.interfaces';
 
-export class ResponseDataAdapter {
+export class ResponseDataAdapter<T> {
   public statusCode: number | undefined;
-  public data: DataObject;
+  public data: T;
 
-  constructor(response: IAPIResponse<unknown>) {
+  constructor(response: IAPIResponse<T>) {
     this.statusCode = response.response.statusCode;
     this.data = response.data;
   }
 }
 
-export class AmocrmSaveDataAdapter {
+export class AmocrmSaveDataAdapter<T> {
   public amocrmData: Amocrm;
-  public readonly responseDataAdapter: ResponseDataAdapter;
+  public readonly responseDataAdapter: ResponseDataAdapter<T>;
   private changed: Date = new Date();
-  constructor(private response: ResponseDataAdapter, amocrmRequestData: any, cdrData?: any, cdrId?: ObjectId | undefined) {
-    this.responseDataAdapter = response;
+  constructor(responseData: ResponseDataAdapter<T>, saveData: AmocrmSaveData) {
+    this.responseDataAdapter = responseData;
     this.amocrmData = {
-      cdrId: cdrId || undefined,
+      cdrId: saveData?.cdrId,
       statusCode: this.responseDataAdapter.statusCode,
       amocrmResponseData: this.responseDataAdapter.data,
-      amocrmRequestData,
-      cdrData: cdrData || {},
+      amocrmRequestData: saveData.amocrmRequestData,
+      cdrData: saveData?.cdrData || ({} as AsteriskCdr),
       changed: this.changed,
     };
   }

@@ -57,6 +57,7 @@ export enum CustomFieldsValuesId {
   LeadsLgTel = 1288762,
   ContactsLgTel = 1288764,
   Village = 1274981,
+  TypeRequest = 1274979,
 }
 
 export enum CustomFieldsValuesEnumId {
