@@ -24,7 +24,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
     this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
       try {
         this.log.info(`Событие входящего вызова ${JSON.stringify(stasisStartEvent)}`, AriIncomingCallApplication.name);
-        await this.checkInAmo(stasisStartEvent);
+        await this.actionsInAmocrm(stasisStartEvent);
         return this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
         this.log.error(`${CONTINUE_DIALPLAN_INCOMINGCALL_ERROR}: ${e}`, AriIncomingCallApplication.name);
@@ -34,7 +34,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
     this.client.ariClient.start(amocrmConf.stasis);
   }
 
-  private async checkInAmo(event: StasisStart): Promise<void> {
+  private async actionsInAmocrm(event: StasisStart): Promise<void> {
     try {
       const incomingTrunk = event.channel.dialplan.exten;
       return await this.amocrmV4Service.actionsInAmocrm(event.channel.caller.number, incomingTrunk);
