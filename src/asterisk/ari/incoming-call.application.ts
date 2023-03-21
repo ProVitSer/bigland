@@ -28,6 +28,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
         return this.continueDialplan(stasisStartEvent.channel.id);
       } catch (e) {
         this.log.error(`${CONTINUE_DIALPLAN_ERROR}: ${e}`, AriIncomingCallApplication.name);
+        return this.continueDialplan(stasisStartEvent.channel.id);
       }
     });
     this.client.ariClient.start(amocrmConf.stasis);
