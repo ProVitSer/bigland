@@ -24,7 +24,7 @@ export class CdrService {
   public async sendCdrInfo(msg: Cdr) {
     try {
       this.log.info(msg, CdrService.name);
-      let asteriskCdrInfo: AsteriskCdr[] | AsteriskCdr = [];
+      let asteriskCdrInfo: AsteriskCdr[] = [];
       switch (msg.callType) {
         case CallType.incoming:
           asteriskCdrInfo = await this.asteriskCdrService.searchIncomingCallInfoInCdr(msg.unicueid);
@@ -32,11 +32,11 @@ export class CdrService {
           break;
         case CallType.outgoing:
           asteriskCdrInfo = await this.asteriskCdrService.searchOutgoingCallInfoInCdr(msg.unicueid);
-          await this.sendInfoToAmo([asteriskCdrInfo], DirectionType.outbound, msg._id);
+          await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
           break;
         case CallType.pozvonim:
           asteriskCdrInfo = await this.asteriskCdrService.searchPozvonimCallInfoInCdr(msg.unicueid);
-          await this.sendInfoToAmo([asteriskCdrInfo], DirectionType.outbound, msg._id);
+          await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
           break;
         default:
           this.log.error(JSON.stringify(msg), CdrService.name);
@@ -50,6 +50,8 @@ export class CdrService {
   }
 
   private async sendInfoToAmo(cdr: AsteriskCdr[], callType: DirectionType, cdrId: ObjectId) {
+    this.log.info(cdr.length, CdrService.name);
+    this.log.info(cdr, CdrService.name);
     if (cdr.length == 0) return;
     await Promise.all(
       cdr.map(async (c: AsteriskCdr) => {
