@@ -12,7 +12,7 @@ export class CallApiService {
     try {
       const result: MonitoringCallResult[] = [];
       for (const number of data.numbers) {
-        await this.ari.sendAriCall(number);
+        await this.ari.monitoringOutboundCall(number, data.description);
         result.push({
           number,
           isCallSuccessful: true,
