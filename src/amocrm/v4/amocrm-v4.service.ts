@@ -66,7 +66,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
   public async actionsInAmocrm(incomingNumber: string, incomingTrunk: string): Promise<void> {
     try {
-      if (await this.searchContact(incomingNumber)) {
+      if (!(await this.searchContact(incomingNumber))) {
         const idCreateContact = await this.createContact(incomingNumber, incomingTrunk);
         await this.createLeads(incomingNumber, incomingTrunk, idCreateContact);
       }
