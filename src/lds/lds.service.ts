@@ -1,4 +1,3 @@
-import { LogService } from '@app/log/log.service';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,7 +9,6 @@ import { Lds, LdsDocument } from './lds.schema';
 @Injectable()
 export class LdsService {
   constructor(
-    private readonly log: LogService,
     private httpService: HttpService,
     private readonly configService: ConfigService,
     @InjectModel(Lds.name) private lsdModel: Model<LdsDocument>,
