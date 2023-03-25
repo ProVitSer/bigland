@@ -1,4 +1,5 @@
 import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
+import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export interface IDnd {
@@ -56,4 +57,11 @@ export class ChanspyPasswordResult {
     nullable: false,
   })
   password: string;
+}
+
+export interface AsteriskApiCheckSpamData {
+  asteriskApiId: string;
+  localExtension: string;
+  dstNumber: string;
+  operator: OperatorsName;
 }

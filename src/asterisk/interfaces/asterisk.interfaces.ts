@@ -291,3 +291,12 @@ export interface AsteriskAriOriginate {
   originator?: string | undefined;
   formats?: string | undefined;
 }
+
+export interface AmdCallData {
+  amountOfNmber: number;
+  asteriskApiId: string;
+  localExtension: string;
+  dstNumber: string;
+  callerId: number;
+  outSuffix: string;
+}

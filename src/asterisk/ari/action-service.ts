@@ -6,7 +6,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
 import { AMD_OUTBOUND_CALL, ARI_OUTBOUND_CALL, ARI_OUTBOUND_CALL_OPERATOR, POZVONIM_OUTBOUND_CALL } from '../asterisk.config';
 import { ChannelType, EndpointState } from '../interfaces/asterisk.enum';
-import { AsteriskAriOriginate } from '../interfaces/asterisk.interfaces';
+import { AmdCallData, AsteriskAriOriginate } from '../interfaces/asterisk.interfaces';
 
 @Injectable()
 export class AriActionService implements OnApplicationBootstrap {
@@ -45,12 +45,25 @@ export class AriActionService implements OnApplicationBootstrap {
     }
   }
 
-  public async amdCall(number: string) {
+  public async amdCall(data: AmdCallData) {
     try {
+      if (!(await this.checkEndpointState(data.localExtension)))
+        throw new Error(`Добавочный номер ${data.localExtension} не зарегистрирован`);
       const originateInfo = {
-        callerId: number,
+        callerId: String(data.callerId),
+        endpoint: `${ChannelType.PJSIP}/${data.localExtension}`,
+        extension: data.localExtension,
         ...AMD_OUTBOUND_CALL,
+        variables: {
+          amountOfNmber: String(data.amountOfNmber),
+          asteriskApiId: data.asteriskApiId,
+          callerId: String(data.callerId),
+          dstNumber: data.dstNumber,
+          outSuffix: data.outSuffix,
+        },
       };
+      console.log(originateInfo);
+
       return await this.sendAriCall(originateInfo);
     } catch (e) {
       throw e;
@@ -59,10 +72,9 @@ export class AriActionService implements OnApplicationBootstrap {
 
   private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
     const channel = this.getAriChannel();
-    await channel.originate({
+    return await channel.originate({
       ...originateInfo,
     });
-    return;
   }
 
   private pozvonimOriginateStruct(data: PozvominCall): AsteriskAriOriginate {
