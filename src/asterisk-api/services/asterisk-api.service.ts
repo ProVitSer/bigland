@@ -7,7 +7,8 @@ import { CheckSpamDTO } from '../dto/check-spam.dto';
 import { AsteriskApiActionStatus } from '../interfaces/asterisk-api.enum';
 import { CallApiService } from '.';
 import { AmdCallResultDTO } from '../dto/amd-call-result.dto';
-import { AMD_STATUS_TO_SPAM_MAP } from '../interfaces/asterisk-api.constants';
+import { AMD_STATUS_TO_SPAM_MAP } from '../asterisk-api.constants';
+import { DefaultAsterisApiResponceStruct } from '../interfaces/asterisk-api.interfaces';
 
 @Injectable()
 export class AsteriskApiModelService {
@@ -30,29 +31,21 @@ export class AsteriskApiModelService {
 export class AsteriskApiService {
   constructor(private readonly astApiModelService: AsteriskApiModelService, private readonly callApiService: CallApiService) {}
 
-  public async checkSpamNumber(data: CheckSpamDTO): Promise<any> {
-    const response = await this.getDefaultResponse({ requestData: data });
+  public async checkSpamNumber(data: CheckSpamDTO): Promise<DefaultAsterisApiResponceStruct> {
+    const response = await this.getDefaultStruct({ requestData: data });
     this.callApiService.checkSpam({ ...data, asteriskApiId: response.asteriskApiId });
     return response;
   }
 
-  public async setCheckNumberResult(data: AmdCallResultDTO) {
+  public async setCheckNumberResult(data: AmdCallResultDTO): Promise<void> {
     const result = await this.astApiModelService.findById(data.asteriskApiId);
-    const updateResultData = !!result?.resultData?.numbersInfo
-      ? [
-          ...result.resultData.numbersInfo,
-          {
-            number: data.callerId,
-            status: AMD_STATUS_TO_SPAM_MAP[data.amdStatus],
-          },
-        ]
-      : [
-          {
-            number: data.callerId,
-            status: AMD_STATUS_TO_SPAM_MAP[data.amdStatus],
-          },
-        ];
-    console.log('updateResultData', updateResultData);
+    const updateResultData = [
+      ...(result?.resultData?.numbersInfo || []),
+      {
+        number: data.callerId,
+        status: AMD_STATUS_TO_SPAM_MAP[data.amdStatus],
+      },
+    ];
 
     const status =
       updateResultData.length === Number(data.amountOfNmber) ? AsteriskApiActionStatus.completed : AsteriskApiActionStatus.inProgress;
@@ -68,7 +61,7 @@ export class AsteriskApiService {
     };
   }
 
-  private async getDefaultResponse(data: DataObject, fields?: DataObject) {
+  private async getDefaultStruct(data: DataObject, fields?: DataObject): Promise<DefaultAsterisApiResponceStruct> {
     const { _id } = await this.astApiModelService.create({ ...data, ...fields });
     return {
       asteriskApiId: _id,
