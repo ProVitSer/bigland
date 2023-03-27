@@ -23,13 +23,11 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { CheckSpamDTO } from '../dto/check-spam.dto';
 import { AsteriskApiService } from '../services/asterisk-api.service';
 
-@UseFilters(HttpExceptionFilter)
 @ApiTags('call')
 @ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
 @ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
-@UseGuards(RoleGuard(Role.Admin))
-@UseGuards(JwtGuard)
 @ApiBearerAuth('JWT-auth')
+@UseFilters(HttpExceptionFilter)
 @Controller('call')
 export class CallApiController {
   constructor(
@@ -46,6 +44,8 @@ export class CallApiController {
     isArray: true,
   })
   @ApiBody({ type: MonitoringCallDTO })
+  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(JwtGuard)
   @Post('monitoringCall')
   async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
     try {
@@ -63,6 +63,8 @@ export class CallApiController {
     type: PozvonimCallResult,
   })
   @ApiBody({ type: PozvonimCallDTO })
+  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(JwtGuard)
   @Post('pozvonim')
   async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
     try {
@@ -73,6 +75,8 @@ export class CallApiController {
     }
   }
 
+  @UseGuards(RoleGuard(Role.User))
+  @UseGuards(JwtGuard)
   @Post('checkSpam')
   async checkSpam(@Req() req: Request, @Body() body: CheckSpamDTO, @Res() res: Response) {
     try {
