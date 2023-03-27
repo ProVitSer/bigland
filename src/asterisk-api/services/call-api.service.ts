@@ -1,5 +1,4 @@
 import { AriActionService } from '@app/asterisk/ari/action-service';
-import { NumbersInfo } from '@app/operators/operators.schema';
 import { OperatorsService } from '@app/operators/operators.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,6 +13,7 @@ import {
   PozvonimCallResult,
 } from '../interfaces/asterisk-api.interfaces';
 import { UtilsService } from '@app/utils/utils.service';
+import { AmdCallDataAdapter } from '@app/asterisk/adapters/amd-call.adapter';
 
 @Injectable()
 export class CallApiService {
@@ -27,7 +27,7 @@ export class CallApiService {
     try {
       const result: MonitoringCallResult[] = [];
       for (const number of data.numbers) {
-        await this.ari.monitoringOutboundCall(number, data.description);
+        await this.ari.monitoringOutboundCall(number);
         result.push({
           number,
           isCallSuccessful: true,
@@ -52,35 +52,15 @@ export class CallApiService {
     }
   }
 
-  public async checkSpam(data: AsteriskApiCheckSpamData): Promise<any> {
+  public async checkSpam(data: AsteriskApiCheckSpamData): Promise<void> {
     try {
       const operatorInfo = await this.operatorsService.getOperator(data.operator);
       for (const number of operatorInfo.numbers) {
-        await UtilsService.sleep(20000);
+        await UtilsService.sleep(30000);
         if (!number.isActive) return;
-        await this.ari.amdCall({
-          amountOfNmber: operatorInfo.numbers.length,
-          asteriskApiId: data.asteriskApiId.toString(),
-          localExtension: data.localExtension,
-          dstNumber: data.dstNumber,
-          callerId: number.callerId,
-          outSuffix: number.outSuffix,
-        });
+        await this.ari.amdCall(new AmdCallDataAdapter(data, number, operatorInfo));
       }
       return;
-      // await Promise.all(
-      //   operatorInfo.numbers.map(async (number: NumbersInfo) => {
-      //     if (!number.isActive) return;
-      //     await this.ari.amdCall({
-      //       amountOfNmber: operatorInfo.numbers.length,
-      //       asteriskApiId: data.asteriskApiId.toString(),
-      //       localExtension: data.localExtension,
-      //       dstNumber: data.dstNumber,
-      //       callerId: number.callerId,
-      //       outSuffix: number.outSuffix,
-      //     });
-      //   }),
-      // );
     } catch (e) {
       await this.asteriskApiModel.updateOne(
         { _id: data.asteriskApiId },

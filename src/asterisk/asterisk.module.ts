@@ -16,6 +16,8 @@ import { AsteriskUtilsService } from './asterisk.utils';
 import { AriChanSpyApplication, AriBlackListApplication, AriActionService, AriIncomingCallApplication } from './ari';
 import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami';
 import { SystemModule } from '@app/system/system.module';
+import { PozvonimCallDataAdapter } from './adapters/pozvonim-call.adapter';
+import { OperatorsModule } from '@app/operators/operators.module';
 
 const asteriskAriProviders = createAsteriskAri();
 const asteriskAmiProviders = createAsteriskAmi();
@@ -23,7 +25,7 @@ const ariProvidersName = getAsteriskAriProvidesName();
 const amiProvidersName = getAsteriskAmiProvidesName();
 
 @Module({
-  imports: [ConfigModule, LogModule, AsteriskCdrModule, SystemModule, AmocrmUsersModule, AmocrmModule],
+  imports: [ConfigModule, LogModule, AsteriskCdrModule, SystemModule, AmocrmUsersModule, AmocrmModule, OperatorsModule],
   providers: [
     ...asteriskAriProviders,
     ...asteriskAmiProviders,
@@ -38,6 +40,7 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     BlindTransferEventParser,
     DialBeginEventParser,
     NewExtenEventParser,
+    PozvonimCallDataAdapter,
   ],
   exports: [
     ...ariProvidersName,

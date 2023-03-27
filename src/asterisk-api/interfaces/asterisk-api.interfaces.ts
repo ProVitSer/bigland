@@ -1,6 +1,7 @@
 import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { AsteriskApiActionStatus } from './asterisk-api.enum';
 
 export interface IDnd {
   sip_id: string[];
@@ -64,4 +65,9 @@ export interface AsteriskApiCheckSpamData {
   localExtension: string;
   dstNumber: string;
   operator: OperatorsName;
+}
+
+export interface DefaultAsterisApiResponceStruct {
+  asteriskApiId: string;
+  status: AsteriskApiActionStatus;
 }
