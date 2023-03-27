@@ -1,11 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { OperatorsName } from './interfaces/operators.enum';
+import { OperatorFormatNumber, OperatorsName } from './interfaces/operators.enum';
 
 @Schema({ collection: 'operators', versionKey: false })
 export class Operators {
   @Prop({ enum: OperatorsName })
   name: OperatorsName;
+
+  @Prop({ enum: OperatorFormatNumber })
+  formatNumber: OperatorFormatNumber;
 
   @Prop()
   numbers: NumbersInfo[];
