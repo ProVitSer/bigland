@@ -3,11 +3,11 @@ import { RoleGuard } from '@app/auth/guard/role.guard';
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { Role } from '@app/users/interfaces/users.enum';
-import { Body, Controller, Get, HttpException, HttpStatus, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { OperatorsService } from './operators.service';
 
-@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(RoleGuard(Role.User))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @Controller('operators')
