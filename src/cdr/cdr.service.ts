@@ -53,18 +53,17 @@ export class CdrService {
     this.log.info(cdr.length, CdrService.name);
     this.log.info(cdr, CdrService.name);
     if (cdr.length == 0) return;
-    await Promise.all(
-      cdr.map(async (c: AsteriskCdr) => {
-        const amocrmUser = await this.amocrmUsersService.getAmocrmUser(UtilsService.replaceChannel(c.channel || c.dstchannel));
-        await this.amocrmV4Service.sendCallInfoToCRM({
-          cdrId,
-          result: c,
-          amocrmId: amocrmUser[0]?.amocrmId,
-          direction: callType,
-        });
-        await this.cdrCallComplite(cdrId, c);
-      }),
-    );
+    for (const c of cdr) {
+      await UtilsService.sleep(500);
+      const amocrmUser = await this.amocrmUsersService.getAmocrmUser(UtilsService.replaceChannel(c.channel || c.dstchannel));
+      await this.amocrmV4Service.sendCallInfoToCRM({
+        cdrId,
+        result: c,
+        amocrmId: amocrmUser[0]?.amocrmId,
+        direction: callType,
+      });
+      await this.cdrCallComplite(cdrId, c);
+    }
   }
 
   private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr) {
