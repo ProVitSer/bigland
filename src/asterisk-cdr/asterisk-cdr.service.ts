@@ -22,7 +22,6 @@ export class AsteriskCdrService {
       this.log.info(`Входящий вызов ${uniqueid}`, AsteriskCdrService.name);
       const result = await this.getCallInfo.findAll({
         raw: true,
-        attributes: ['calldate', 'src', 'dcontext', 'dstchannel', 'billsec', 'disposition', 'uniqueid', 'recordingfile'],
         where: {
           uniqueid: {
             [Op.like]: uniqueid,
@@ -45,7 +44,6 @@ export class AsteriskCdrService {
 
       const result = await this.getCallInfo.findAll({
         raw: true,
-        attributes: ['calldate', 'dst', 'channel', 'dcontext', 'billsec', 'disposition', 'uniqueid', 'recordingfile'],
         where: {
           uniqueid: {
             [Op.like]: uniqueid,
@@ -70,7 +68,6 @@ export class AsteriskCdrService {
       const newUniqueid = uniqueid.substring(0, uniqueid.length - 5);
       const result = await this.getCallInfo.findAll({
         raw: true,
-        attributes: ['calldate', 'dst', 'channel', 'dcontext', 'billsec', 'disposition', 'uniqueid', 'recordingfile'],
         where: {
           uniqueid: {
             [Op.like]: `${newUniqueid}%`,
