@@ -2,6 +2,7 @@ import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { DataObject } from '@app/platform-types/common/interfaces';
 import { ObjectId } from 'mongoose';
 import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './amocrm.enum';
+import { Cdr } from '@app/cdr/cdr.schema';
 
 export interface AmocrmGetContactsRequest {
   with?: string;
@@ -250,10 +251,8 @@ export type AmocrmReponse = AmocrmAddCallInfoResponse | AmocrmCreateTasksRespons
 export type AmocrmRequestData = AmocrmAddTasks | AmocrmAddCallInfo | AmocrmCreateContact | AmocrmCreateLead;
 
 export interface SendCallInfoToCRM {
-  cdrId?: ObjectId;
-  result: AsteriskCdr;
-  amocrmId: number;
-  direction: DirectionType;
+  msg: Cdr;
+  asteriskCdrInfo: AsteriskCdr;
 }
 
 export interface AmocrmSaveData {
