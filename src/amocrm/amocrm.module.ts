@@ -14,6 +14,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AmocrmUpdateTokenSchedule } from './schedule/update-token';
 import { TelegramModule } from '@app/telegram/telegram.module';
 import { SystemModule } from '@app/system/system.module';
+import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SystemModule } from '@app/system/system.module';
       inject: [ConfigService],
     }),
     TelegramModule,
+    AmocrmUsersModule,
   ],
   providers: [
     {
