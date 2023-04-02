@@ -28,7 +28,7 @@ export class CdrMessagingService {
   }
 
   private async checkComplete(msg: CdrPubSubInfo): Promise<boolean> {
-    const cdr = await this.cdrModel.find({ unicueid: msg.data.unicueid });
+    const cdr = await this.cdrModel.find({ unicueid: msg.data.uniqueid });
     return cdr[0].complete;
   }
 }

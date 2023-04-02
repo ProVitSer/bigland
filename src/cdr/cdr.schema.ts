@@ -19,7 +19,7 @@ export class Cdr {
   exten: string;
 
   @Prop({})
-  unicueid: string;
+  uniqueid: string;
 
   @Prop({})
   extensionNumber: string;
