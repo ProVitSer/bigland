@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
-import { AmocrmCallStatus, PbxCallStatus } from './interfaces/amocrm.enum';
+import { AmocrmCallStatus, DirectionType, PbxCallStatus } from './interfaces/amocrm.enum';
+import { CallType } from '@app/cdr/interfaces/cdr.enum';
 
 export const DEFAULT_NUMBER = '74951234567';
 export const CALL_DATE_SUBTRACT = 3;
@@ -30,3 +31,9 @@ export const DEFAULT_TASKS_TEXT = `
 5. Уточнить источник лида
 6. Записать комментарии, проставить качество и источник лида, цель, бюджет.
 `;
+
+export const CALL_DIRECTION_TYPE_MAP: { [key in CallType]: DirectionType } = {
+  [CallType.outgoing]: DirectionType.outbound,
+  [CallType.incoming]: DirectionType.inbound,
+  [CallType.pozvonim]: DirectionType.outbound,
+};
