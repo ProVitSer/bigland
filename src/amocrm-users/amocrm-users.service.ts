@@ -14,7 +14,14 @@ export class AmocrmUsersService {
     try {
       return await this.amocrmUsersModel.find({ localExtension: extension });
     } catch (e) {
-      console.log(e);
+      throw e;
+    }
+  }
+
+  public async getAmocrmUsers(): Promise<AmocrmUsers[]> {
+    try {
+      return await this.amocrmUsersModel.find();
+    } catch (e) {
       throw e;
     }
   }

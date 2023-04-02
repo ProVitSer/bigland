@@ -18,11 +18,15 @@ export class AmocrmV4Connector {
     private readonly log: LogService,
   ) {}
 
-  public async getAmocrmClient() {
+  public async initAmocrmClient(): Promise<Client> {
     this.log.info(INIT_AMO, AmocrmV4Connector.name);
     await this.setToken();
     this.handleConnection();
     this.checkAmocrmInteraction();
+    return this.amocrm;
+  }
+
+  public getAmocrmClient(): Client {
     return this.amocrm;
   }
 
@@ -81,10 +85,6 @@ export class AmocrmV4Connector {
   }
 
   private handleConnection(): Promise<void> {
-    this.amocrm.connection.on('beforeConnect', async () => {
-      //this.log.info(`Подключение к Amocrm успешно`, AmocrmV4Connector.name);
-    });
-
     this.amocrm.token.on('change', async () => {
       this.log.info('token:newToken :', AmocrmV4Connector.name);
     });
@@ -94,7 +94,7 @@ export class AmocrmV4Connector {
       await this.refreshToken();
     });
 
-    this.amocrm.token.on('beforeRefresh', (response: any) => {
+    this.amocrm.token.on('beforeRefresh', () => {
       this.log.info('token:beforeRefreshToken', AmocrmV4Connector.name);
     });
 

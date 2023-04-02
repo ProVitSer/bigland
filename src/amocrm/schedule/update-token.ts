@@ -21,7 +21,7 @@ export class AmocrmUpdateTokenSchedule {
   async updateAmocrmToken() {
     try {
       this.log.info('Обновление токена Amocrm', AmocrmUpdateTokenSchedule.name);
-      const amocrmClient = await this.amocrmConnect.getAmocrmClient();
+      const amocrmClient = this.amocrmConnect.getAmocrmClient();
       const token = await amocrmClient.token.refresh();
       return await this.update(amocrmClient, token);
     } catch (e) {
