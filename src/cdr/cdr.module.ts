@@ -12,6 +12,7 @@ import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { getRabbitMQConfig } from '@app/config/project-configs/rabbit.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CdrSchedule } from './schedule/cdr.schedule';
+import { Amocrm, AmocrmSchema } from '@app/amocrm/amocrm.schema';
 
 @Module({
   imports: [
@@ -20,7 +21,10 @@ import { CdrSchedule } from './schedule/cdr.schedule';
     AsteriskCdrModule,
     AmocrmModule,
     AmocrmUsersModule,
-    MongooseModule.forFeature([{ name: Cdr.name, schema: CdrSchema }]),
+    MongooseModule.forFeature([
+      { name: Cdr.name, schema: CdrSchema },
+      { name: Amocrm.name, schema: AmocrmSchema },
+    ]),
     RabbitMQModule.forRootAsync(RabbitMQModule, {
       imports: [ConfigModule],
       useFactory: getRabbitMQConfig,
