@@ -41,7 +41,7 @@ export class AriActionService implements OnApplicationBootstrap {
       if (!(await this.checkEndpointState(data.SIP_ID))) throw new Error(`Добавочный номер ${data.SIP_ID} не зарегистрирован`);
 
       const amocrmUsers = await this.amocrmUsers.getAmocrmUser(data.SIP_ID);
-      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, String(amocrmUsers[0]?.amocrmId));
+      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, Number(amocrmUsers[0]?.amocrmId));
       const originateInfo = await this.pozvonimDataAdapter.getOriginateInfo(data);
       return await this.sendAriCall(originateInfo);
     } catch (e) {
