@@ -19,7 +19,7 @@ export class AmdCallDataAdapter {
       variables: {
         callerId,
         outSuffix: number.outSuffix,
-        amountOfNmber: operator.numbers.length,
+        amountOfNmber: String(operator.numbers.length),
         asteriskApiId: data.asteriskApiId.toString(),
         dstNumber,
       },
