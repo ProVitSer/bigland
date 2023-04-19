@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AsterikkApi } from '../asterisk-api.schema';
 import { CheckSpamDTO } from '../dto/check-spam.dto';
-import { AsteriskApiActionStatus } from '../interfaces/asterisk-api.enum';
+import { AsteriskApiActionStatus, AsteriskApiNumberStatus, AsteriskDialStatus } from '../interfaces/asterisk-api.enum';
 import { CallApiService } from '.';
 import { AmdCallResultDTO } from '../dto/amd-call-result.dto';
 import { AMD_STATUS_TO_SPAM_MAP } from '../asterisk-api.constants';
@@ -43,7 +43,7 @@ export class AsteriskApiService {
       ...(result?.resultData?.numbersInfo || []),
       {
         number: data.callerId,
-        status: AMD_STATUS_TO_SPAM_MAP[data.amdStatus],
+        status: this.getStatus(data),
       },
     ];
 
@@ -51,6 +51,13 @@ export class AsteriskApiService {
       updateResultData.length === Number(data.amountOfNmber) ? AsteriskApiActionStatus.completed : AsteriskApiActionStatus.inProgress;
 
     await this.astApiModelService.update(data.asteriskApiId, { resultData: { numbersInfo: updateResultData }, status });
+  }
+
+  private getStatus(data: AmdCallResultDTO): AsteriskApiNumberStatus {
+    if (!!data.dialStatus && data.dialStatus === AsteriskDialStatus.CHANUNAVAIL) {
+      return AsteriskApiNumberStatus.failed;
+    }
+    return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
   }
 
   public async getAsteriskApiStatus(id: string) {

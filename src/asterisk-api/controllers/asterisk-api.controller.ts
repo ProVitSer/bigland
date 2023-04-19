@@ -27,7 +27,6 @@ export class AsteriskApiApiController {
 
   @Post('amd/result')
   async setAmdCallResult(@Body() body: AmdCallResultDTO, @Res() res: Response) {
-    console.log(body);
     this.asteriskApiService.setCheckNumberResult(body);
     return res.sendStatus(200);
   }

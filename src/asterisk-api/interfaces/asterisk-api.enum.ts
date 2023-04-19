@@ -21,4 +21,14 @@ export enum AsteriskApiNumberStatus {
   spam = 'spam',
   normal = 'normal',
   notSureYet = 'notSureYet',
+  failed = 'failed',
+}
+
+export enum AsteriskDialStatus {
+  CHANUNAVAIL = 'CHANUNAVAIL',
+  CONGESTION = 'CONGESTION',
+  NOANSWER = 'NOANSWER',
+  BUSY = 'BUSY',
+  ANSWER = 'ANSWER',
+  CANCEL = 'CANCEL',
 }
