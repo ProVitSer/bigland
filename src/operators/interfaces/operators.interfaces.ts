@@ -9,3 +9,8 @@ export interface FormatOperatorNumber {
   dstNumber: string;
   callerId: string;
 }
+
+export interface GetOperatorStruct {
+  name: string;
+  numbers: string[];
+}

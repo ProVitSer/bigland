@@ -26,7 +26,7 @@ export class NumbersInfo {
   pbxTrunkNumber: number;
 
   @Prop()
-  callerId: number;
+  callerId: string;
 
   @Prop()
   outSuffix: string;
