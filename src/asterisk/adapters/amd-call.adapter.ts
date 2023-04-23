@@ -1,15 +1,15 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { NumbersInfo, Operators } from '@app/operators/operators.schema';
+import { AsteriskAriOriginate, OperatorInfo } from '@app/asterisk/interfaces/asterisk.interfaces';
+import { NumbersInfo } from '@app/operators/operators.schema';
 import { OperatorsUtils } from '@app/operators/operators.utils';
-import { AsteriskApiCheckSpamData } from '../../asterisk-api/interfaces/asterisk-api.interfaces';
 import { AMD_OUTBOUND_CALL } from '../asterisk.config';
 import { ChannelType } from '../interfaces/asterisk.enum';
+import { SpamData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 
 export class AmdCallDataAdapter {
   originateInfo: AsteriskAriOriginate;
-  checkSpamData: AsteriskApiCheckSpamData;
-  constructor(data: AsteriskApiCheckSpamData, number: NumbersInfo, operator: Operators) {
-    const { dstNumber, callerId } = OperatorsUtils.formatOperatorNumber(operator, data.dstNumber, String(number.callerId));
+  checkSpamData: SpamData;
+  constructor(data: SpamData, number: NumbersInfo, operatorInfo: OperatorInfo) {
+    const { dstNumber, callerId } = OperatorsUtils.formatOperatorNumber(operatorInfo.formatNumber, data.dstNumber, String(number.callerId));
     this.checkSpamData = data;
     this.originateInfo = {
       endpoint: `${ChannelType.PJSIP}/${data.localExtension}`,
@@ -19,7 +19,7 @@ export class AmdCallDataAdapter {
       variables: {
         callerId,
         outSuffix: number.outSuffix,
-        amountOfNmber: String(operator.numbers.length),
+        amountOfNmber: String(operatorInfo.amountOfNmber),
         asteriskApiId: data.asteriskApiId.toString(),
         dstNumber,
       },

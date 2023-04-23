@@ -6,7 +6,8 @@ import { Model } from 'mongoose';
 import { AsterikkApi } from '../asterisk-api.schema';
 import { AsteriskApiActionStatus } from '../interfaces/asterisk-api.enum';
 import {
-  AsteriskApiCheckSpamData,
+  AsteriskApiCheckNumberSpamData,
+  AsteriskApiCheckOperatorSpamData,
   MonitoringCall,
   MonitoringCallResult,
   PozvominCall,
@@ -14,6 +15,8 @@ import {
 } from '../interfaces/asterisk-api.interfaces';
 import { UtilsService } from '@app/utils/utils.service';
 import { AmdCallDataAdapter } from '@app/asterisk/adapters/amd-call.adapter';
+import { NUMBER_IS_NOT_ACTIVE, NUMBER_NOT_FOUND, SEND_CALL_CHECK_SPAM } from '../asterisk-api.constants';
+import { NumbersInfo } from '@app/operators/operators.schema';
 
 @Injectable()
 export class CallApiService {
@@ -52,14 +55,48 @@ export class CallApiService {
     }
   }
 
-  public async checkSpam(data: AsteriskApiCheckSpamData): Promise<void> {
+  public async checkNumberForSpam(data: AsteriskApiCheckNumberSpamData): Promise<void> {
+    try {
+      const operatorInfo = await this.operatorsService.getOperator(data.operator);
+      if (!operatorInfo.numbers.some((number: NumbersInfo) => number.callerId === data.callerId)) throw new Error(NUMBER_NOT_FOUND);
+      const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
+      if (!numberInfo[0].isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
+
+      await this.ari.amdCall(
+        new AmdCallDataAdapter(data, numberInfo[0], {
+          amountOfNmber: 1,
+          formatNumber: operatorInfo.formatNumber,
+        }),
+      );
+    } catch (e) {
+      await this.asteriskApiModel.updateOne(
+        { _id: data.asteriskApiId },
+        {
+          $set: {
+            status: AsteriskApiActionStatus.apiFail,
+            resultData: {
+              error: e.message || e,
+            },
+          },
+        },
+      );
+    }
+  }
+
+  public async checkOperatorNumberForSpam(data: AsteriskApiCheckOperatorSpamData): Promise<void> {
     try {
       const operatorInfo = await this.operatorsService.getOperator(data.operator);
       for (const number of operatorInfo.numbers) {
-        await UtilsService.sleep(30000);
-        if (!number.isActive) return;
-        await this.ari.amdCall(new AmdCallDataAdapter(data, number, operatorInfo));
+        await UtilsService.sleep(SEND_CALL_CHECK_SPAM);
+        if (!number.isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
+        await this.ari.amdCall(
+          new AmdCallDataAdapter(data, number, {
+            amountOfNmber: operatorInfo.numbers.length,
+            formatNumber: operatorInfo.formatNumber,
+          }),
+        );
       }
+
       return;
     } catch (e) {
       await this.asteriskApiModel.updateOne(

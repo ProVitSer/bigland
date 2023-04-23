@@ -60,12 +60,18 @@ export class ChanspyPasswordResult {
   password: string;
 }
 
-export interface AsteriskApiCheckSpamData {
+export interface AsteriskApiCheckOperatorSpamData {
   asteriskApiId: string;
   localExtension: string;
   dstNumber: string;
   operator: OperatorsName;
 }
+
+export interface AsteriskApiCheckNumberSpamData extends AsteriskApiCheckOperatorSpamData {
+  callerId: string;
+}
+
+export type SpamData = AsteriskApiCheckOperatorSpamData | AsteriskApiCheckNumberSpamData;
 
 export interface DefaultAsterisApiResponceStruct {
   asteriskApiId: string;

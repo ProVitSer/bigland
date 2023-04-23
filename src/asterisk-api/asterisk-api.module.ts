@@ -25,6 +25,7 @@ import {
   AsteriskApiModelService,
   AsteriskApiService,
 } from './services';
+import { SpamApiController } from './controllers/spam.controller';
 
 @Module({
   imports: [
@@ -37,7 +38,14 @@ import {
     SystemModule,
     OperatorsModule,
   ],
-  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, AsteriskApiApiController],
+  controllers: [
+    CallApiController,
+    AmocrmApiController,
+    ServiceCodeApiController,
+    ChanspyApiController,
+    AsteriskApiApiController,
+    SpamApiController,
+  ],
   providers: [AsteriskApiService, AsteriskApiModelService, CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
 })
 export class AsteriskApiModule {
@@ -52,6 +60,8 @@ export class AsteriskApiModule {
       .apply(LoggerMiddleware, AllowedIpMiddleware)
       .forRoutes(ChanspyApiController)
       .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(AsteriskApiApiController);
+      .forRoutes(AsteriskApiApiController)
+      .apply(LoggerMiddleware, AllowedIpMiddleware)
+      .forRoutes(SpamApiController);
   }
 }

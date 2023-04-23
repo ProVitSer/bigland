@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AsterikkApi } from '../asterisk-api.schema';
-import { CheckSpamDTO } from '../dto/check-spam.dto';
+import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
 import { AsteriskApiActionStatus, AsteriskApiNumberStatus, AsteriskDialStatus } from '../interfaces/asterisk-api.enum';
 import { CallApiService } from '.';
 import { AmdCallResultDTO } from '../dto/amd-call-result.dto';
@@ -31,9 +31,15 @@ export class AsteriskApiModelService {
 export class AsteriskApiService {
   constructor(private readonly astApiModelService: AsteriskApiModelService, private readonly callApiService: CallApiService) {}
 
-  public async checkSpamNumber(data: CheckSpamDTO): Promise<DefaultAsterisApiResponceStruct> {
+  public async checkOperatorNumbers(data: CheckOperatorNumbersDTO): Promise<DefaultAsterisApiResponceStruct> {
     const response = await this.getDefaultStruct({ requestData: data });
-    this.callApiService.checkSpam({ ...data, asteriskApiId: response.asteriskApiId });
+    this.callApiService.checkOperatorNumberForSpam({ ...data, asteriskApiId: response.asteriskApiId });
+    return response;
+  }
+
+  public async checkNumber(data: CheckNumberDTO): Promise<DefaultAsterisApiResponceStruct> {
+    const response = await this.getDefaultStruct({ requestData: data });
+    this.callApiService.checkNumberForSpam({ ...data, asteriskApiId: response.asteriskApiId });
     return response;
   }
 
@@ -43,7 +49,7 @@ export class AsteriskApiService {
       ...(result?.resultData?.numbersInfo || []),
       {
         number: data.callerId,
-        status: this.getStatus(data),
+        spamStatus: this.getStatus(data),
       },
     ];
 
