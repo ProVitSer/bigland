@@ -16,7 +16,11 @@ export class PozvonimCallDataAdapter {
   public async getOriginateInfo(data: PozvominCall): Promise<AsteriskAriOriginate> {
     const operatorInfo = await this.operatorsService.getOperator(this.operator);
     const numberInfo = operatorInfo.numbers[Math.floor(Math.random() * operatorInfo.numbers.length)];
-    const { dstNumber, callerId } = OperatorsUtils.formatOperatorNumber(operatorInfo, data.DST_NUM, String(numberInfo.callerId));
+    const { dstNumber, callerId } = OperatorsUtils.formatOperatorNumber(
+      operatorInfo.formatNumber,
+      data.DST_NUM,
+      String(numberInfo.callerId),
+    );
 
     return {
       endpoint: `${ChannelType.PJSIP}/${data.SIP_ID}`,
