@@ -1,14 +1,12 @@
 import { UtilsService } from '@app/utils/utils.service';
-import { Injectable } from '@nestjs/common';
 import { OperatorFormatNumber } from './interfaces/operators.enum';
 import { FormatOperatorNumber } from './interfaces/operators.interfaces';
-import { Operators } from './operators.schema';
 
 export class OperatorsUtils {
-  static formatOperatorNumber(operator: Operators, dstNumber: string, callerId: string): FormatOperatorNumber {
+  static formatOperatorNumber(formatNumber: OperatorFormatNumber, dstNumber: string, callerId: string): FormatOperatorNumber {
     const dst = UtilsService.normalizePhoneNumber(dstNumber);
     const cid = UtilsService.normalizePhoneNumber(callerId);
-    switch (operator.formatNumber) {
+    switch (formatNumber) {
       case OperatorFormatNumber.tenDigits:
         return {
           dstNumber: dst.slice(1),
