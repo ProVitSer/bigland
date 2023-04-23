@@ -11,6 +11,7 @@ import {
   statusHint,
   StatustextExtensionStatus,
 } from './asterisk.enum';
+import { OperatorFormatNumber } from '@app/operators/interfaces/operators.enum';
 
 export interface AsteriskHungupEvent {
   lines: [string];
@@ -299,4 +300,9 @@ export interface AmdCallData {
   dstNumber: string;
   callerId: number;
   outSuffix: string;
+}
+
+export interface OperatorInfo {
+  amountOfNmber: number;
+  formatNumber: OperatorFormatNumber;
 }
