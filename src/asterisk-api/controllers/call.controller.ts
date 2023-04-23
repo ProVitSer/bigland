@@ -20,7 +20,6 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
-import { CheckSpamDTO } from '../dto/check-spam.dto';
 import { AsteriskApiService } from '../services/asterisk-api.service';
 
 @ApiTags('call')
@@ -70,18 +69,6 @@ export class CallApiController {
     try {
       const callResult = await this.apiService.pozvonimOutCall(body);
       return this.http.response(req, res, HttpStatus.OK, callResult);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @UseGuards(RoleGuard(Role.User))
-  @UseGuards(JwtGuard)
-  @Post('checkSpam')
-  async checkSpam(@Req() req: Request, @Body() body: CheckSpamDTO, @Res() res: Response) {
-    try {
-      const result = await this.asteriskApiService.checkSpamNumber(body);
-      return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
