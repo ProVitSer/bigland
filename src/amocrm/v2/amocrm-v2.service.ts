@@ -9,7 +9,7 @@ import { AmocrmV2Connector } from './amocrm-v2.connect';
 export class AmocrmV2Service {
   constructor(private readonly amocrm: AmocrmV2Connector, private readonly log: LogService, private httpService: HttpService) {}
 
-  public async incomingCallEvent(incomingNumber: string, eventResponsibleUserId: string): Promise<boolean> {
+  public async incomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
     try {
       await this.amocrm.auth();
       const result = await this.httpService
@@ -19,18 +19,18 @@ export class AmocrmV2Service {
         .toPromise();
       return !!result.data;
     } catch (e) {
-      this.log.error(e, AmocrmV2Service.name);
+      this.log.error(JSON.stringify(e), AmocrmV2Service.name);
       throw e;
     }
   }
 
-  private getEventsData(incomingNumber: string, eventResponsibleUserId: string): string {
+  private getEventsData(incomingNumber: string, eventResponsibleUserId: number): string {
     const eventsData = JSON.stringify({
       add: [
         {
           type: 'phone_call',
           phone_number: UtilsService.formatIncomingNumber(incomingNumber),
-          users: [`"${eventResponsibleUserId}"`],
+          users: [eventResponsibleUserId],
         },
       ],
     });

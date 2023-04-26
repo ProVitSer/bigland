@@ -51,6 +51,6 @@ export class Cdr {
 
 const CdrSchema = SchemaFactory.createForClass(Cdr);
 
-CdrSchema.index({ unicueid: 'text' });
+CdrSchema.index({ uniqueid: 'text' });
 
 export { CdrSchema };

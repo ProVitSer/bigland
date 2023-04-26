@@ -9,6 +9,19 @@ export class UtilsService {
     return number.length == 10 ? number : number.substr(number.length - 10);
   }
 
+  static normalizePhoneNumber(phoneNumber: string): string {
+    const digits = phoneNumber.replace(/\D/g, '');
+    if (digits.startsWith('8')) {
+      return '7' + digits.slice(1);
+    }
+
+    if (digits.startsWith('+7')) {
+      return digits.slice(1);
+    }
+
+    return digits;
+  }
+
   static replaceChannel(channel: string): string {
     return channel.replace(/(PJSIP\/)(\d{3})-(.*)/, `$2`);
   }

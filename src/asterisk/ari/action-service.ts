@@ -4,7 +4,9 @@ import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfac
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
-import { AMD_OUTBOUND_CALL, ARI_OUTBOUND_CALL, ARI_OUTBOUND_CALL_OPERATOR, POZVONIM_OUTBOUND_CALL } from '../asterisk.config';
+import { AmdCallDataAdapter } from '../adapters/amd-call.adapter';
+import { PozvonimCallDataAdapter } from '../adapters/pozvonim-call.adapter';
+import { ARI_OUTBOUND_CALL, ARI_OUTBOUND_CALL_OPERATOR } from '../asterisk.config';
 import { ChannelType, EndpointState } from '../interfaces/asterisk.enum';
 import { AsteriskAriOriginate } from '../interfaces/asterisk.interfaces';
 
@@ -15,13 +17,14 @@ export class AriActionService implements OnApplicationBootstrap {
     @Inject(AsteriskAriProvider.aricall) private readonly ari: { ariClient: Ari.Client },
     private readonly amocrmV2Service: AmocrmV2Service,
     private readonly amocrmUsers: AmocrmUsersService,
+    private readonly pozvonimDataAdapter: PozvonimCallDataAdapter,
   ) {}
 
   public async onApplicationBootstrap() {
     this.client = this.ari;
   }
 
-  public async monitoringOutboundCall(number: string, description: string): Promise<Channel> {
+  public async monitoringOutboundCall(number: string): Promise<Channel> {
     try {
       const originateInfo = {
         endpoint: `${ChannelType.PJSIP}/${number}@${ARI_OUTBOUND_CALL_OPERATOR}`,
@@ -38,20 +41,19 @@ export class AriActionService implements OnApplicationBootstrap {
       if (!(await this.checkEndpointState(data.SIP_ID))) throw new Error(`Добавочный номер ${data.SIP_ID} не зарегистрирован`);
 
       const amocrmUsers = await this.amocrmUsers.getAmocrmUser(data.SIP_ID);
-      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, String(amocrmUsers[0]?.amocrmId));
-      return await this.sendAriCall(this.pozvonimOriginateStruct(data));
+      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, Number(amocrmUsers[0]?.amocrmId));
+      const originateInfo = await this.pozvonimDataAdapter.getOriginateInfo(data);
+      return await this.sendAriCall(originateInfo);
     } catch (e) {
       throw e;
     }
   }
 
-  public async amdCall(number: string) {
+  public async amdCall(dataAdapter: AmdCallDataAdapter): Promise<Ari.Channel> {
     try {
-      const originateInfo = {
-        callerId: number,
-        ...AMD_OUTBOUND_CALL,
-      };
-      return await this.sendAriCall(originateInfo);
+      if (!(await this.checkEndpointState(dataAdapter.checkSpamData.localExtension)))
+        throw new Error(`Добавочный номер ${dataAdapter.checkSpamData.localExtension} не зарегистрирован`);
+      return await this.sendAriCall(dataAdapter.originateInfo);
     } catch (e) {
       throw e;
     }
@@ -59,25 +61,9 @@ export class AriActionService implements OnApplicationBootstrap {
 
   private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
     const channel = this.getAriChannel();
-    await channel.originate({
+    return await channel.originate({
       ...originateInfo,
     });
-    return;
-  }
-
-  private pozvonimOriginateStruct(data: PozvominCall): AsteriskAriOriginate {
-    const formatDstNumber = `8${data.DST_NUM.substr(1, 11)}`;
-    return {
-      endpoint: `${ChannelType.PJSIP}/${data.SIP_ID}`,
-      callerId: formatDstNumber,
-      label: formatDstNumber,
-      ...POZVONIM_OUTBOUND_CALL,
-      extension: data.SIP_ID,
-      variables: {
-        var1: formatDstNumber,
-        var2: data.SIP_ID,
-      },
-    };
   }
 
   private async checkEndpointState(extension: string): Promise<boolean> {

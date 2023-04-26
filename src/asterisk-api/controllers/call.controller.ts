@@ -20,17 +20,20 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
+import { AsteriskApiService } from '../services/asterisk-api.service';
 
-@UseFilters(HttpExceptionFilter)
 @ApiTags('call')
 @ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
 @ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
-@UseGuards(RoleGuard(Role.Admin))
-@UseGuards(JwtGuard)
 @ApiBearerAuth('JWT-auth')
+@UseFilters(HttpExceptionFilter)
 @Controller('call')
 export class CallApiController {
-  constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
+  constructor(
+    private readonly apiService: CallApiService,
+    private readonly http: HttpResponseService,
+    private readonly asteriskApiService: AsteriskApiService,
+  ) {}
 
   @ApiOperation({ summary: 'Отправка тестового вызова' })
   @ApiOkResponse({
@@ -40,6 +43,8 @@ export class CallApiController {
     isArray: true,
   })
   @ApiBody({ type: MonitoringCallDTO })
+  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(JwtGuard)
   @Post('monitoringCall')
   async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
     try {
@@ -57,6 +62,8 @@ export class CallApiController {
     type: PozvonimCallResult,
   })
   @ApiBody({ type: PozvonimCallDTO })
+  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(JwtGuard)
   @Post('pozvonim')
   async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
     try {
