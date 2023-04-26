@@ -1,8 +1,43 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import configuration from '@app/config/config.provider';
+import * as cookieParser from 'cookie-parser';
+import { WsAdapter } from '@nestjs/platform-ws';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import httpsConfig from './https.provider';
+import { GlobalValidationPipe } from './pipes/global-validation.pipe';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  const config = new ConfigService(configuration());
+  const httpsOptions = httpsConfig(config);
+  const app = await NestFactory.create(AppModule, {
+    ...(httpsOptions ? { httpsOptions } : {}),
+  });
+  app.useWebSocketAdapter(new WsAdapter(app));
+  app.use(cookieParser());
+  app.useGlobalPipes(new GlobalValidationPipe());
+  app.setGlobalPrefix('api/v2');
+
+  const docConfig = new DocumentBuilder()
+    .setTitle('VPNP VoIP API')
+    .setDescription('API for VoIP integration')
+    .setVersion('2.1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+  const document = SwaggerModule.createDocument(app, docConfig);
+  SwaggerModule.setup('api', app, document);
+  await app.listen(config.get('appPort'));
 }
+
 bootstrap();

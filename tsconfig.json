@@ -11,6 +11,9 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
+    //"strict": true,
+    //"strictPropertyInitialization": false,
+    //"noFallthroughCasesInSwitch": true,
     "paths": {
       "@app/*": ["src/*"],
     }
