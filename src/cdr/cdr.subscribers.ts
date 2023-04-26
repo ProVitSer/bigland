@@ -23,12 +23,12 @@ export class CdrMessagingService {
       if (await this.checkComplete(msg)) return;
       await this.cdrService.sendCdrInfo(msg.data as Cdr);
     } catch (e) {
-      return new Nack(true);
+      return; //new Nack(true);
     }
   }
 
   private async checkComplete(msg: CdrPubSubInfo): Promise<boolean> {
-    const cdr = await this.cdrModel.find({ unicueid: msg.data.uniqueid });
+    const cdr = await this.cdrModel.find({ uniqueid: msg.data.uniqueid });
     return cdr[0].complete;
   }
 }
