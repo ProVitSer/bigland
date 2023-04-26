@@ -11,6 +11,8 @@ import {
   AmocrmCreateTasksResponse,
   AmocrmGetContactsRequest,
   AmocrmGetContactsResponse,
+  AmocrmRequestData,
+  AmocrmSaveData,
   SendCallInfoToCRM,
 } from '../interfaces/amocrm.interfaces';
 import * as moment from 'moment';
@@ -21,6 +23,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
   AmocrmAPIV4,
+  ApplicationStage,
   CreatedById,
   CustomFieldsValuesEnumId,
   CustomFieldsValuesId,
@@ -41,6 +44,7 @@ import { AmocrmSaveDataAdapter, ResponseDataAdapter } from '../amocrm.adapters';
 import { AmocrmErrors } from '../amocrm.error';
 import { SystemService } from '@app/system/system.service';
 import { NumberInfo } from '@app/system/system.schema';
+import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
 
 @Injectable()
 export class AmocrmV4Service implements OnApplicationBootstrap {
@@ -62,20 +66,18 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
   public async actionsInAmocrm(incomingNumber: string, incomingTrunk: string): Promise<void> {
     try {
-      const resultSearchContact = await this.searchContact(incomingNumber);
-      if (resultSearchContact == false) {
+      if (!(await this.searchContact(incomingNumber))) {
         const idCreateContact = await this.createContact(incomingNumber, incomingTrunk);
         await this.createLeads(incomingNumber, incomingTrunk, idCreateContact);
-        //await this.createTask(resultCreateLead._embedded.leads[0].id); Отключили так как клиент переходит на Sensay
       }
     } catch (e) {
       throw e;
     }
   }
 
-  public async createTask(entitleadId: number) {
+  public async createTask(entitleadId: number): Promise<AmocrmCreateTasksResponse> {
     try {
-      const tasksInfo: AmocrmAddTasks = {
+      const amocrmRequestData: AmocrmAddTasks = {
         responsible_user_id: ResponsibleUserId.AdminCC,
         entity_id: entitleadId,
         entity_type: 'leads',
@@ -83,10 +85,9 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
         task_type_id: TaskTypeId.NewLead,
         complete_till: moment().unix(),
       };
-      this.log.info(tasksInfo, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.tasks, [tasksInfo]);
-      const response = new ResponseDataAdapter(apiResponse);
-      return await this.getDataAndSave<AmocrmCreateTasksResponse>(response, new AmocrmSaveDataAdapter(response, tasksInfo));
+
+      const response = await this.sendRequest<AmocrmCreateTasksResponse>(AmocrmAPIV4.contacts, amocrmRequestData);
+      return response.data;
     } catch (e) {
       throw e;
     }
@@ -98,7 +99,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
       const { uniqueid, src, dst, calldate, billsec, disposition, recordingfile } = result;
       const date = moment(calldate).subtract(CALL_DATE_SUBTRACT, 'hour').unix();
 
-      const callInfo: AmocrmAddCallInfo = {
+      const amocrmRequestData: AmocrmAddCallInfo = {
         direction: direction,
         uniq: uniqueid,
         duration: billsec,
@@ -116,11 +117,8 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
         updated_at: date,
       };
 
-      this.log.info(callInfo, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.call, [callInfo]);
-      this.log.info(apiResponse.data, AmocrmV4Service.name);
-      const response = new ResponseDataAdapter(apiResponse);
-      return await this.getDataAndSave<AmocrmAddCallInfoResponse>(response, new AmocrmSaveDataAdapter(response, callInfo, result, cdrId));
+      const response = await this.sendRequest<AmocrmAddCallInfoResponse>(AmocrmAPIV4.call, amocrmRequestData, { cdrData: result, cdrId });
+      return response.data;
     } catch (e) {
       throw e;
     }
@@ -128,12 +126,14 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
 
   public async searchContact(incomingNumber: string): Promise<boolean> {
     try {
-      const info: AmocrmGetContactsRequest = {
+      const getContactsInfo: AmocrmGetContactsRequest = {
         query: UtilsService.formatIncomingNumber(incomingNumber),
       };
-      const result = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPIV4.contacts, info))?.data;
+
+      const result = (await this.amocrm.request.get<AmocrmGetContactsResponse>(AmocrmAPIV4.contacts, getContactsInfo))?.data;
       this.log.info(`Результат поиска контакта ${incomingNumber}: ${JSON.stringify(result)}`, AmocrmV4Service.name);
-      return !!result?._embedded ? true : false;
+
+      return !!result?._embedded;
     } catch (e) {
       throw `${e}: ${incomingNumber}`;
     }
@@ -142,7 +142,8 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   private async createContact(incomingNumber: string, incomingTrunk: string): Promise<number> {
     try {
       const numberConfig = await this.getIncomingNumberConfig(incomingTrunk);
-      const contact: AmocrmCreateContact = {
+
+      const amocrmRequestData: AmocrmCreateContact = {
         name: `Новый клиент ${incomingNumber}`,
         responsible_user_id: ResponsibleUserId.AdminCC,
         created_by: CreatedById.AdminCC,
@@ -165,17 +166,15 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
             field_code: null,
             values: [
               {
-                value: numberConfig.originNumber || DEFAULT_NUMBER,
+                value: numberConfig?.originNumber || DEFAULT_NUMBER,
               },
             ],
           },
         ],
       };
-      this.log.info(contact, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.contacts, [contact]);
-      const response = new ResponseDataAdapter(apiResponse);
-      const data = await this.getDataAndSave<AmocrmCreateContactResponse>(response, new AmocrmSaveDataAdapter(response, contact));
-      return data._embedded.contacts[0].id;
+
+      const response = await this.sendRequest<AmocrmCreateContactResponse>(AmocrmAPIV4.contacts, amocrmRequestData);
+      return response.data._embedded.contacts[0].id;
     } catch (e) {
       throw `${e}: ${incomingNumber} ${incomingTrunk}`;
     }
@@ -184,13 +183,11 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   private async createLeads(incomingNumber: string, incomingTrunk: string, contactsId: number): Promise<AmocrmCreateLeadResponse> {
     try {
       const numberConfig = await this.getIncomingNumberConfig(incomingTrunk);
-      const lead: AmocrmCreateLead = {
-        name: numberConfig.createLead.description,
+
+      const amocrmRequestData: AmocrmCreateLead = {
         responsible_user_id: ResponsibleUserId.AdminCC,
         created_by: CreatedById.AdminCC,
-        ...(numberConfig.createLead.pipelineId.length > 0 ? { pipeline_id: Number(numberConfig.createLead.pipelineId) } : {}),
-        status_id: Number(numberConfig.createLead.statusId),
-        custom_fields_values: numberConfig.createLead.customFieldsValues,
+        ...this.createLeadStruct(numberConfig, incomingNumber),
         _embedded: {
           contacts: [
             {
@@ -200,27 +197,40 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
         },
       };
 
-      this.log.info(lead, AmocrmV4Service.name);
-      const apiResponse = await this.amocrm.request.post(AmocrmAPIV4.leads, [lead]);
-      const response = new ResponseDataAdapter(apiResponse);
-      return await this.getDataAndSave<AmocrmCreateLeadResponse>(response, new AmocrmSaveDataAdapter(response, lead));
+      const response = await this.sendRequest<AmocrmCreateLeadResponse>(AmocrmAPIV4.leads, amocrmRequestData);
+      return response.data;
     } catch (e) {
       throw `${e}: ${incomingNumber} ${incomingTrunk} ${contactsId}`;
     }
   }
 
-  private async getDataAndSave<T>(response: ResponseDataAdapter, data: AmocrmSaveDataAdapter): Promise<T> {
-    await this.saveData(data);
+  private async sendRequest<T>(url: string, amocrmRequestData: AmocrmRequestData, saveFields?: any): Promise<IAPIResponse<T>> {
+    this.log.info(amocrmRequestData, AmocrmV4Service.name);
+    const response = await this.amocrm.request.post<T>(url, [amocrmRequestData]);
+    this.log.info(response.data, AmocrmV4Service.name);
+
+    await this.saveResponse<T>(new ResponseDataAdapter(response), { amocrmRequestData, ...saveFields });
+    this.checkResponse(new ResponseDataAdapter(response));
+
+    return response as IAPIResponse<T>;
+  }
+
+  private async saveResponse<T>(response: ResponseDataAdapter<T>, saveData: AmocrmSaveData): Promise<Amocrm> {
+    const data = new AmocrmSaveDataAdapter<T>(response, saveData);
+    const amocrm = new this.amocrmModel({ ...data.amocrmData });
+    return await amocrm.save();
+  }
+
+  private checkResponse<T>(response: ResponseDataAdapter<T>): void {
     if (!!response.statusCode && [HttpStatus.BAD_REQUEST].includes(response.statusCode)) {
-      if (!AmocrmErrors.isNormalBadRequestError(response)) throw UtilsService.dataToString(response.data);
+      if (!AmocrmErrors.isNormalBadRequestError<T>(response)) throw UtilsService.dataToString(response.data);
     }
     if (!!response.statusCode && AMOCRM_ERROR_RESPONSE_CODE.includes(response.statusCode)) {
       throw UtilsService.dataToString(response);
     }
-    return response.data as T;
   }
 
-  private async getIncomingNumberConfig(incominNumber: string): Promise<NumberInfo> {
+  private async getIncomingNumberConfig(incominNumber: string): Promise<NumberInfo | undefined> {
     try {
       const config = await this.system.getConfig();
       return config.numbersInfo.find((numberInfo: NumberInfo) => numberInfo.trunkNumber === incominNumber);
@@ -233,8 +243,39 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
     return await this.amocrmConnect.getAmocrmClient();
   }
 
-  private async saveData(data: AmocrmSaveDataAdapter) {
-    const amocrm = new this.amocrmModel({ ...data.amocrmData });
-    return await amocrm.save();
+  private createLeadStruct(numberConfig: NumberInfo | undefined, incomingNumber: string) {
+    if (!!numberConfig) {
+      return {
+        name: numberConfig.createLead.description,
+        ...(numberConfig.createLead.pipelineId.length > 0 ? { pipeline_id: Number(numberConfig.createLead.pipelineId) } : {}),
+        status_id: Number(numberConfig.createLead.statusId),
+        custom_fields_values: numberConfig.createLead.customFieldsValues,
+      };
+    } else {
+      return {
+        name: 'MG_CALL',
+        status_id: ApplicationStage.DozvonCC,
+        custom_fields_values: [
+          {
+            field_id: CustomFieldsValuesId.LeadsLgTel,
+            field_name: 'LG Tel',
+            values: [
+              {
+                value: incomingNumber,
+              },
+            ],
+          },
+          {
+            field_id: CustomFieldsValuesId.TypeRequest,
+            field_name: 'Тип Запроса',
+            values: [
+              {
+                value: 'CALL',
+              },
+            ],
+          },
+        ],
+      };
+    }
   }
 }

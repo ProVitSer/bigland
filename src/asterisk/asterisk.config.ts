@@ -1,5 +1,3 @@
-import { ChannelType } from './interfaces/asterisk.enum';
-
 export const ARI_OUTBOUND_CALL_OPERATOR = 'Monitoring';
 export const DEFAULT_TIMEOUT_HANDLER = 2000;
 export const ARI_OUTBOUND_CALL = {
@@ -22,8 +20,6 @@ export const POZVONIM_OUTBOUND_CALL = {
 };
 
 export const AMD_OUTBOUND_CALL = {
-  endpoint: `${ChannelType.PJSIP}/992`,
-  extension: '992',
   context: 'amd-outcalls',
   priority: 1,
 };

@@ -1,5 +1,7 @@
 import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
+import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { AsteriskApiActionStatus } from './asterisk-api.enum';
 
 export interface IDnd {
   sip_id: string[];
@@ -56,4 +58,22 @@ export class ChanspyPasswordResult {
     nullable: false,
   })
   password: string;
+}
+
+export interface AsteriskApiCheckOperatorSpamData {
+  asteriskApiId: string;
+  localExtension: string;
+  dstNumber: string;
+  operator: OperatorsName;
+}
+
+export interface AsteriskApiCheckNumberSpamData extends AsteriskApiCheckOperatorSpamData {
+  callerId: string;
+}
+
+export type SpamData = AsteriskApiCheckOperatorSpamData | AsteriskApiCheckNumberSpamData;
+
+export interface DefaultAsterisApiResponceStruct {
+  asteriskApiId: string;
+  status: AsteriskApiActionStatus;
 }

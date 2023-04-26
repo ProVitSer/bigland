@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AsteriskAmiEventProviderInterface, AsteriskUnionEvent } from './interfaces/asterisk.interfaces';
+import { AsteriskAmiEventProviderInterface, AsteriskDialBeginEvent, AsteriskUnionEvent } from './interfaces/asterisk.interfaces';
 import { HangupEventParser } from './ami/hangup-event-parser';
 import { AsteriskEventType } from './interfaces/asterisk.enum';
 import { BlindTransferEventParser } from './ami/blind-transfer-event-parser';
@@ -42,6 +42,10 @@ export class AsteriskAmi implements OnApplicationBootstrap {
       this.client.on('namiConnectionClose', () => this.connectionClose());
       this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
       this.client.on('namiInvalidPeer', () => this.invalidPeer());
+      this.client.on(
+        'namiEventDialBegin',
+        async (event: AsteriskDialBeginEvent) => await this.namiEvent(event, AsteriskEventType.DialBeginEvent),
+      );
     } catch (e) {
       this.log.error(`${ERROR_AMI}: ${e}`, AsteriskAmi.name);
     }

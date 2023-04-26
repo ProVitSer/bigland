@@ -25,7 +25,7 @@ export class BlindTransferEventParser implements AsteriskAmiEventProviderInterfa
       if (!!event.extension && event.extension.toString().length == 3 && event.transfererconnectedlinenum.toString().length >= 10) {
         const resultSearchId = await this.amocrmUsers.getAmocrmUser(event.extension);
         !!resultSearchId[0]?.amocrmId
-          ? await this.amocrmV2Service.incomingCallEvent(event.transfererconnectedlinenum, String(resultSearchId[0]?.amocrmId))
+          ? await this.amocrmV2Service.incomingCallEvent(event.transfererconnectedlinenum, Number(resultSearchId[0]?.amocrmId))
           : '';
       }
     } catch (e) {

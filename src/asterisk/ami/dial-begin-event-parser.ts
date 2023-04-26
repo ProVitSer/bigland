@@ -3,6 +3,8 @@ import { AmocrmV2Service } from '@app/amocrm/v2/amocrm-v2.service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
 import { AsteriskAmiEventProviderInterface, AsteriskDialBeginEvent } from '../interfaces/asterisk.interfaces';
+import { UtilsService } from '@app/utils/utils.service';
+import { EVENT_INTERVAL } from '../asterisk.constants';
 
 @Injectable()
 export class DialBeginEventParser implements AsteriskAmiEventProviderInterface {
@@ -16,20 +18,29 @@ export class DialBeginEventParser implements AsteriskAmiEventProviderInterface {
     try {
       return await this.parseDialBeginEvent(event);
     } catch (e) {
-      this.log.error(String(event), DialBeginEventParser.name);
+      throw e;
     }
   }
 
   private async parseDialBeginEvent(event: AsteriskDialBeginEvent) {
     try {
       if (!!event.destcalleridnum && event.destcalleridnum.toString().length == 3 && event.calleridnum.toString().length >= 10) {
-        const resultSearchId = await this.amocrmUsers.getAmocrmUser(event.destcalleridnum);
-        !!resultSearchId[0]?.amocrmId
-          ? await this.amocrmV2Service.incomingCallEvent(event.calleridnum, String(resultSearchId[0]?.amocrmId))
-          : '';
+        this.log.info(event, DialBeginEventParser.name);
+        const eventTimer = EVENT_INTERVAL.shift();
+        EVENT_INTERVAL.push(eventTimer);
+        await UtilsService.sleep(eventTimer);
+        await this.sendEvent(event.destcalleridnum, event.calleridnum);
       }
+      return;
     } catch (e) {
       throw e;
+    }
+  }
+
+  private async sendEvent(localExtension: string, incomingNumber: string) {
+    const resultSearchId = await this.amocrmUsers.getAmocrmUser(localExtension);
+    if (!!resultSearchId[0]?.amocrmId) {
+      await this.amocrmV2Service.incomingCallEvent(incomingNumber, Number(resultSearchId[0]?.amocrmId));
     }
   }
 }

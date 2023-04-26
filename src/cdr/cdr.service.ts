@@ -27,15 +27,15 @@ export class CdrService {
       let asteriskCdrInfo: AsteriskCdr[] = [];
       switch (msg.callType) {
         case CallType.incoming:
-          asteriskCdrInfo = await this.asteriskCdrService.searchIncomingCallInfoInCdr(msg.unicueid);
+          asteriskCdrInfo = await this.asteriskCdrService.searchIncomingCallInfoInCdr(msg.uniqueid);
           await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.inbound, msg._id);
           break;
         case CallType.outgoing:
-          asteriskCdrInfo = await this.asteriskCdrService.searchOutgoingCallInfoInCdr(msg.unicueid);
+          asteriskCdrInfo = await this.asteriskCdrService.searchOutgoingCallInfoInCdr(msg.uniqueid);
           await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
           break;
         case CallType.pozvonim:
-          asteriskCdrInfo = await this.asteriskCdrService.searchPozvonimCallInfoInCdr(msg.unicueid);
+          asteriskCdrInfo = await this.asteriskCdrService.searchPozvonimCallInfoInCdr(msg.uniqueid);
           await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
           break;
         default:
