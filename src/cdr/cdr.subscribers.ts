@@ -23,7 +23,7 @@ export class CdrMessagingService {
       if (await this.checkComplete(msg)) return;
       await this.cdrService.sendCdrInfo(msg.data as Cdr);
     } catch (e) {
-      return new Nack(true);
+      return; //new Nack(true);
     }
   }
 
