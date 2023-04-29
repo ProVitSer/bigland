@@ -19,7 +19,7 @@ export class AmocrmV2Service {
         .toPromise();
       return !!result.data;
     } catch (e) {
-      this.log.error(e, AmocrmV2Service.name);
+      this.log.error(JSON.stringify(e), AmocrmV2Service.name);
       throw e;
     }
   }

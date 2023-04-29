@@ -76,13 +76,7 @@ export class BaseHangupHandlerService {
     return (await this.amocrmUsers.getAmocrmUser(UtilsService.replaceChannel(channel)))[0];
   }
 
-  private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType) {
-    await this.amocrmV4Service.sendCallInfoToCRM({
-      result: asteriskCdr,
-      amocrmId,
-      direction: callType,
-    });
-  }
+  private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType) {}
 }
 
 export class OutboundHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {

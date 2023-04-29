@@ -7,9 +7,7 @@ import { LogService } from '@app/log/log.service';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
-import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { UtilsService } from '@app/utils/utils.service';
-import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
 
 @Injectable()
 export class CdrService {
@@ -17,7 +15,6 @@ export class CdrService {
     @InjectModel(Cdr.name) private cdrModel: Model<CdrDocument>,
     private readonly asteriskCdrService: AsteriskCdrService,
     private readonly amocrmV4Service: AmocrmV4Service,
-    private readonly amocrmUsersService: AmocrmUsersService,
     private readonly log: LogService,
   ) {}
 
@@ -28,15 +25,15 @@ export class CdrService {
       switch (msg.callType) {
         case CallType.incoming:
           asteriskCdrInfo = await this.asteriskCdrService.searchIncomingCallInfoInCdr(msg.uniqueid);
-          await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.inbound, msg._id);
+          await this.sendInfoToAmo(asteriskCdrInfo, msg);
           break;
         case CallType.outgoing:
           asteriskCdrInfo = await this.asteriskCdrService.searchOutgoingCallInfoInCdr(msg.uniqueid);
-          await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
+          await this.sendInfoToAmo(asteriskCdrInfo, msg);
           break;
         case CallType.pozvonim:
           asteriskCdrInfo = await this.asteriskCdrService.searchPozvonimCallInfoInCdr(msg.uniqueid);
-          await this.sendInfoToAmo(asteriskCdrInfo, DirectionType.outbound, msg._id);
+          await this.sendInfoToAmo(asteriskCdrInfo, msg);
           break;
         default:
           this.log.error(JSON.stringify(msg), CdrService.name);
@@ -49,20 +46,16 @@ export class CdrService {
     }
   }
 
-  private async sendInfoToAmo(cdr: AsteriskCdr[], callType: DirectionType, cdrId: ObjectId) {
-    this.log.info(cdr.length, CdrService.name);
+  private async sendInfoToAmo(cdr: AsteriskCdr[], msg: Cdr) {
     this.log.info(cdr, CdrService.name);
     if (cdr.length == 0) return;
     for (const c of cdr) {
       await UtilsService.sleep(500);
-      const amocrmUser = await this.amocrmUsersService.getAmocrmUser(UtilsService.replaceChannel(c.channel || c.dstchannel));
       await this.amocrmV4Service.sendCallInfoToCRM({
-        cdrId,
-        result: c,
-        amocrmId: amocrmUser[0]?.amocrmId,
-        direction: callType,
+        msg,
+        asteriskCdrInfo: c,
       });
-      await this.cdrCallComplite(cdrId, c);
+      await this.cdrCallComplite(msg._id, c);
     }
   }
 

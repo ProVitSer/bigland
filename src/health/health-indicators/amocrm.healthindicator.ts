@@ -11,7 +11,7 @@ export class AmocrmHealthIndicator extends HealthIndicator {
   }
   public async ping(key: string): Promise<HealthIndicatorResult> {
     try {
-      const amocrmClient = await this.amocrmConnect.getAmocrmClient();
+      const amocrmClient = this.amocrmConnect.getAmocrmClient();
       const response = await amocrmClient.request.get(AmocrmAPIV4.account);
       if (!response.data.hasOwnProperty('id')) {
         throw AMOCRM_PROBLEM;
