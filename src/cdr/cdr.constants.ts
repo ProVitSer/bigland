@@ -1,0 +1,1 @@
+export const DEFAULT_CDR_TIMEOUT = 1000;
