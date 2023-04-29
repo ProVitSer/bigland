@@ -27,9 +27,6 @@ export interface ConfigEnvironmentVariables {
   redis: RedisEnvironmentVariables;
   amocrm: AmocrmEnvironmentVariables;
   asterisk: AsteriskEnvironmentVariables;
-  customConf: {
-    recordDomain: string;
-  };
   cdrMicroservice: string;
   heath: HealthMailEnvironmentVariables;
 }
@@ -134,6 +131,7 @@ export interface AmocrmEnvironmentVariables {
 }
 
 export interface AsteriskEnvironmentVariables {
+  recordPath: string;
   ami: AmiAsteriskEnvironmentVariables[];
   ari: AriAsteriskEnvironmentVariables[];
 }
