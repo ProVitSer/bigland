@@ -37,6 +37,8 @@ import {
 export class AmocrmV4Service implements OnApplicationBootstrap {
   public amocrm: Client;
   private readonly recordDomain = this.configService.get('amocrm.recordDomain');
+  private readonly recordPath = this.configService.get('asterisk.recordPath');
+  private readonly recordUrl = `${this.recordDomain}${this.recordPath}`;
 
   constructor(
     @InjectModel(Amocrm.name)
@@ -77,7 +79,7 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   public async sendCallInfoToCRM(data: SendCallInfoToCRM): Promise<AmocrmAddCallInfoResponse> {
     try {
       const amocrmUsers = await this.amocrmUsersService.getAmocrmUsers();
-      const dataDatapter = new AmocrmCallDataAdapter(data, amocrmUsers, this.recordDomain);
+      const dataDatapter = new AmocrmCallDataAdapter(data, amocrmUsers, this.recordUrl);
       const response = await this.sendRequest<AmocrmAddCallInfoResponse>(AmocrmAPIV4.call, dataDatapter.amocrmRequestData, {
         cdrData: data.asteriskCdrInfo,
         cdrId: data.msg._id,
