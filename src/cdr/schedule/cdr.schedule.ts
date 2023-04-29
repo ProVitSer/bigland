@@ -31,6 +31,7 @@ export class CdrSchedule {
         },
       };
       const noCompleteCdr = await this.cdrModel.find(criteria);
+      if (noCompleteCdr.length == 0) return;
       this.log.info(JSON.stringify(noCompleteCdr), CdrSchedule.name);
       // for (const cdr of noCompleteCdr) {
       //   await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);
