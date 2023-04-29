@@ -4,10 +4,10 @@ import { Cdr, CdrDocument } from './cdr.schema';
 import { CdrService } from './cdr.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { QueueTypes } from './interfaces/cdr.enum';
-import { DEFAULT_TIMEOUT } from './cdr.config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CdrPubSubInfo } from './interfaces/cdr.interfaces';
+import { DEFAULT_CDR_TIMEOUT } from './cdr.constants';
 
 @Injectable()
 export class CdrMessagingService {
@@ -19,11 +19,11 @@ export class CdrMessagingService {
   })
   public async pubSubHandler(msg: CdrPubSubInfo): Promise<void | Nack> {
     try {
-      await UtilsService.sleep(DEFAULT_TIMEOUT);
+      await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);
       if (await this.checkComplete(msg)) return;
       await this.cdrService.sendCdrInfo(msg.data as Cdr);
     } catch (e) {
-      return; //new Nack(true);
+      return;
     }
   }
 

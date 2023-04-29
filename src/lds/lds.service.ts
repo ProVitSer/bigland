@@ -14,7 +14,16 @@ export class LdsService {
     @InjectModel(Lds.name) private lsdModel: Model<LdsDocument>,
   ) {}
 
-  public async getLSDUserStatus(): Promise<LdsUserStatusResponse> {
+  public async updateLds() {
+    try {
+      const result = await this.getLSDUserStatus();
+      await this.renewLdsUserStatus(result);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async getLSDUserStatus(): Promise<LdsUserStatusResponse> {
     try {
       return (await this.httpService.get(this.configService.get('lds.url')).toPromise()).data;
     } catch (e) {
@@ -22,7 +31,7 @@ export class LdsService {
     }
   }
 
-  public async renewLdsUserStatus(ldsUsers: LdsUserStatusResponse): Promise<void> {
+  private async renewLdsUserStatus(ldsUsers: LdsUserStatusResponse): Promise<void> {
     try {
       await this.lsdModel.deleteMany({});
       await Promise.all(
