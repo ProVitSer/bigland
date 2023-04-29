@@ -7,11 +7,11 @@ import { LdsService } from '../lds.service';
 export class LdsSynchUserSchedule {
   constructor(private readonly ldsService: LdsService, private readonly log: LogService) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(CronExpression.EVERY_DAY_AT_10PM)
   async updateLdsUserStatus() {
     try {
-      const result = await this.ldsService.getLSDUserStatus();
-      await this.ldsService.renewLdsUserStatus(result);
+      const result = await this.ldsService.updateLds();
+      this.log.info(`Результат обновдения LDS ${result}`, LdsSynchUserSchedule.name);
     } catch (e) {
       this.log.error(e, LdsSynchUserSchedule.name);
     }
