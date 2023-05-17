@@ -30,22 +30,26 @@ export class HealthScheduledService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async sendScheduled() {
-    try {
-      const result = await this.health.check<HealthCheckMailFormat>(ReturnHealthFormatType.mail);
-      this.log.info(result, this.serviceContext);
-      if (this.checkSendMail(result.status)) {
-        this.mailSendInfo.isScheduledSend = true;
-        this.mailSendInfo.lastCheckStatus = result.status;
-        return await this.sendMailInfo(result);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        const result = await this.health.check<HealthCheckMailFormat>(ReturnHealthFormatType.mail);
+        this.log.info(result, this.serviceContext);
+        if (this.checkSendMail(result.status)) {
+          this.mailSendInfo.isScheduledSend = true;
+          this.mailSendInfo.lastCheckStatus = result.status;
+          return await this.sendMailInfo(result);
+        }
+      } catch (e) {
+        this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
       }
-    } catch (e) {
-      this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
     }
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   enableMailSend() {
-    return (this.mailSendInfo.isScheduledSend = false);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      return (this.mailSendInfo.isScheduledSend = false);
+    }
   }
 
   private async sendMailInfo(healthResult: HealthCheckMailFormat) {

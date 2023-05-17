@@ -20,18 +20,20 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    const chanspyConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
-    this.client = this.ari;
-    this.client.ariClient.on('StasisStart', async (event: StasisStart, incoming: Channel) => {
-      try {
-        this.log.info(`Подключение к прослушки канала ${JSON.stringify(event)}`, AriChanSpyApplication.name);
-        await this.handleDTMF(incoming);
-        return;
-      } catch (e) {
-        this.log.error(`${PLAYBACK_ERROR}: ${e}`, AriChanSpyApplication.name);
-      }
-    });
-    this.client.ariClient.start(chanspyConf.stasis);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      const chanspyConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
+      this.client = this.ari;
+      this.client.ariClient.on('StasisStart', async (event: StasisStart, incoming: Channel) => {
+        try {
+          this.log.info(`Подключение к прослушки канала ${JSON.stringify(event)}`, AriChanSpyApplication.name);
+          await this.handleDTMF(incoming);
+          return;
+        } catch (e) {
+          this.log.error(`${PLAYBACK_ERROR}: ${e}`, AriChanSpyApplication.name);
+        }
+      });
+      this.client.ariClient.start(chanspyConf.stasis);
+    }
   }
 
   private async handleDTMF(incomingChannel: Channel): Promise<void> {
@@ -89,8 +91,8 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
           playback,
         );
 
-        play.once('PlaybackFinished', async (event: PlaybackStarted, playback: Playback) => {
-          resolve({});
+        play.once('PlaybackFinished', async (event: PlaybackStarted, _: Playback) => {
+          resolve(event);
         });
       });
     } catch (e) {
