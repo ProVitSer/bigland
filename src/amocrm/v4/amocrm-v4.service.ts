@@ -24,7 +24,7 @@ import { AmocrmSaveDataAdapter, ResponseDataAdapter } from '../amocrm.adapters';
 import { AmocrmErrors } from '../amocrm.error';
 import { SystemService } from '@app/system/system.service';
 import { NumberInfo } from '@app/system/system.schema';
-import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
+import { IAPIResponse, ITokenData } from 'amocrm-js/dist/interfaces/common';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import {
   AmocrmCallDataAdapter,
@@ -51,7 +51,11 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    this.amocrm = await this.getAmocrmClient();
+    this.amocrm = await this.amocrmConnect.initAmocrmClient();
+  }
+
+  public async updateToken(token: ITokenData) {
+    this.amocrm.token.setValue(token);
   }
 
   public async actionsInAmocrm(incomingNumber: string, incomingTrunk: string): Promise<void> {
@@ -156,9 +160,5 @@ export class AmocrmV4Service implements OnApplicationBootstrap {
     } catch (e) {
       throw e;
     }
-  }
-
-  private async getAmocrmClient(): Promise<Client> {
-    return await this.amocrmConnect.initAmocrmClient();
   }
 }
