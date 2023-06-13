@@ -33,6 +33,7 @@ export class PozvonimCallDataAdapter {
         localExtension: data.SIP_ID,
         outSuffix: numberInfo.outSuffix,
         trunkCIDOverride: callerId,
+        pbxTrunkNumber: numberInfo.pbxTrunkNumber,
       },
     };
   }

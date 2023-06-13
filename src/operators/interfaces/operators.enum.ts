@@ -3,6 +3,7 @@ export enum OperatorsName {
   zadarma = 'zadarma',
   optima = 'optima',
   beeline = 'beeline',
+  mtt = 'mtt',
 }
 
 export enum OperatorFormatNumber {
