@@ -24,6 +24,8 @@ import { AmocrmModule } from './amocrm/amocrm.module';
 import { getMongoUseFactory } from './config/project-configs/mongo.config';
 import { HealthModule } from './health/health.module';
 import { OperatorsModule } from './operators/operators.module';
+import { ReportModule } from './report/report.module';
+import { FilesApiModule } from './files-api/files-api.module';
 
 @Module({
   imports: [
@@ -54,6 +56,8 @@ import { OperatorsModule } from './operators/operators.module';
     AsteriskApiModule,
     AmocrmModule,
     OperatorsModule,
+    ReportModule,
+    FilesApiModule,
   ],
   controllers: [],
   providers: [],
