@@ -1,6 +1,5 @@
 import { Body, Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { CallApiService } from '../services/call-api.service';
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { HttpResponseService } from '@app/http/http-response';
@@ -14,11 +13,7 @@ import { AsteriskApiService } from '../services/asterisk-api.service';
 @UseFilters(HttpExceptionFilter)
 @Controller('spam')
 export class SpamApiController {
-  constructor(
-    private readonly apiService: CallApiService,
-    private readonly http: HttpResponseService,
-    private readonly asteriskApiService: AsteriskApiService,
-  ) {}
+  constructor(private readonly http: HttpResponseService, private readonly asteriskApiService: AsteriskApiService) {}
 
   @UseGuards(RoleGuard(Role.User))
   @UseGuards(JwtGuard)

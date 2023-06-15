@@ -1,7 +1,7 @@
-import { AmiActionService } from '@app/asterisk/ami/action-service';
 import { SetDNDStatusResult } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { Injectable } from '@nestjs/common';
 import { IDnd } from '../interfaces/asterisk-api.interfaces';
+import { AmiActionService } from '@app/asterisk/ami';
 
 @Injectable()
 export class ServiceCodeApiService {

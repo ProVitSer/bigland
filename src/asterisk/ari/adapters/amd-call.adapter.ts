@@ -1,11 +1,10 @@
 import { AsteriskAriOriginate, OperatorInfo } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { NumbersInfo } from '@app/operators/operators.schema';
 import { OperatorsUtils } from '@app/operators/operators.utils';
-import { AMD_OUTBOUND_CALL } from '../asterisk.config';
-import { ChannelType } from '../interfaces/asterisk.enum';
+import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
 import { SpamData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 
-export class AmdCallDataAdapter {
+export class AmdSpamDataAdapter {
   originateInfo: AsteriskAriOriginate;
   checkSpamData: SpamData;
   constructor(data: SpamData, number: NumbersInfo, operatorInfo: OperatorInfo) {
@@ -15,7 +14,7 @@ export class AmdCallDataAdapter {
       endpoint: `${ChannelType.PJSIP}/${data.localExtension}`,
       extension: data.localExtension,
       callerId,
-      ...AMD_OUTBOUND_CALL,
+      context: AsteriskContext.amdCheckSpam,
       variables: {
         callerId,
         outSuffix: number.outSuffix,
