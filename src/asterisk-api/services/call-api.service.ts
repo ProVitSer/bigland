@@ -1,4 +1,4 @@
-import { AriActionService } from '@app/asterisk/ari/action-service';
+import { AriACallService } from '@app/asterisk/ari/call.service';
 import { OperatorsService } from '@app/operators/operators.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,14 +14,14 @@ import {
   PozvonimCallResult,
 } from '../interfaces/asterisk-api.interfaces';
 import { UtilsService } from '@app/utils/utils.service';
-import { AmdCallDataAdapter } from '@app/asterisk/adapters/amd-call.adapter';
+import { AmdSpamDataAdapter } from '@app/asterisk/ari/adapters/amd-call.adapter';
 import { NUMBER_IS_NOT_ACTIVE, NUMBER_NOT_FOUND, SEND_CALL_CHECK_SPAM } from '../asterisk-api.constants';
 import { NumbersInfo } from '@app/operators/operators.schema';
 
 @Injectable()
 export class CallApiService {
   constructor(
-    private readonly ari: AriActionService,
+    private readonly ari: AriACallService,
     private readonly operatorsService: OperatorsService,
     @InjectModel(AsterikkApi.name) private asteriskApiModel: Model<AsterikkApi>,
   ) {}
@@ -62,8 +62,8 @@ export class CallApiService {
       const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
       if (!numberInfo[0].isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
 
-      await this.ari.amdCall(
-        new AmdCallDataAdapter(data, numberInfo[0], {
+      await this.ari.amdCheckSpamCall(
+        new AmdSpamDataAdapter(data, numberInfo[0], {
           amountOfNmber: 1,
           formatNumber: operatorInfo.formatNumber,
         }),
@@ -89,8 +89,8 @@ export class CallApiService {
       for (const number of operatorInfo.numbers) {
         await UtilsService.sleep(SEND_CALL_CHECK_SPAM);
         if (!number.isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
-        await this.ari.amdCall(
-          new AmdCallDataAdapter(data, number, {
+        await this.ari.amdCheckSpamCall(
+          new AmdSpamDataAdapter(data, number, {
             amountOfNmber: operatorInfo.numbers.length,
             formatNumber: operatorInfo.formatNumber,
           }),
