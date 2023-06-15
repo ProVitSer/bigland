@@ -1,5 +1,3 @@
-import { AriActionService } from '@app/asterisk/ari/action-service';
-import { OperatorsService } from '@app/operators/operators.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,24 +11,25 @@ import {
   PozvominCall,
   PozvonimCallResult,
 } from '../interfaces/asterisk-api.interfaces';
+import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { OperatorsService } from '@app/operators/operators.service';
 import { UtilsService } from '@app/utils/utils.service';
-import { AmdCallDataAdapter } from '@app/asterisk/adapters/amd-call.adapter';
-import { NUMBER_IS_NOT_ACTIVE, NUMBER_NOT_FOUND, SEND_CALL_CHECK_SPAM } from '../asterisk-api.constants';
-import { NumbersInfo } from '@app/operators/operators.schema';
+import { SEND_CALL_CHECK_SPAM } from '../asterisk-api.constants';
+import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 
 @Injectable()
 export class CallApiService {
   constructor(
-    private readonly ari: AriActionService,
-    private readonly operatorsService: OperatorsService,
+    private readonly ari: AriACallService,
     @InjectModel(AsterikkApi.name) private asteriskApiModel: Model<AsterikkApi>,
+    private readonly operatorsService: OperatorsService,
   ) {}
 
   public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
     try {
       const result: MonitoringCallResult[] = [];
       for (const number of data.numbers) {
-        await this.ari.monitoringOutboundCall(number);
+        await this.ari.sendCall({ number }, AriCallType.monitoring);
         result.push({
           number,
           isCallSuccessful: true,
@@ -44,7 +43,7 @@ export class CallApiService {
 
   public async pozvonimOutCall(data: PozvominCall): Promise<PozvonimCallResult> {
     try {
-      const channelInfo = await this.ari.pozvonimOutboundCall(data);
+      const channelInfo = await this.ari.sendCall(data, AriCallType.pozvonim);
       return {
         number: data.DST_NUM,
         isCallSuccessful: true,
@@ -57,17 +56,7 @@ export class CallApiService {
 
   public async checkNumberForSpam(data: AsteriskApiCheckNumberSpamData): Promise<void> {
     try {
-      const operatorInfo = await this.operatorsService.getOperator(data.operator);
-      if (!operatorInfo.numbers.some((number: NumbersInfo) => number.callerId === data.callerId)) throw new Error(NUMBER_NOT_FOUND);
-      const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
-      if (!numberInfo[0].isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
-
-      await this.ari.amdCall(
-        new AmdCallDataAdapter(data, numberInfo[0], {
-          amountOfNmber: 1,
-          formatNumber: operatorInfo.formatNumber,
-        }),
-      );
+      await this.ari.sendCall(data, AriCallType.checkSpamNumber);
     } catch (e) {
       await this.asteriskApiModel.updateOne(
         { _id: data.asteriskApiId },
@@ -88,16 +77,8 @@ export class CallApiService {
       const operatorInfo = await this.operatorsService.getOperator(data.operator);
       for (const number of operatorInfo.numbers) {
         await UtilsService.sleep(SEND_CALL_CHECK_SPAM);
-        if (!number.isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
-        await this.ari.amdCall(
-          new AmdCallDataAdapter(data, number, {
-            amountOfNmber: operatorInfo.numbers.length,
-            formatNumber: operatorInfo.formatNumber,
-          }),
-        );
+        await this.ari.sendCall({ number, operatorInfo, data }, AriCallType.checkOperatorSpam);
       }
-
-      return;
     } catch (e) {
       await this.asteriskApiModel.updateOne(
         { _id: data.asteriskApiId },

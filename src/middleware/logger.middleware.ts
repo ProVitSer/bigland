@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -29,7 +30,7 @@ export class LoggerMiddleware implements NestMiddleware {
 
   private logMiddleware(request: Request, response: Response, errorMessage: string) {
     const { httpVersion, method, socket, url } = request;
-    const { remoteAddress, remoteFamily } = socket;
+    const { remoteFamily } = socket;
     const { statusCode, statusMessage } = response;
     this.log.info(
       {
@@ -39,7 +40,7 @@ export class LoggerMiddleware implements NestMiddleware {
         errorMessage,
         httpVersion,
         method,
-        remoteAddress,
+        remoteAddress: UtilsService.getClientIp(request),
         remoteFamily,
         url,
         response: {

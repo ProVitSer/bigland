@@ -1,11 +1,11 @@
 import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
+import { AsteriskUtilsService } from '@app/asterisk/asterisk.utils';
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
-import { AsteriskUtilsService } from '../asterisk.utils';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_INCOMINGCALL_ERROR } from './ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_INCOMINGCALL_ERROR } from '../ari.constants';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {

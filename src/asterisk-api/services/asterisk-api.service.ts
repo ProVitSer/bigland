@@ -4,11 +4,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AsterikkApi } from '../asterisk-api.schema';
 import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
-import { AsteriskApiActionStatus, AsteriskApiNumberStatus, AsteriskDialStatus } from '../interfaces/asterisk-api.enum';
-import { CallApiService } from '.';
+import { AsteriskApiActionStatus, AsteriskApiNumberStatus } from '../interfaces/asterisk-api.enum';
 import { AmdCallResultDTO } from '../dto/amd-call-result.dto';
 import { AMD_STATUS_TO_SPAM_MAP } from '../asterisk-api.constants';
 import { DefaultAsterisApiResponceStruct } from '../interfaces/asterisk-api.interfaces';
+import { CallApiService } from './call-api.service';
+import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 
 @Injectable()
 export class AsteriskApiModelService {

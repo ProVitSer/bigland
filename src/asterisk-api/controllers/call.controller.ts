@@ -4,45 +4,16 @@ import { CallApiService } from '../services/call-api.service';
 import { MonitoringCallDTO } from '../dto/monitoring-call.dto';
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { PozvonimCallDTO } from '../dto/pozvomin.dto';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiBody,
-  ApiInternalServerErrorResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
-
-import { MonitoringCallResult, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
-import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
-import { AsteriskApiService } from '../services/asterisk-api.service';
 
-@ApiTags('call')
-@ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
-@ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
-@ApiBearerAuth('JWT-auth')
 @UseFilters(HttpExceptionFilter)
 @Controller('call')
 export class CallApiController {
-  constructor(
-    private readonly apiService: CallApiService,
-    private readonly http: HttpResponseService,
-    private readonly asteriskApiService: AsteriskApiService,
-  ) {}
+  constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 
-  @ApiOperation({ summary: 'Отправка тестового вызова' })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Успешный ответ',
-    type: MonitoringCallResult,
-    isArray: true,
-  })
-  @ApiBody({ type: MonitoringCallDTO })
   @UseGuards(RoleGuard(Role.Admin))
   @UseGuards(JwtGuard)
   @Post('monitoringCall')
@@ -55,13 +26,6 @@ export class CallApiController {
     }
   }
 
-  @ApiOperation({ summary: 'Отправка вызова аналог Позвони' })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Успешный ответ',
-    type: PozvonimCallResult,
-  })
-  @ApiBody({ type: PozvonimCallDTO })
   @UseGuards(RoleGuard(Role.Admin))
   @UseGuards(JwtGuard)
   @Post('pozvonim')
