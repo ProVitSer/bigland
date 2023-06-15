@@ -154,6 +154,7 @@ export enum AsteriskContext {
   fromInternal = 'from-internal',
   pozvonim = 'pozvonim',
   amdCheckSpam = 'amd-check-spam',
+  fromInternalAdditional = 'from-internal-additional',
 }
 
 export enum AsteriskOperatorTrunkName {

@@ -1,10 +1,9 @@
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CheckOperatorNumbersDTO {
-  @IsString()
-  @IsNotEmpty({ message: 'Поле localExtension не может быть пустым. ' })
-  localExtension: string;
+  @IsOptional()
+  localExtension?: string;
 
   @IsString()
   @IsNotEmpty({ message: 'Поле dstNumber не может быть пустым. ' })

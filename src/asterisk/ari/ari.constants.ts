@@ -7,13 +7,7 @@ export const CONTINUE_DIALPLAN_CHANSPY_ERROR = 'Ошибка маршрутиз�
 export const PLAYBACK_ERROR = 'Ошибка обработки вызова ChanSpy Playback';
 export const NUMBER_IN_BLACK_LIST = 'Вызов по входящему вызову попал в black-list';
 export const NUMBER_FORMAT = 10;
-
-export const ARI_OUTBOUND_CALL = {
-  context: AsteriskContext.monitoring,
-  extension: '2222',
-  appArgs: 'dialed',
-};
-
+export const DEFAULT_LOCAL_EXTENSION = '999';
 export const AMI_OUTBOUND_CALL = {
   context: AsteriskContext.fromInternal,
   async: 'yes',

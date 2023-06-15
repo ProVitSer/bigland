@@ -3,26 +3,11 @@ import { Body, Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters
 import { DNDDto } from '../dto/dnd.dto';
 import { Request, Response } from 'express';
 import { ServiceCodeApiService } from '../services/service-code-api.service';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiBody,
-  ApiInternalServerErrorResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
-import { SwaggerApiBadResponse, SwaggerHttpErrorResponseMap } from '@app/http/interfaces/http.interfaces';
-import { SetDNDStatusResult } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
-@ApiTags('service')
-@ApiBadRequestResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiBadRequestResponse])
-@ApiInternalServerErrorResponse(SwaggerHttpErrorResponseMap[SwaggerApiBadResponse.ApiInternalServerErrorResponse])
-@ApiBearerAuth('JWT-auth')
 @UseGuards(RoleGuard(Role.Admin))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
@@ -30,13 +15,6 @@ import { Role } from '@app/users/interfaces/users.enum';
 export class ServiceCodeApiController {
   constructor(private readonly serviceCode: ServiceCodeApiService, private readonly http: HttpResponseService) {}
 
-  @ApiOperation({ summary: 'Изменение статуса DND у добавочного номера' })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Успешный ответ',
-    type: SetDNDStatusResult,
-  })
-  @ApiBody({ type: DNDDto })
   @Post('dnd')
   async setDnd(@Req() req: Request, @Body() body: DNDDto, @Res() res: Response) {
     try {

@@ -13,11 +13,13 @@ import {
   getAsteriskAriProvidesName,
 } from '@app/config/project-configs/asterisk.config';
 import { AsteriskUtilsService } from './asterisk.utils';
-import { AriChanSpyApplication, AriBlackListApplication, AriACallService, AriIncomingCallApplication } from './ari';
-import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami';
 import { SystemModule } from '@app/system/system.module';
 import { PozvonimCallDataAdapter } from './ari/adapters/pozvonim-call.adapter';
 import { OperatorsModule } from '@app/operators/operators.module';
+import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './ari/providers';
+import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication } from './ari/applications';
+import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami/events';
+import { AriACallService } from './ari/ari-call.service';
 
 const asteriskAriProviders = createAsteriskAri();
 const asteriskAmiProviders = createAsteriskAmi();
@@ -41,6 +43,10 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     DialBeginEventParser,
     NewExtenEventParser,
     PozvonimCallDataAdapter,
+    PozvonimAriCall,
+    MonitoringAriCall,
+    CheckSpamNumberAriCall,
+    CheckOperatorSpamAriCall,
   ],
   exports: [
     ...ariProvidersName,
