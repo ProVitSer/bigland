@@ -1,12 +1,5 @@
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
-import { DEFAULT_TIMEOUT_HANDLER } from '../asterisk.config';
-import {
-  AsteriskAmiEventProviderInterface,
-  AsteriskHangupHandlerProviderInterface,
-  AsteriskNewExten,
-} from '../interfaces/asterisk.interfaces';
-import { HangupHandler } from '../interfaces/asterisk.enum';
 import { LogService } from '@app/log/log.service';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
@@ -14,6 +7,9 @@ import { AmocrmUsers } from '@app/amocrm-users/amocrm-users.schema';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
+import { AsteriskAmiEventProviderInterface, AsteriskHangupHandlerProviderInterface, AsteriskNewExten } from '../interfaces/ami.interfaces';
+import { HangupHandler } from '@app/asterisk/interfaces/asterisk.enum';
+import { DEFAULT_TIMEOUT_HANDLER } from '@app/asterisk/asterisk.config';
 
 @Injectable()
 export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
@@ -76,6 +72,7 @@ export class BaseHangupHandlerService {
     return (await this.amocrmUsers.getAmocrmUser(UtilsService.replaceChannel(channel)))[0];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType) {}
 }
 

@@ -1,14 +1,15 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AsteriskAmiEventProviderInterface, AsteriskDialBeginEvent, AsteriskUnionEvent } from './interfaces/asterisk.interfaces';
-import { HangupEventParser } from './ami/hangup-event-parser';
-import { AsteriskEventType } from './interfaces/asterisk.enum';
-import { BlindTransferEventParser } from './ami/blind-transfer-event-parser';
-import { DialBeginEventParser } from './ami/dial-begin-event-parser';
-import { NewExtenEventParser } from './ami/new-exten-event-parser';
+import { AsteriskDialBeginEvent } from '../interfaces/asterisk.interfaces';
+import { AsteriskEventType } from '../interfaces/asterisk.enum';
+import { BlindTransferEventParser } from './events/blind-transfer-event-parser';
 import { LogService } from '@app/log/log.service';
-import { AMI_CONNECT_SUCCESS, AMI_INCORRECT_LOGIN, AMI_RECONECT, ERROR_AMI, INVALIDE_PEER } from './asterisk.constants';
+import { AMI_CONNECT_SUCCESS, AMI_INCORRECT_LOGIN, AMI_RECONECT, ERROR_AMI, INVALIDE_PEER } from '../asterisk.constants';
 import { AsteriskAmiProvider } from '@app/config/interfaces/config.enum';
+import { HangupEventParser } from './events/hangup-event-parser';
+import { DialBeginEventParser } from './events/dial-begin-event-parser';
+import { NewExtenEventParser } from './events/new-exten-event-parser';
+import { AsteriskAmiEventProviderInterface, AsteriskUnionEvent } from './interfaces/ami.interfaces';
 
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {

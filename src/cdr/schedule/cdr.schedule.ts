@@ -7,7 +7,6 @@ import { Cdr, CdrDocument } from '../cdr.schema';
 import { CdrService } from '../cdr.service';
 import { Disposition } from '../interfaces/cdr.enum';
 import * as moment from 'moment';
-import { DEFAULT_CDR_TIMEOUT } from '../cdr.constants';
 
 @Injectable()
 export class CdrSchedule {
@@ -17,7 +16,7 @@ export class CdrSchedule {
     private readonly log: LogService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  //@Cron(CronExpression.EVERY_DAY_AT_10PM)
   async updateNoCompleteCall() {
     try {
       const criteria = {
@@ -31,6 +30,7 @@ export class CdrSchedule {
         },
       };
       const noCompleteCdr = await this.cdrModel.find(criteria);
+      if (noCompleteCdr.length == 0) return;
       this.log.info(JSON.stringify(noCompleteCdr), CdrSchedule.name);
       // for (const cdr of noCompleteCdr) {
       //   await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);

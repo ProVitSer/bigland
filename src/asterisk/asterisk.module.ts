@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AsteriskAmi } from './asterisk-ami';
-import { AmiActionService } from './ami/action-service';
+import { AsteriskAmi } from './ami/asterisk-ami';
+import { AmiActionService } from './ami/services/action-service';
 import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
@@ -13,11 +13,13 @@ import {
   getAsteriskAriProvidesName,
 } from '@app/config/project-configs/asterisk.config';
 import { AsteriskUtilsService } from './asterisk.utils';
-import { AriChanSpyApplication, AriBlackListApplication, AriActionService, AriIncomingCallApplication } from './ari';
-import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami';
 import { SystemModule } from '@app/system/system.module';
-import { PozvonimCallDataAdapter } from './adapters/pozvonim-call.adapter';
+import { PozvonimCallDataAdapter } from './ari/adapters/pozvonim-call.adapter';
 import { OperatorsModule } from '@app/operators/operators.module';
+import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './ari/providers';
+import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication } from './ari/applications';
+import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami/events';
+import { AriACallService } from './ari/ari-call.service';
 
 const asteriskAriProviders = createAsteriskAri();
 const asteriskAmiProviders = createAsteriskAmi();
@@ -34,13 +36,17 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     AriChanSpyApplication,
     AsteriskAmi,
     AmiActionService,
-    AriActionService,
+    AriACallService,
     AsteriskUtilsService,
     HangupEventParser,
     BlindTransferEventParser,
     DialBeginEventParser,
     NewExtenEventParser,
     PozvonimCallDataAdapter,
+    PozvonimAriCall,
+    MonitoringAriCall,
+    CheckSpamNumberAriCall,
+    CheckOperatorSpamAriCall,
   ],
   exports: [
     ...ariProvidersName,
@@ -50,7 +56,7 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     AriChanSpyApplication,
     AsteriskAmi,
     AmiActionService,
-    AriActionService,
+    AriACallService,
   ],
 })
 export class AsteriskModule {}
