@@ -13,6 +13,6 @@ export enum FileFormatType {
   csv = 'csv',
   odt = 'odt',
   ods = 'ods',
-  buffer = 'buffer',
   txt = 'txt',
+  json = 'json',
 }
