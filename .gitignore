@@ -43,3 +43,4 @@ ormconfig.json
 *.old
 src/config/config.ts
 .idea
+public/*
