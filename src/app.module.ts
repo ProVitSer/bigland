@@ -26,6 +26,7 @@ import { HealthModule } from './health/health.module';
 import { OperatorsModule } from './operators/operators.module';
 import { ReportModule } from './report/report.module';
 import { FilesApiModule } from './files-api/files-api.module';
+import { ServerStaticModule } from './server-static/server-static.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { FilesApiModule } from './files-api/files-api.module';
     OperatorsModule,
     ReportModule,
     FilesApiModule,
+    ServerStaticModule,
   ],
   controllers: [],
   providers: [],
