@@ -3,9 +3,8 @@ import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { OperatorsService } from '@app/operators/operators.service';
 import { OperatorsUtils } from '@app/operators/operators.utils';
 import { Injectable } from '@nestjs/common';
-import { POZVONIM_OUTBOUND_CALL } from '../asterisk.config';
-import { ChannelType } from '../interfaces/asterisk.enum';
-import { AsteriskAriOriginate } from '../interfaces/asterisk.interfaces';
+import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
+import { AsteriskAriOriginate } from '../../interfaces/asterisk.interfaces';
 
 @Injectable()
 export class PozvonimCallDataAdapter {
@@ -25,7 +24,7 @@ export class PozvonimCallDataAdapter {
     return {
       endpoint: `${ChannelType.PJSIP}/${data.SIP_ID}`,
       callerId: dstNumber,
-      ...POZVONIM_OUTBOUND_CALL,
+      context: AsteriskContext.pozvonim,
       extension: data.SIP_ID,
       variables: {
         dstNumber: dstNumber,

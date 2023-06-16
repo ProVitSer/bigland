@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AsteriskAmiEventProviderInterface, AsteriskHungupEvent } from '../interfaces/asterisk.interfaces';
-import { AsteriskCause } from '../interfaces/asterisk.enum';
 import { LogService } from '@app/log/log.service';
+import { AsteriskAmiEventProviderInterface } from '../interfaces/ami.interfaces';
+import { AsteriskHungupEvent } from '@app/asterisk/interfaces/asterisk.interfaces';
+import { AsteriskCause } from '@app/asterisk/interfaces/asterisk.enum';
 
 let checkCDR = true;
 

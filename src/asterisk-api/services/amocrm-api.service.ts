@@ -1,7 +1,7 @@
-import { AmiActionService } from '@app/asterisk/ami/action-service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
 import { AmocrmDto } from '../dto/amocrm.dto';
+import { AmiActionService } from '@app/asterisk/ami/services/action-service';
 
 @Injectable()
 export class AmocrmApiService {

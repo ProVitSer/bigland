@@ -2,9 +2,10 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AmocrmV2Service } from '@app/amocrm/v2/amocrm-v2.service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
-import { AsteriskAmiEventProviderInterface, AsteriskDialBeginEvent } from '../interfaces/asterisk.interfaces';
 import { UtilsService } from '@app/utils/utils.service';
-import { EVENT_INTERVAL } from '../asterisk.constants';
+import { AsteriskDialBeginEvent } from '@app/asterisk/interfaces/asterisk.interfaces';
+import { AsteriskAmiEventProviderInterface } from '../interfaces/ami.interfaces';
+import { EVENT_INTERVAL } from '@app/asterisk/asterisk.constants';
 
 @Injectable()
 export class DialBeginEventParser implements AsteriskAmiEventProviderInterface {

@@ -1,5 +1,5 @@
+import { AsteriskAmdCallStatus, AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { AsteriskAmdCallStatus, AsteriskDialStatus } from '../interfaces/asterisk-api.enum';
 
 export class AmdCallResultDTO {
   @IsString()

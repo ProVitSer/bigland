@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import * as uuid from 'uuid';
 import { Request } from 'express';
 import { DataObject } from '@app/platform-types/common/interfaces';
+import { access } from 'fs/promises';
+import * as requestIp from 'request-ip';
 
 @Injectable()
 export class UtilsService {
@@ -20,6 +22,14 @@ export class UtilsService {
     }
 
     return digits;
+  }
+
+  static normalizeIp(ip: string): string {
+    return ip && ip.indexOf('::ffff:') > -1 ? ip.substring(7) : ip;
+  }
+
+  static getClientIp(request: Request) {
+    return this.normalizeIp(requestIp.getClientIp(request));
   }
 
   static replaceChannel(channel: string): string {
@@ -123,5 +133,11 @@ export class UtilsService {
     } catch (e) {
       return data;
     }
+  }
+
+  static async isAccessible(path: string): Promise<boolean> {
+    return access(path)
+      .then(() => true)
+      .catch(() => false);
   }
 }

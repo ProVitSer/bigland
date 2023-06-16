@@ -3,7 +3,7 @@ module.exports = {
     apps : [{
       name: 'Bigland',
       script: 'dist/main.js',
-      instances: 1,
+      instances: 2,
       autorestart: true,
       watch: false
     }],

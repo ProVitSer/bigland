@@ -70,8 +70,6 @@ export class AmocrmUsersService {
   private checkNeedUpdate(ldsUsers: Lds[]): boolean {
     const now = moment().format(DATE_FORMAT);
     const ldsUpdateTime = moment(ldsUsers[0].changed).format(DATE_FORMAT);
-    console.log(now);
-    console.log(ldsUpdateTime);
     return now == ldsUpdateTime;
   }
 

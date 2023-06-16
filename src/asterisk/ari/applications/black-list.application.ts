@@ -4,9 +4,9 @@ import { SystemService } from '@app/system/system.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
-import { AsteriskUtilsService } from '../asterisk.utils';
-import { HangupReason } from '../interfaces/asterisk.enum';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from './ari.constants';
+import { AsteriskUtilsService } from '../../asterisk.utils';
+import { HangupReason } from '../../interfaces/asterisk.enum';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
@@ -20,20 +20,25 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
   ) {}
 
   public async onApplicationBootstrap() {
-    const blacklistConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
-    this.client = this.ari;
-    this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
-      try {
-        this.log.info(`Событие входящего вызова ${JSON.stringify(stasisStartEvent)}`, AriBlackListApplication.name);
-        (await this.checkInBlackList(stasisStartEvent))
-          ? this.hangupChannel(stasisStartEvent)
-          : await this.continueDialplan(stasisStartEvent.channel.id);
-      } catch (e) {
-        this.log.error(`${CONTINUE_DIALPLAN_BLACKLIST_ERROR}: ${e}`, AriBlackListApplication.name);
-        return await this.continueDialplan(stasisStartEvent.channel.id);
-      }
-    });
-    this.client.ariClient.start(blacklistConf.stasis);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      const blacklistConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
+
+      this.client = this.ari;
+
+      this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
+        try {
+          this.log.info(`Событие входящего вызова ${JSON.stringify(stasisStartEvent)}`, AriBlackListApplication.name);
+          (await this.checkInBlackList(stasisStartEvent))
+            ? this.hangupChannel(stasisStartEvent)
+            : await this.continueDialplan(stasisStartEvent.channel.id);
+        } catch (e) {
+          this.log.error(`${CONTINUE_DIALPLAN_BLACKLIST_ERROR}: ${e}`, AriBlackListApplication.name);
+          return await this.continueDialplan(stasisStartEvent.channel.id);
+        }
+      });
+
+      this.client.ariClient.start(blacklistConf.stasis);
+    }
   }
 
   private async checkInBlackList(event: StasisStart): Promise<boolean> {

@@ -2,7 +2,6 @@ import { IDnd } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Injectable } from '@nestjs/common';
 import * as namiLib from 'nami';
 import { AsteriskAmi } from '../asterisk-ami';
-import { AMI_OUTBOUND_CALL } from '../asterisk.config';
 import {
   AsteriskDNDStatusResponse,
   AsteriskStatusResponse,
@@ -10,9 +9,10 @@ import {
   EventsStatus,
   hintStatusMap,
   SetDNDStatusResult,
-} from '../interfaces/asterisk.interfaces';
-import { ChannelType, DbFamilyType, statusHint } from '../interfaces/asterisk.enum';
+} from '../../interfaces/asterisk.interfaces';
+import { ChannelType, DbFamilyType, statusHint } from '../../interfaces/asterisk.enum';
 import { LogService } from '@app/log/log.service';
+import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 
 @Injectable()
 export class AmiActionService {
