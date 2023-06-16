@@ -11,7 +11,7 @@ import { Log, LogDocument } from './log.schems';
 
 @Injectable()
 export class LogService {
-  private context = 'VPNP';
+  private context = `VPNP-${process.env.NODE_APP_INSTANCE}`;
 
   constructor(
     @Inject('winston') private readonly logger: winston.Logger,

@@ -9,11 +9,12 @@ export class LdsSynchUserSchedule {
 
   @Cron(CronExpression.EVERY_DAY_AT_10PM)
   async updateLdsUserStatus() {
-    try {
-      const result = await this.ldsService.updateLds();
-      this.log.info(`Результат обновдения LDS ${result}`, LdsSynchUserSchedule.name);
-    } catch (e) {
-      this.log.error(e, LdsSynchUserSchedule.name);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        await this.ldsService.updateLds();
+      } catch (e) {
+        this.log.error(e, LdsSynchUserSchedule.name);
+      }
     }
   }
 }

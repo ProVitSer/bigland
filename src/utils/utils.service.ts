@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as uuid from 'uuid';
 import { Request } from 'express';
 import { DataObject } from '@app/platform-types/common/interfaces';
+import { access } from 'fs/promises';
 import * as requestIp from 'request-ip';
 
 @Injectable()
@@ -132,5 +133,11 @@ export class UtilsService {
     } catch (e) {
       return data;
     }
+  }
+
+  static async isAccessible(path: string): Promise<boolean> {
+    return access(path)
+      .then(() => true)
+      .catch(() => false);
   }
 }
