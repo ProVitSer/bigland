@@ -47,6 +47,7 @@ import { SpamApiController } from './controllers/spam.controller';
     SpamApiController,
   ],
   providers: [AsteriskApiService, AsteriskApiModelService, CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
+  exports: [AsteriskApiService],
 })
 export class AsteriskApiModule {
   configure(consumer: MiddlewareConsumer): void {

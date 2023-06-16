@@ -58,3 +58,8 @@ export interface CheckOperatorSpamData {
 }
 
 export type AsteriskCallApiUnion = { number: string } | PozvominCall | AsteriskApiCheckNumberSpamData | CheckOperatorSpamData;
+
+export interface AsteriskApiStatusData {
+  status: AsteriskApiActionStatus;
+  [key: string]: any;
+}
