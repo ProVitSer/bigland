@@ -1,21 +1,31 @@
+import { FileFormatType } from '@app/files-api/interfaces/files.enum';
 import { TemplateTypes } from './mail.enum';
+import { Files } from '@app/files-api/files.schema';
 
 interface TemplateVariables {
   [key: string]: string | number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface MailContact {
-  name: string;
-  email: string;
+export type Contexts =
+  | TemplateVariables
+  | ChanSpyContext
+  | CreatePbxUserContext
+  | HealthCheckServiceInfo
+  | SpamContext
+  | Record<string, never>;
+
+export interface SendMailData {
+  to: string | string[];
+  context: Contexts;
+  template: TemplateTypes;
+  from: string;
+  subject: string;
+  attachments?: AttachmentsData[];
 }
 
-export interface SendMail {
-  to: string | string[];
-  from?: string;
-  subject?: string;
-  context: TemplateVariables | ChanSpyContext | CreatePbxUserContext | HealthCheckServiceInfo;
-  template: TemplateTypes;
+export interface AttachmentsData {
+  file: Files;
+  fileFormatType: FileFormatType;
 }
 
 export interface ChanSpyContext {
@@ -39,4 +49,8 @@ export interface ServiceInfo {
   serviceName: string;
   status: string;
   details?: string;
+}
+
+export interface SpamContext {
+  operators: string[];
 }
