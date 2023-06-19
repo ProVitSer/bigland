@@ -18,6 +18,10 @@
         <div style='padding: 15px 0;'>
           <div style='text-align: center;'>Уважаемый пользователь!</div>
           <div style='text-align: center;'>Ваша почта была указанна в списке пользователей которым требуется выслать ежедневный отчет по проверки спам номеров. Отчет во вложении.</div><br />
+          <div style='text-align: center;'>Ссылки на отчеты</div>
+          {{#each reportsLinks}}
+          <div style="text-align:center"><a href={{this.link}} download>Скачать</a></div>
+          {{/each}}
         </div>
         <div style='text-align: center; padding-top:20px;font-size:smaller;color:#6d7984;'>
           <div>
