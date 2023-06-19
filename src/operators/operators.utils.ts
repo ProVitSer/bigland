@@ -22,6 +22,11 @@ export class OperatorsUtils {
           dstNumber: dst,
           callerId: cid,
         };
+      case OperatorFormatNumber.zadarma:
+        return {
+          dstNumber: `8${dst.slice(1)}`,
+          callerId: `7${cid.slice(1)}`,
+        };
     }
   }
 }

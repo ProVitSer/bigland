@@ -10,4 +10,5 @@ export enum OperatorFormatNumber {
   tenDigits = 'tenDigits',
   theFirstSeven = 'theFirstSeven',
   theFirstEight = 'theFirstEight',
+  zadarma = 'zadarma',
 }
