@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { FilesApiModule } from '@app/files-api/files-api.module';
+import { ServerStaticService } from './server-static..service';
 
 @Module({
   imports: [
@@ -25,5 +26,7 @@ import { FilesApiModule } from '@app/files-api/files-api.module';
       inject: [ConfigService],
     }),
   ],
+  providers: [ServerStaticService],
+  exports: [ServerStaticService],
 })
 export class ServerStaticModule {}
