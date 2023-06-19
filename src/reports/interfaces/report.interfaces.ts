@@ -1,5 +1,4 @@
 import { FileFormatType } from '@app/files-api/interfaces/files.enum';
-import { ReportType } from './report.enum';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 
 export interface ReportData {
@@ -7,14 +6,12 @@ export interface ReportData {
   outputFormat: FileFormatType;
 }
 
-export interface Report {
-  getReportData(data: GenerateReportData): Promise<ReportData[]>;
-}
+export abstract class ReportCreator {
+  public abstract getReportData(): Promise<ReportData[]>;
+  public abstract getMailData(data: ReportData[]): Promise<SendMailData>;
 
-export type ReportProviders = {
-  [key in ReportType]: Report;
-};
-
-export interface GenerateReportData extends Omit<SendMailData, 'attachments'> {
-  reportType: ReportType;
+  public async generateReport(): Promise<SendMailData> {
+    const reportData = await this.getReportData();
+    return await this.getMailData(reportData);
+  }
 }
