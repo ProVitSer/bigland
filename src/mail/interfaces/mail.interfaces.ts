@@ -6,20 +6,15 @@ interface TemplateVariables {
   [key: string]: string | number;
 }
 
-export type Contexts =
-  | TemplateVariables
-  | ChanSpyContext
-  | CreatePbxUserContext
-  | HealthCheckServiceInfo
-  | SpamContext
-  | Record<string, never>;
+export type Contexts = TemplateVariables | ChanSpyContext | CreatePbxUserContext | HealthCheckServiceInfo | SpamReportContext;
+// | Record<string, never>;
 
 export interface SendMailData {
   to: string | string[];
   context: Contexts;
   template: TemplateTypes;
   from: string;
-  subject: string;
+  subject?: string;
   attachments?: AttachmentsData[];
 }
 
@@ -51,6 +46,10 @@ export interface ServiceInfo {
   details?: string;
 }
 
-export interface SpamContext {
-  operators: string[];
+export interface SpamReportContext {
+  reportsLinks: SpamReportLink[];
+}
+
+export interface SpamReportLink {
+  link: string;
 }
