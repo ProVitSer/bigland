@@ -29,6 +29,14 @@ export interface ConfigEnvironmentVariables {
   asterisk: AsteriskEnvironmentVariables;
   cdrMicroservice: string;
   heath: HealthMailEnvironmentVariables;
+  files: FilesEnvironmentVariables;
+}
+
+export interface FilesEnvironmentVariables {
+  path: {
+    files: string;
+    tmp: string;
+  };
 }
 
 export interface SecurityEnvironmentVariables {

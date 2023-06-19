@@ -7,7 +7,7 @@ import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
 import { AsteriskApiActionStatus, AsteriskApiNumberStatus } from '../interfaces/asterisk-api.enum';
 import { AmdCallResultDTO } from '../dto/amd-call-result.dto';
 import { AMD_STATUS_TO_SPAM_MAP } from '../asterisk-api.constants';
-import { DefaultAsterisApiResponceStruct } from '../interfaces/asterisk-api.interfaces';
+import { AsteriskApiStatusData, DefaultAsterisApiResponceStruct } from '../interfaces/asterisk-api.interfaces';
 import { CallApiService } from './call-api.service';
 import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 
@@ -67,7 +67,7 @@ export class AsteriskApiService {
     return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
   }
 
-  public async getAsteriskApiStatus(id: string) {
+  public async getAsteriskApiStatus(id: string): Promise<AsteriskApiStatusData> {
     const result = await this.astApiModelService.findById(id);
     return {
       status: result.status,

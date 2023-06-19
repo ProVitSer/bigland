@@ -1,25 +1,21 @@
 import { LogService } from '@app/log/log.service';
-import { MailerService } from '@nestjs-modules/mailer';
+import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SentMessageInfo } from 'nodemailer';
-import { TemplateTypes } from './interfaces/mail.enum';
-import { ChanSpyContext, CreatePbxUserContext, SendMail } from './interfaces/mail.interfaces';
 import { DEFAULT_SUBJECT } from './mail.constants';
+import { AttachmentsData, SendMailData } from './interfaces/mail.interfaces';
+import { Attachment } from 'nodemailer/lib/mailer';
+import { FileUtilsService } from '@app/files-api/file-utils/file-utils.service';
 
 @Injectable()
 export class MailService {
   constructor(private mailerService: MailerService, private readonly configService: ConfigService, private readonly log: LogService) {}
 
-  public async sendMail({ to, from, subject, context, template }: SendMail): Promise<SentMessageInfo> {
+  public async sendMail(data: SendMailData): Promise<SentMessageInfo> {
     try {
-      const result = await this.mailerService.sendMail({
-        from: from || this.configService.get('mail.from'),
-        to,
-        subject: subject || DEFAULT_SUBJECT,
-        context,
-        template,
-      });
+      const mailData = this.formatMailData(data);
+      const result = await this.mailerService.sendMail(mailData);
       this.log.info(result, MailService.name);
     } catch (e) {
       this.log.error(e, MailService.name);
@@ -27,21 +23,30 @@ export class MailService {
     }
   }
 
-  public async sendChanSpyConf(to: string[], context: ChanSpyContext): Promise<SentMessageInfo> {
-    const mailOption = {
+  private formatMailData({ from, to, subject, context, template, attachments }: SendMailData): ISendMailOptions {
+    const mailData = {
+      from,
       to,
+      subject: subject || DEFAULT_SUBJECT,
       context,
-      template: TemplateTypes.password,
+      template,
     };
-    return await this.sendMail(mailOption);
+    console.log(JSON.stringify(mailData));
+    const att = !!attachments ? { attachments: this.getAttachmentStruct(attachments) } : {};
+    Object.assign(mailData, att);
+
+    return mailData;
   }
 
-  public async sendCreatePbxUser(to: string, context: CreatePbxUserContext): Promise<SentMessageInfo> {
-    const mailOption = {
-      to,
-      context,
-      template: TemplateTypes.userCreate,
-    };
-    return await this.sendMail(mailOption);
+  private getAttachmentStruct(attachments: AttachmentsData[]): Attachment[] {
+    const atts: Attachment[] = [];
+    attachments.map((att) => {
+      atts.push({
+        path: FileUtilsService.getFileFullPath(att.file),
+        filename: `${att.file.fileName}.${att.fileFormatType}`,
+        contentDisposition: 'attachment',
+      });
+    });
+    return atts;
   }
 }
