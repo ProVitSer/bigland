@@ -1,36 +1,70 @@
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { ReportService } from '../reports.service';
-import { GenerateReportData } from '../interfaces/report.interfaces';
-import { ReportType } from '../interfaces/report.enum';
-import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
-import * as moment from 'moment';
-import { REPORT_DATE_FORMAT } from '../reports.constants';
-import { ConfigService } from '@nestjs/config';
+import { MangoSpamReport, MttSpamReport, BeelineSpamReport, OptimaSpamReport, ZadarmaSpamReport } from '../reports/spam';
 
 @Injectable()
 export class OperatorSpamSchedule {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly mango: MangoSpamReport,
+    private readonly mtt: MttSpamReport,
+    private readonly beeline: BeelineSpamReport,
+    private readonly optima: OptimaSpamReport,
+    private readonly zadarma: ZadarmaSpamReport,
     private readonly reportService: ReportService,
     private readonly log: LogService,
   ) {}
 
-  //   @Cron(CronExpression.EVERY_DAY_AT_10PM)
-  //   @Timeout(30000)
+  @Cron('0 22 */2 * *')
   async mangoReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
-        const reportInfo: GenerateReportData = {
-          reportType: ReportType.mango,
-          to: this.configService.get('reports.spam.to'),
-          from: this.configService.get('reports.spam.from'),
-          subject: `${this.configService.get('reports.spam.subject')} Манго за ${moment().format(REPORT_DATE_FORMAT)}`,
-          context: {},
-          template: TemplateTypes.spamReport,
-        };
-        this.reportService.generateReport(reportInfo);
+        this.reportService.generateReport(this.mango);
+      } catch (e) {
+        this.log.error(e, OperatorSpamSchedule.name);
+      }
+    }
+  }
+
+  @Cron('0 21 * * 0')
+  async optimaReport() {
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        this.reportService.generateReport(this.optima);
+      } catch (e) {
+        this.log.error(e, OperatorSpamSchedule.name);
+      }
+    }
+  }
+
+  @Cron('10 21 * * 0')
+  async beelineReport() {
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        this.reportService.generateReport(this.beeline);
+      } catch (e) {
+        this.log.error(e, OperatorSpamSchedule.name);
+      }
+    }
+  }
+
+  @Cron('40 21 * * 0')
+  async mttReport() {
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        this.reportService.generateReport(this.mtt);
+      } catch (e) {
+        this.log.error(e, OperatorSpamSchedule.name);
+      }
+    }
+  }
+
+  @Cron('0 22 * * 0')
+  async zadarmaReport() {
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        this.reportService.generateReport(this.zadarma);
       } catch (e) {
         this.log.error(e, OperatorSpamSchedule.name);
       }
