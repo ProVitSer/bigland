@@ -9,11 +9,15 @@ import { CreateFreepbxUser, CreateUserResult, ResultCreateUsers, UpdateCreateUse
 import { FreepbxApiStatus } from './interfaces/freepbx-api.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
+import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FreepbxUsersApiService {
   private user: string;
   constructor(
+    private readonly configService: ConfigService,
     private readonly log: LogService,
     private readonly freepbxCreateser: FreepbxCreateUser,
     private readonly mailService: MailService,
@@ -55,12 +59,18 @@ export class FreepbxUsersApiService {
 
   private async sendDataToUser(user: Users, data: CreateUserResult) {
     try {
-      const mailInfo = {
-        username: user.username,
-        extension: data.extension,
-        password: data.password,
+      const mailData: SendMailData = {
+        to: user.email,
+        context: {
+          username: user.username,
+          extension: data.extension,
+          password: data.password,
+        },
+        template: TemplateTypes.userCreate,
+        from: this.configService.get('mail.from'),
+        subject: `Авторизационные данные для добавочного ${data.extension}`,
       };
-      await this.mailService.sendCreatePbxUser(user.email, mailInfo);
+      await this.mailService.sendMail(mailData);
     } catch (e) {
       throw e;
     }

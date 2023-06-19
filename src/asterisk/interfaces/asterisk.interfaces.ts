@@ -252,23 +252,10 @@ export interface AsteriskBlindTransferEvent {
   extension: string;
 }
 
-export type AsteriskUnionEvent = AsteriskHungupEvent | AsteriskBlindTransferEvent | AsteriskDialBeginEvent;
-
-export interface AsteriskAmiEventProviderInterface {
-  parseEvent(event: AsteriskUnionEvent): Promise<void>;
-}
-
 export interface ChannelDTMF {
   [key: string]: {
     dtmf: string[];
   };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AsteriskNewExten extends AsteriskHungupEvent {}
-
-export interface AsteriskHangupHandlerProviderInterface {
-  handler(event: AsteriskNewExten): Promise<void>;
 }
 
 export class SetDNDStatusResult {

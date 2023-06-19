@@ -2,7 +2,6 @@ import { HealthMailEnvironmentVariables } from '@app/config/interfaces/config.in
 import { HealthService } from '@app/health/health.service';
 import { LogService } from '@app/log/log.service';
 import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
-import { SendMail } from '@app/mail/interfaces/mail.interfaces';
 import { MailService } from '@app/mail/mail.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +9,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { HEALTH_ERROR_SCHEDULE, HEALTH_MAIL_ERROR } from '../health.constants';
 import { HealthCheckStatusType, ReturnHealthFormatType } from '../interfaces/health.enum';
 import { HealthCheckMailFormat, HealthCheckStatusMap, MailSendInfo } from '../interfaces/health.interface';
+import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 
 @Injectable()
 export class HealthScheduledService {
@@ -30,22 +30,26 @@ export class HealthScheduledService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async sendScheduled() {
-    try {
-      const result = await this.health.check<HealthCheckMailFormat>(ReturnHealthFormatType.mail);
-      this.log.info(result, this.serviceContext);
-      if (this.checkSendMail(result.status)) {
-        this.mailSendInfo.isScheduledSend = true;
-        this.mailSendInfo.lastCheckStatus = result.status;
-        return await this.sendMailInfo(result);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        const result = await this.health.check<HealthCheckMailFormat>(ReturnHealthFormatType.mail);
+        this.log.info(result, this.serviceContext);
+        if (this.checkSendMail(result.status)) {
+          this.mailSendInfo.isScheduledSend = true;
+          this.mailSendInfo.lastCheckStatus = result.status;
+          return await this.sendMailInfo(result);
+        }
+      } catch (e) {
+        this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
       }
-    } catch (e) {
-      this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
     }
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES)
   enableMailSend() {
-    return (this.mailSendInfo.isScheduledSend = false);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      return (this.mailSendInfo.isScheduledSend = false);
+    }
   }
 
   private async sendMailInfo(healthResult: HealthCheckMailFormat) {
@@ -66,7 +70,7 @@ export class HealthScheduledService {
     return false;
   }
 
-  private getSendMailInfoData(healthResult: HealthCheckMailFormat): SendMail {
+  private getSendMailInfoData(healthResult: HealthCheckMailFormat): SendMailData {
     const { mail } = this.configService.get('health') as HealthMailEnvironmentVariables;
     return {
       to: mail.mailListNotifyer,

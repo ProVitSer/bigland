@@ -11,7 +11,6 @@ import { getLdsConfig } from '@app/config/project-configs/lds.config';
 import { LdsController } from './lds.controller';
 import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { LoggerMiddleware } from '@app/middleware/logger.middleware';
-import { OperatorsController } from '@app/operators/operators.controller';
 import { HttpResponseModule } from '@app/http/http.module';
 
 @Module({

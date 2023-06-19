@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import * as uuid from 'uuid';
 import { Request } from 'express';
 import { DataObject } from '@app/platform-types/common/interfaces';
+import { access } from 'fs/promises';
 import * as requestIp from 'request-ip';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class UtilsService {
@@ -132,5 +134,31 @@ export class UtilsService {
     } catch (e) {
       return data;
     }
+  }
+
+  static async isAccessible(path: string): Promise<boolean> {
+    return access(path)
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  static getObservableFn<T>(fn: () => Promise<T>, timeout: number): Observable<T> {
+    return new Observable<T>((subscriber) => {
+      let timer: NodeJS.Timeout;
+      (async function getStatus(fn) {
+        fn()
+          .then((status: any) => {
+            timer = setTimeout(() => getStatus(fn), timeout);
+            subscriber.next(status);
+          })
+          .catch((err) => {
+            subscriber.error(err);
+          });
+      })(fn);
+
+      return function unsubscribe() {
+        clearTimeout(timer);
+      };
+    });
   }
 }

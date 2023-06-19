@@ -11,7 +11,7 @@ import { AmocrmV4Connector } from './v4/amocrm-v4.connect';
 import { AmocrmV4Service } from './v4/amocrm-v4.service';
 import { AmocrmV2Service } from './v2/amocrm-v2.service';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AmocrmUpdateTokenSchedule } from './schedule/update-token';
+import { AmocrmUpdateTokenSchedule } from './schedule/amocrm-update-token';
 import { TelegramModule } from '@app/telegram/telegram.module';
 import { SystemModule } from '@app/system/system.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';

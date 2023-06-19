@@ -9,10 +9,12 @@ export class AmocrmSynchUserSchedule {
 
   @Cron(CronExpression.EVERY_DAY_AT_11PM)
   async updateAmocrmUsers() {
-    try {
-      await this.amocrmUsers.updateAmocrmUsers();
-    } catch (e) {
-      this.log.error(e, AmocrmSynchUserSchedule.name);
+    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+      try {
+        await this.amocrmUsers.updateAmocrmUsers();
+      } catch (e) {
+        this.log.error(e, AmocrmSynchUserSchedule.name);
+      }
     }
   }
 }

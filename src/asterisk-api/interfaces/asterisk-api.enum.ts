@@ -10,25 +10,9 @@ export enum AsteriskApiActionStatus {
   completed = 'completed',
 }
 
-export enum AsteriskAmdCallStatus {
-  MACHINE = 'MACHINE',
-  HUMAN = 'HUMAN',
-  NOTSURE = 'NOTSURE',
-  HANGUP = 'HANGUP',
-}
-
 export enum AsteriskApiNumberStatus {
   spam = 'spam',
   normal = 'normal',
   notSureYet = 'notSureYet',
   failed = 'failed',
-}
-
-export enum AsteriskDialStatus {
-  CHANUNAVAIL = 'CHANUNAVAIL',
-  CONGESTION = 'CONGESTION',
-  NOANSWER = 'NOANSWER',
-  BUSY = 'BUSY',
-  ANSWER = 'ANSWER',
-  CANCEL = 'CANCEL',
 }
