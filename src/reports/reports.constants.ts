@@ -1,10 +1,10 @@
-import { AsteriskApiNumberStatus } from '@app/asterisk-api/interfaces/asterisk-api.enum';
+import { CheckSpamStatus } from '@app/spam-api/interfaces/spam-api.enum';
 
-export const SPAM_STATUS_DESCRIPTION: { [key in AsteriskApiNumberStatus]: string } = {
-  [AsteriskApiNumberStatus.failed]: 'Ошибка проверки',
-  [AsteriskApiNumberStatus.spam]: 'Номер в спаме',
-  [AsteriskApiNumberStatus.normal]: 'Нормально',
-  [AsteriskApiNumberStatus.notSureYet]: 'Не удалось определить',
+export const SPAM_STATUS_DESCRIPTION: { [key in CheckSpamStatus]: string } = {
+  [CheckSpamStatus.failed]: 'Ошибка проверки',
+  [CheckSpamStatus.spam]: 'Номер в спаме',
+  [CheckSpamStatus.normal]: 'Нормально',
+  [CheckSpamStatus.notSureYet]: 'Не удалось определить',
 };
 
 export const REPORT_NOT_EXISTS = 'Выбранный отчет отсутствует';

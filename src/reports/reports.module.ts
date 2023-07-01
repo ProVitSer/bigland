@@ -11,6 +11,7 @@ import { OperatorSpamSchedule } from './schedule/operators-spam.schedule';
 import { ServerStaticModule } from '@app/server-static/server-static.module';
 import { MangoSpamReport, MttSpamReport, BeelineSpamReport, OptimaSpamReport, ZadarmaSpamReport } from './reports/spam';
 import { SpamReportService } from './spam-report.service';
+import { SpamApiModule } from '@app/spam-api/spam-api.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SpamReportService } from './spam-report.service';
     AsteriskApiModule,
     FilesApiModule,
     ServerStaticModule,
+    SpamApiModule,
   ],
   providers: [
     ReportService,

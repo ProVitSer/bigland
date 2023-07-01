@@ -28,6 +28,10 @@ export class OperatorsService {
     };
   }
 
+  public async getOperatorByNumber(number: string): Promise<Operators[]> {
+    return await this.operatorsModel.find({ 'numbers.callerId': number }).exec();
+  }
+
   public async updateOperatorNumber(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
     const operator = await this.operatorsModel.findOne({ name: operatorName });
     if (operator == null) throw new Error(`Оператор ${operatorName} не найден`);

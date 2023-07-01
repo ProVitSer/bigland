@@ -2,8 +2,8 @@ import { AsteriskAriOriginate, OperatorInfo } from '@app/asterisk/interfaces/ast
 import { NumbersInfo } from '@app/operators/operators.schema';
 import { OperatorsUtils } from '@app/operators/operators.utils';
 import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
-import { SpamData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { DEFAULT_LOCAL_EXTENSION } from '../ari.constants';
+import { SpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 
 export class AmdSpamDataAdapter {
   originateInfo: AsteriskAriOriginate;
@@ -21,8 +21,9 @@ export class AmdSpamDataAdapter {
         callerId,
         outSuffix: number.outSuffix,
         amountOfNmber: String(operatorInfo.amountOfNmber),
-        asteriskApiId: data.asteriskApiId.toString(),
+        applicationId: data.applicationId.toString(),
         dstNumber,
+        operator: data.operator,
       },
     };
   }
