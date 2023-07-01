@@ -7,7 +7,7 @@ import { Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseG
 import { AmocrmUsersService } from './amocrm-users.service';
 import { Request, Response } from 'express';
 
-@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @Controller('amocrm-users')

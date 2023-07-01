@@ -9,7 +9,7 @@ import { OperatorsService } from './operators.service';
 import { OperatorsNumberDTO } from './dto/add-operator-numbers.dto';
 import { OperatorsName } from './interfaces/operators.enum';
 
-@UseGuards(RoleGuard(Role.User))
+@UseGuards(RoleGuard([Role.Admin, Role.User]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @Controller('operators')

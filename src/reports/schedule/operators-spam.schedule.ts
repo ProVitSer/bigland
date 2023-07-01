@@ -16,7 +16,7 @@ export class OperatorSpamSchedule {
     private readonly log: LogService,
   ) {}
 
-  @Cron('0 22 */2 * *')
+  @Cron('0 22 * * *')
   async mangoReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {

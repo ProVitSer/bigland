@@ -13,7 +13,7 @@ import { AsteriskApiService } from '../services/asterisk-api.service';
 export class SpamApiController {
   constructor(private readonly http: HttpResponseService, private readonly asteriskApiService: AsteriskApiService) {}
 
-  @UseGuards(RoleGuard(Role.User))
+  @UseGuards(RoleGuard([Role.User]))
   @UseGuards(JwtGuard)
   @Post('check-operator-numbers')
   async checkOperatorNumbers(@Req() req: Request, @Body() body: CheckOperatorNumbersDTO, @Res() res: Response) {
@@ -25,7 +25,7 @@ export class SpamApiController {
     }
   }
 
-  @UseGuards(RoleGuard(Role.User))
+  @UseGuards(RoleGuard([Role.User]))
   @UseGuards(JwtGuard)
   @Post('check-number')
   async checkNumber(@Req() req: Request, @Body() body: CheckNumberDTO, @Res() res: Response) {

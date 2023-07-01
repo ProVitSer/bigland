@@ -13,7 +13,7 @@ export class AsteriskApiApiController {
   constructor(private readonly http: HttpResponseService, private readonly asteriskApiService: AsteriskApiService) {}
 
   @UseFilters(HttpExceptionFilter)
-  @UseGuards(RoleGuard(Role.User))
+  @UseGuards(RoleGuard([Role.User, Role.Admin]))
   @UseGuards(JwtGuard)
   @Get('status/:id')
   async getAstApiStatus(@Req() req: Request, @Param('id') asteriskApiId: string, @Res() res: Response) {
