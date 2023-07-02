@@ -4,7 +4,7 @@ import { CheckNumberDTO, CheckOperatorNumbersDTO } from './dto/check-spam.dto';
 import { CheckSpamCallResultDTO } from './dto/amd-spam-call-result.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { DataObject } from '@app/platform-types/common/interfaces';
-import { Spam } from './spam.schema';
+import { Spam, SpamCheckNumbersInfo } from './spam.schema';
 import { Model } from 'mongoose';
 import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
@@ -17,6 +17,8 @@ import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.int
 import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 import { AMD_STATUS_TO_SPAM_MAP } from './spam-api.constants';
 import { CheckSpamStatus } from './interfaces/spam-api.enum';
+import { OperatorsName } from '@app/operators/interfaces/operators.enum';
+import { NumbersInfo, Operators } from '@app/operators/operators.schema';
 
 @Injectable()
 export class SpamModelService {
@@ -34,8 +36,6 @@ export class SpamModelService {
   }
 
   public async findByApplicationId(applicationId: string) {
-    console.log(applicationId);
-
     return await this.spamModel.findOne({ applicationId }, { _id: 0 });
   }
 }
@@ -52,28 +52,22 @@ export class SpamApiService {
 
   public async checkOperatorNumbers(data: CheckOperatorNumbersDTO): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
-    console.log(defaultApiStruct);
-    this._checkOperatorNumbers(defaultApiStruct, { ...data, applicationId: defaultApiStruct.applicationId });
+    const operatorInfo = await this.operatorsService.getOperator(data.operator);
+    await this.saveCheckNumberInfo(
+      defaultApiStruct,
+      data.operator,
+      operatorInfo.numbers.map((number) => {
+        return { number: number.callerId };
+      }),
+    );
+
+    this._checkOperatorNumbers(defaultApiStruct, { ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
     return defaultApiStruct;
   }
 
   public async checkNumber(data: CheckNumberDTO): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
-    await this.spamModelService.create({
-      ...defaultApiStruct,
-      checkDate: new Date(),
-      spamCheckResult: [
-        {
-          operator: data.operator,
-          numbers: [
-            {
-              number: data.callerId,
-            },
-          ],
-        },
-      ],
-    });
-
+    await this.saveCheckNumberInfo(defaultApiStruct, data.operator, [{ number: data.callerId }]);
     this._checkNumber({ ...data, applicationId: defaultApiStruct.applicationId });
     return defaultApiStruct;
   }
@@ -85,7 +79,7 @@ export class SpamApiService {
 
       const updatedData = {
         ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
-        spamCheckResult: result.spamCheckResult.map((item) => {
+        resultSpamCheck: result.resultSpamCheck.map((item) => {
           if (item.numbers.find((number) => number.number === data.callerId)) {
             return {
               ...item,
@@ -120,11 +114,15 @@ export class SpamApiService {
     }
   }
 
-  private getStatus(data: CheckSpamCallResultDTO): CheckSpamStatus {
-    if (!!data.dialStatus && data.dialStatus === AsteriskDialStatus.CHANUNAVAIL) {
-      return CheckSpamStatus.failed;
+  public async stopCheck(applicationId: string): Promise<string> {
+    try {
+      const reuslt = await this.spamModelService.findByApplicationId(applicationId);
+      if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
+      await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cnacel });
+      return 'Успешная отмена';
+    } catch (e) {
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
   }
 
   private async _checkNumber(data: CheckNumberSpamData) {
@@ -139,33 +137,16 @@ export class SpamApiService {
     }
   }
 
-  private async _checkOperatorNumbers(defaultApiStruct: DefaultApplicationApiStruct, data: CheckOperatorSpamData) {
+  private async _checkOperatorNumbers(defaultApiStruct: DefaultApplicationApiStruct, data: CheckOperatorSpamData, operatorInfo: Operators) {
     try {
-      const operatorInfo = await this.operatorsService.getOperator(data.operator);
       const numbers = [...operatorInfo.numbers];
-      await this.spamModelService.create({
-        ...defaultApiStruct,
-        checkDate: new Date(),
-        spamCheckResult: [
-          {
-            operator: data.operator,
-            numbers: operatorInfo.numbers.map((number) => {
-              return { number: number.callerId };
-            }),
-          },
-        ],
-      });
 
       for (const number of numbers) {
         await UtilsService.sleep(SEND_CALL_CHECK_SPAM);
 
-        const actualStatus = await this.spamModelService.findByApplicationId(data.applicationId);
+        if (await this.isCancel(data.applicationId)) break;
 
-        if (actualStatus.status === ApplicationApiActionStatus.cnacel) break;
-        const index = operatorInfo.numbers.indexOf(number);
-        if (index !== -1) {
-          operatorInfo.numbers.splice(index, 1);
-        }
+        this.delCheckNumber(operatorInfo, number);
 
         await this.ari.sendCall({ number, operatorInfo, data }, AriCallType.checkOperatorSpam);
       }
@@ -177,19 +158,43 @@ export class SpamApiService {
     }
   }
 
-  public async getSpamApplicationStatus(applicationId: string): Promise<Spam> {
-    console.log(applicationId);
-    return await this.spamModelService.findByApplicationId(applicationId);
+  private delCheckNumber(operatorInfo: Operators, number: NumbersInfo): void {
+    const index = operatorInfo.numbers.indexOf(number);
+    if (index !== -1) {
+      operatorInfo.numbers.splice(index, 1);
+    }
   }
 
-  public async stopCheck(applicationId: string): Promise<string> {
-    try {
-      const reuslt = await this.spamModelService.findByApplicationId(applicationId);
-      if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
-      await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cnacel });
-      return 'Успешная отмена';
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+  private async isCancel(applicationId: string): Promise<boolean> {
+    const actualStatus = await this.spamModelService.findByApplicationId(applicationId);
+    return actualStatus.status === ApplicationApiActionStatus.cnacel;
+  }
+
+  private async saveCheckNumberInfo(
+    defaultApiStruct: DefaultApplicationApiStruct,
+    operator: OperatorsName,
+    numbers: SpamCheckNumbersInfo[],
+  ) {
+    await this.spamModelService.create({
+      ...defaultApiStruct,
+      checkDate: new Date(),
+      resultSpamCheck: [
+        {
+          operator,
+          numbers,
+        },
+      ],
+    });
+  }
+
+  private getStatus(data: CheckSpamCallResultDTO): CheckSpamStatus {
+    if (!!data.dialStatus && data.dialStatus === AsteriskDialStatus.CHANUNAVAIL) {
+      return CheckSpamStatus.failed;
     }
+    return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
+  }
+
+  public async getSpamApplicationStatus(applicationId: string): Promise<Spam> {
+    return await this.spamModelService.findByApplicationId(applicationId);
   }
 }

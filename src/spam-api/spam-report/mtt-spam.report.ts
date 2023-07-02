@@ -1,23 +1,22 @@
 import { LogService } from '@app/log/log.service';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { Injectable } from '@nestjs/common';
-import * as json2xls from 'json2xls';
-import { FileFormatType } from '@app/files-api/interfaces/files.enum';
-import { SpamReportService } from '../../spam-report.service';
-import { ReportData, ReportCreator } from '../../interfaces/report.interfaces';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
-import { SpamApiService } from '@app/spam-api/spam-api.service';
 import { Spam } from '@app/spam-api/spam.schema';
+import { SpamApiService } from '@app/spam-api/spam-api.service';
+import { ReportCreator, ReportData } from '@app/reports/interfaces/report.interfaces';
+import { SpamReportService } from '../spam-report.service';
 
 @Injectable()
-export class BeelineSpamReport extends ReportCreator {
+export class MttSpamReport extends ReportCreator {
   private applicationId: string;
-  private readonly operatorsName: OperatorsName = OperatorsName.beeline;
+  private readonly operatorsName: OperatorsName = OperatorsName.mtt;
 
   constructor(
     private readonly log: LogService,
     private readonly spamApiService: SpamApiService,
+
     private readonly spamReportService: SpamReportService,
   ) {
     super();
@@ -27,38 +26,27 @@ export class BeelineSpamReport extends ReportCreator {
     try {
       return await this.spamReportService.getMailData(this.operatorsName, data);
     } catch (e) {
-      this.log.error(e, BeelineSpamReport.name);
+      this.log.error(e, MttSpamReport.name);
     }
   }
 
   public async getReportData(): Promise<ReportData[]> {
     try {
-      return await this.getMangoSpamReport();
+      return await this.getMttSpamReport();
     } catch (e) {
-      this.log.error(e, BeelineSpamReport.name);
+      this.log.error(e, MttSpamReport.name);
     }
   }
 
-  private async getMangoSpamReport(): Promise<ReportData[]> {
+  private async getMttSpamReport(): Promise<ReportData[]> {
     try {
       const { applicationId } = await this.spamReportService.startSpamCheck(this.operatorsName);
       this.applicationId = applicationId;
       const result = await this.spamReportService.subscribeReposrtResult(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
-      return [
-        {
-          buff: this.getBufferResult(result),
-          outputFormat: FileFormatType.xls,
-        },
-      ];
+      return await this.spamReportService.getReportData(result, this.operatorsName);
     } catch (e) {
-      this.log.error(e, BeelineSpamReport.name);
+      this.log.error(e, MttSpamReport.name);
     }
-  }
-
-  private getBufferResult(result: Spam) {
-    const format = this.spamReportService.formatReportData(result, this.operatorsName);
-    const xls = json2xls(format);
-    return Buffer.from(xls, 'binary');
   }
 
   private async getReportResult(): Promise<Spam> {

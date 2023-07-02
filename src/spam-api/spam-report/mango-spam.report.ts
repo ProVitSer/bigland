@@ -1,24 +1,22 @@
 import { LogService } from '@app/log/log.service';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { Injectable } from '@nestjs/common';
-import * as json2xls from 'json2xls';
-import { FileFormatType } from '@app/files-api/interfaces/files.enum';
-import { SpamReportService } from '../../spam-report.service';
-import { ReportData, ReportCreator } from '../../interfaces/report.interfaces';
+
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
-import { Spam } from '@app/spam-api/spam.schema';
 import { SpamApiService } from '@app/spam-api/spam-api.service';
+import { Spam } from '@app/spam-api/spam.schema';
+import { ReportCreator, ReportData } from '@app/reports/interfaces/report.interfaces';
+import { SpamReportService } from '../spam-report.service';
 
 @Injectable()
-export class OptimaSpamReport extends ReportCreator {
+export class MangoSpamReport extends ReportCreator {
   private applicationId: string;
-  private readonly operatorsName: OperatorsName = OperatorsName.optima;
+  private readonly operatorsName: OperatorsName = OperatorsName.mango;
 
   constructor(
     private readonly log: LogService,
     private readonly spamApiService: SpamApiService,
-
     private readonly spamReportService: SpamReportService,
   ) {
     super();
@@ -28,7 +26,7 @@ export class OptimaSpamReport extends ReportCreator {
     try {
       return await this.spamReportService.getMailData(this.operatorsName, data);
     } catch (e) {
-      this.log.error(e, OptimaSpamReport.name);
+      this.log.error(e, MangoSpamReport.name);
     }
   }
 
@@ -36,7 +34,7 @@ export class OptimaSpamReport extends ReportCreator {
     try {
       return await this.getMangoSpamReport();
     } catch (e) {
-      this.log.error(e, OptimaSpamReport.name);
+      this.log.error(e, MangoSpamReport.name);
     }
   }
 
@@ -44,22 +42,12 @@ export class OptimaSpamReport extends ReportCreator {
     try {
       const { applicationId } = await this.spamReportService.startSpamCheck(this.operatorsName);
       this.applicationId = applicationId;
-      const result = await this.spamReportService.subscribeReposrtResult(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
-      return [
-        {
-          buff: this.getBufferResult(result),
-          outputFormat: FileFormatType.xls,
-        },
-      ];
-    } catch (e) {
-      this.log.error(e, OptimaSpamReport.name);
-    }
-  }
 
-  private getBufferResult(result: Spam) {
-    const format = this.spamReportService.formatReportData(result, this.operatorsName);
-    const xls = json2xls(format);
-    return Buffer.from(xls, 'binary');
+      const result = await this.spamReportService.subscribeReposrtResult(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
+      return await this.spamReportService.getReportData(result, this.operatorsName);
+    } catch (e) {
+      this.log.error(e, MangoSpamReport.name);
+    }
   }
 
   private async getReportResult(): Promise<Spam> {

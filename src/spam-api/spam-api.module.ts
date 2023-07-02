@@ -14,11 +14,19 @@ import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { BiglandModule } from '@app/bigland/bigland.module';
 import { Spam, SpamSchema } from './spam.schema';
 import { SpamResultController } from './controllers/spam-result.controller';
+import { MangoSpamReport, MttSpamReport, BeelineSpamReport, OptimaSpamReport, ZadarmaSpamReport } from './spam-report';
+import { FilesApiModule } from '@app/files-api/files-api.module';
+import { ServerStaticModule } from '@app/server-static/server-static.module';
+import { ReportsModule } from '@app/reports/reports.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SpamReportService } from './spam-report.service';
+import { OperatorSpamSchedule } from './schedule/operators-spam.schedule';
 
 @Module({
   imports: [
     ConfigModule,
     MongooseModule.forFeature([{ name: Spam.name, schema: SpamSchema }]),
+    ScheduleModule.forRoot(),
     LogModule,
     AsteriskModule,
     AuthModule,
@@ -26,8 +34,21 @@ import { SpamResultController } from './controllers/spam-result.controller';
     SystemModule,
     OperatorsModule,
     BiglandModule,
+    FilesApiModule,
+    ServerStaticModule,
+    ReportsModule,
   ],
-  providers: [SpamApiService, SpamModelService],
+  providers: [
+    SpamApiService,
+    SpamModelService,
+    SpamReportService,
+    MangoSpamReport,
+    MttSpamReport,
+    BeelineSpamReport,
+    OptimaSpamReport,
+    ZadarmaSpamReport,
+    OperatorSpamSchedule,
+  ],
   controllers: [SpamApiController, SpamResultController],
   exports: [SpamApiService],
 })

@@ -1,12 +1,12 @@
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { distinctUntilChanged } from 'rxjs';
-import { REPORT_DATE_FORMAT, SPAM_STATUS_DESCRIPTION } from './reports.constants';
+import { REPORT_DATE_FORMAT } from '../reports/reports.constants';
 import * as moment from 'moment';
 import { CheckOperatorNumbersDTO } from '@app/spam-api/dto/check-spam.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import { ReportData } from './interfaces/report.interfaces';
+import { ReportData } from '../reports/interfaces/report.interfaces';
 import { AttachmentsData, SendMailData, SpamReportContext, SpamReportLink } from '@app/mail/interfaces/mail.interfaces';
 import { FilesCreateService } from '@app/files-api/files-create/files-create.service';
 import { ServerStaticService } from '@app/server-static/server-static..service';
@@ -15,6 +15,9 @@ import { SpamApiService } from '@app/spam-api/spam-api.service';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { Spam, SpamCheckResult } from '@app/spam-api/spam.schema';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
+import { SPAM_STATUS_DESCRIPTION } from './spam-api.constants';
+import * as json2xls from 'json2xls';
+import { FileFormatType } from '@app/files-api/interfaces/files.enum';
 
 @Injectable()
 export class SpamReportService {
@@ -30,7 +33,6 @@ export class SpamReportService {
       operator: operatorsName,
       dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
     };
-    console.log(checkCriteria);
     return await this.spamApiService.checkOperatorNumbers(checkCriteria);
   }
 
@@ -70,7 +72,7 @@ export class SpamReportService {
     return files;
   }
 
-  async subscribeReposrtResult(fn: () => Promise<any>, timeout: number): Promise<Spam> {
+  public async subscribeReposrtResult(fn: () => Promise<any>, timeout: number): Promise<Spam> {
     return new Promise((resolve, reject) => {
       const subscriber = UtilsService.getObservableFn(fn, timeout)
         .pipe(
@@ -101,8 +103,8 @@ export class SpamReportService {
     });
   }
 
-  formatReportData(data: Spam, operatorsName: OperatorsName) {
-    const numbers = data.spamCheckResult.filter((check: SpamCheckResult) => {
+  public formatReportData(data: Spam, operatorsName: OperatorsName) {
+    const numbers = data.resultSpamCheck.filter((check: SpamCheckResult) => {
       return check.operator === operatorsName;
     })[0].numbers;
     return numbers.map((item) => {
@@ -113,5 +115,20 @@ export class SpamReportService {
         'Результат проверки': SPAM_STATUS_DESCRIPTION[item.status],
       };
     });
+  }
+
+  public async getReportData(result: Spam, operatorsName: OperatorsName): Promise<ReportData[]> {
+    return [
+      {
+        buff: this.getBufferResult(result, operatorsName),
+        outputFormat: FileFormatType.xls,
+      },
+    ];
+  }
+
+  private getBufferResult(result: Spam, operatorsName: OperatorsName) {
+    const format = this.formatReportData(result, operatorsName);
+    const xls = json2xls(format);
+    return Buffer.from(xls, 'binary');
   }
 }

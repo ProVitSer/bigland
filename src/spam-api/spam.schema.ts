@@ -20,7 +20,7 @@ export class Spam {
   error?: string;
 
   @Prop({})
-  spamCheckResult: SpamCheckResult[];
+  resultSpamCheck: SpamCheckResult[];
 
   @Prop({ type: Date, default: Date.now })
   checkDate: Date;
