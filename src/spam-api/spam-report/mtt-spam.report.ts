@@ -4,9 +4,10 @@ import { Injectable } from '@nestjs/common';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
 import { Spam } from '@app/spam-api/spam.schema';
-import { SpamApiService } from '@app/spam-api/spam-api.service';
+import { SpamApiService } from '@app/spam-api/services/spam-api.service';
 import { ReportCreator, ReportData } from '@app/reports/interfaces/report.interfaces';
-import { SpamReportService } from '../spam-report.service';
+import { SpamReportService } from '../services/spam-report.service';
+import { BiglandService } from '@app/bigland/bigland.service';
 
 @Injectable()
 export class MttSpamReport extends ReportCreator {
@@ -16,8 +17,8 @@ export class MttSpamReport extends ReportCreator {
   constructor(
     private readonly log: LogService,
     private readonly spamApiService: SpamApiService,
-
     private readonly spamReportService: SpamReportService,
+    private readonly biglandService: BiglandService,
   ) {
     super();
   }
@@ -42,7 +43,7 @@ export class MttSpamReport extends ReportCreator {
     try {
       const { applicationId } = await this.spamReportService.startSpamCheck(this.operatorsName);
       this.applicationId = applicationId;
-      const result = await this.spamReportService.subscribeReposrtResult(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
+      const result = await this.biglandService.subscribeApiResult<Spam>(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
       return await this.spamReportService.getReportData(result, this.operatorsName);
     } catch (e) {
       this.log.error(e, MttSpamReport.name);
