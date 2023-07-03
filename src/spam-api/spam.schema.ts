@@ -2,7 +2,7 @@ import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { CheckSpamStatus } from './interfaces/spam-api.enum';
+import { CheckSpamStatus, SpamType } from './interfaces/spam-api.enum';
 
 @Schema({ collection: 'spam', versionKey: false })
 export class Spam {
@@ -14,7 +14,13 @@ export class Spam {
     enum: ApplicationApiActionStatus,
     default: ApplicationApiActionStatus.inProgress,
   })
-  status?: ApplicationApiActionStatus;
+  status: ApplicationApiActionStatus;
+
+  @Prop({
+    type: String,
+    enum: SpamType,
+  })
+  spamType: SpamType;
 
   @Prop()
   error?: string;

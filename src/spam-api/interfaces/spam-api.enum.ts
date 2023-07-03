@@ -4,3 +4,9 @@ export enum CheckSpamStatus {
   notSureYet = 'notSureYet',
   failed = 'failed',
 }
+
+export enum SpamType {
+  apiCheck = 'apiCheck',
+  report = 'report',
+  allOperators = 'allOperators',
+}

@@ -1,44 +1,22 @@
 import { BiglandService } from '@app/bigland/bigland.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CheckNumberDTO, CheckOperatorNumbersDTO } from './dto/check-spam.dto';
-import { CheckSpamCallResultDTO } from './dto/amd-spam-call-result.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { DataObject } from '@app/platform-types/common/interfaces';
-import { Spam, SpamCheckNumbersInfo } from './spam.schema';
-import { Model } from 'mongoose';
+import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
+import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
+import { Spam, SpamCheckNumbersInfo } from '../spam.schema';
 import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import { CheckNumberSpamData, CheckOperatorSpamData } from './interfaces/spam-api.interfaces';
+import { CheckNumberSpamData, CheckOperatorSpamData } from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
 import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
-import { AMD_STATUS_TO_SPAM_MAP } from './spam-api.constants';
-import { CheckSpamStatus } from './interfaces/spam-api.enum';
+import { AMD_STATUS_TO_SPAM_MAP } from '../spam-api.constants';
+import { CheckSpamStatus, SpamType } from '../interfaces/spam-api.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { NumbersInfo, Operators } from '@app/operators/operators.schema';
-
-@Injectable()
-export class SpamModelService {
-  constructor(@InjectModel(Spam.name) private spamModel: Model<Spam>) {}
-
-  public async create(data: Spam): Promise<Spam> {
-    const spam = new this.spamModel({
-      ...data,
-    });
-    return await spam.save();
-  }
-
-  public async update(applicationId: string, data: DataObject) {
-    return await this.spamModel.updateOne({ applicationId: applicationId }, { $set: { ...data } });
-  }
-
-  public async findByApplicationId(applicationId: string) {
-    return await this.spamModel.findOne({ applicationId }, { _id: 0 });
-  }
-}
+import { SpamModelService } from './spam-model.service';
 
 @Injectable()
 export class SpamApiService {
@@ -47,10 +25,9 @@ export class SpamApiService {
     private readonly ari: AriACallService,
     private readonly operatorsService: OperatorsService,
     private readonly spamModelService: SpamModelService,
-    @InjectModel(Spam.name) private spamModel: Model<Spam>,
   ) {}
 
-  public async checkOperatorNumbers(data: CheckOperatorNumbersDTO): Promise<DefaultApplicationApiStruct> {
+  public async checkOperatorNumbers(data: CheckOperatorNumbersDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
     const operatorInfo = await this.operatorsService.getOperator(data.operator);
     await this.saveCheckNumberInfo(
@@ -59,15 +36,16 @@ export class SpamApiService {
       operatorInfo.numbers.map((number) => {
         return { number: number.callerId };
       }),
+      spamType,
     );
 
     this._checkOperatorNumbers(defaultApiStruct, { ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
     return defaultApiStruct;
   }
 
-  public async checkNumber(data: CheckNumberDTO): Promise<DefaultApplicationApiStruct> {
+  public async checkNumber(data: CheckNumberDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
-    await this.saveCheckNumberInfo(defaultApiStruct, data.operator, [{ number: data.callerId }]);
+    await this.saveCheckNumberInfo(defaultApiStruct, data.operator, [{ number: data.callerId }], spamType);
     this._checkNumber({ ...data, applicationId: defaultApiStruct.applicationId });
     return defaultApiStruct;
   }
@@ -76,15 +54,15 @@ export class SpamApiService {
     try {
       const result = await this.spamModelService.findByApplicationId(data.applicationId);
       if (result == null) return;
-
+      const callerId = UtilsService.normalizePhoneNumber(data.callerId);
       const updatedData = {
         ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
         resultSpamCheck: result.resultSpamCheck.map((item) => {
-          if (item.numbers.find((number) => number.number === data.callerId)) {
+          if (item.numbers.find((number) => number.number === callerId)) {
             return {
               ...item,
               numbers: item.numbers.map((number) => {
-                if (number.number === data.callerId) {
+                if (number.number === callerId) {
                   return {
                     ...number,
                     status: this.getStatus(data),
@@ -114,11 +92,21 @@ export class SpamApiService {
     }
   }
 
+  public async getReport(date: string): Promise<any> {
+    try {
+      const result = await this.spamModelService.getActualSpamReportInfo(date);
+      if (result.length == 0) throw new HttpException({ message: `По дате  ${date} ничего не найдено` }, HttpStatus.NOT_FOUND);
+      return result[0];
+    } catch (e) {
+      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   public async stopCheck(applicationId: string): Promise<string> {
     try {
       const reuslt = await this.spamModelService.findByApplicationId(applicationId);
       if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
-      await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cnacel });
+      await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cancel });
       return 'Успешная отмена';
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -167,16 +155,18 @@ export class SpamApiService {
 
   private async isCancel(applicationId: string): Promise<boolean> {
     const actualStatus = await this.spamModelService.findByApplicationId(applicationId);
-    return actualStatus.status === ApplicationApiActionStatus.cnacel;
+    return actualStatus.status === ApplicationApiActionStatus.cancel;
   }
 
   private async saveCheckNumberInfo(
     defaultApiStruct: DefaultApplicationApiStruct,
     operator: OperatorsName,
     numbers: SpamCheckNumbersInfo[],
+    spamType: SpamType,
   ) {
     await this.spamModelService.create({
       ...defaultApiStruct,
+      spamType,
       checkDate: new Date(),
       resultSpamCheck: [
         {

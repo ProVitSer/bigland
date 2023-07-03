@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
-import { SpamApiService } from '../spam-api.service';
+import { SpamApiService } from '../services/spam-api.service';
 
 @Controller('spam-api')
 export class SpamResultController {

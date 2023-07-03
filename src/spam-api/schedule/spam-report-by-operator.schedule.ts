@@ -6,7 +6,7 @@ import { MangoSpamReport, MttSpamReport, BeelineSpamReport, OptimaSpamReport, Za
 import { EVERY_7_DAY_AT_10PM, EVERY_7_DAY_AT_9PM, EVERY_7_DAY_AT_9_10PM, EVERY_7_DAY_AT_9_40PM } from '../spam-api.constants';
 
 @Injectable()
-export class OperatorSpamSchedule {
+export class SpamReportByOperatorSchedule {
   constructor(
     private readonly mango: MangoSpamReport,
     private readonly mtt: MttSpamReport,
@@ -23,7 +23,7 @@ export class OperatorSpamSchedule {
       try {
         this.reportService.generateReport(this.mango);
       } catch (e) {
-        this.log.error(e, OperatorSpamSchedule.name);
+        this.log.error(e, SpamReportByOperatorSchedule.name);
       }
     }
   }
@@ -34,7 +34,7 @@ export class OperatorSpamSchedule {
       try {
         this.reportService.generateReport(this.optima);
       } catch (e) {
-        this.log.error(e, OperatorSpamSchedule.name);
+        this.log.error(e, SpamReportByOperatorSchedule.name);
       }
     }
   }
@@ -45,7 +45,7 @@ export class OperatorSpamSchedule {
       try {
         this.reportService.generateReport(this.beeline);
       } catch (e) {
-        this.log.error(e, OperatorSpamSchedule.name);
+        this.log.error(e, SpamReportByOperatorSchedule.name);
       }
     }
   }
@@ -56,7 +56,7 @@ export class OperatorSpamSchedule {
       try {
         this.reportService.generateReport(this.mtt);
       } catch (e) {
-        this.log.error(e, OperatorSpamSchedule.name);
+        this.log.error(e, SpamReportByOperatorSchedule.name);
       }
     }
   }
@@ -67,7 +67,7 @@ export class OperatorSpamSchedule {
       try {
         this.reportService.generateReport(this.zadarma);
       } catch (e) {
-        this.log.error(e, OperatorSpamSchedule.name);
+        this.log.error(e, SpamReportByOperatorSchedule.name);
       }
     }
   }
