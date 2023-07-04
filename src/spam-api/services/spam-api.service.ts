@@ -5,7 +5,15 @@ import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
 import { Spam, SpamCheckNumbersInfo } from '../spam.schema';
 import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import { CheckNumberSpamData, CheckOperatorSpamData } from '../interfaces/spam-api.interfaces';
+import {
+  ActualSpamReportInfo,
+  CheckNumberSpamData,
+  CheckOperatorSpamData,
+  ResultSpamCheck,
+  SpamCheckInfo,
+  SpamCheckReportsResult,
+  SpamReportsResponseStruct,
+} from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
@@ -92,14 +100,39 @@ export class SpamApiService {
     }
   }
 
-  public async getReport(date: string): Promise<any> {
+  public async getReport(date: string): Promise<SpamReportsResponseStruct[]> {
     try {
       const result = await this.spamModelService.getActualSpamReportInfo(date);
       if (result.length == 0) throw new HttpException({ message: `По дате  ${date} ничего не найдено` }, HttpStatus.NOT_FOUND);
-      return result[0];
+
+      return this.formatSpamReportsResponse(result);
     } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw e;
     }
+  }
+
+  private formatSpamReportsResponse(result: ActualSpamReportInfo[]): SpamReportsResponseStruct[] {
+    const spamCheckResult: SpamCheckReportsResult[] = [];
+    const response: SpamReportsResponseStruct[] = [];
+
+    result.map((r: ActualSpamReportInfo) => {
+      r.resultSpamCheck.map((result: ResultSpamCheck) => {
+        result.numbers.map((n: SpamCheckInfo) => {
+          spamCheckResult.push({
+            operator: result.operator,
+            status: n.status,
+            number: n.number,
+          });
+        });
+      });
+      response.push({
+        applicationId: r.applicationId,
+        status: r.status,
+        resultSpamCheck: spamCheckResult,
+        checkDate: r.checkDate,
+      });
+    });
+    return response;
   }
 
   public async stopCheck(applicationId: string): Promise<string> {

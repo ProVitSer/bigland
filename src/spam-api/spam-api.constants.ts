@@ -20,3 +20,4 @@ export const EVERY_7_DAY_AT_9_10PM = '10 21 * * 0';
 export const EVERY_7_DAY_AT_9_40PM = '40 21 * * 0';
 export const EVERY_7_DAY_AT_10PM = '00 22 * * 0';
 export const DATE_FROMAT = 'DD.MM.YYYY';
+export const SPAM_REPORT_DATE_FORMAT = 'YYYY.MM.DD';
