@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { GetOperatorStruct, OperatorsInfo } from './interfaces/operators.interfaces';
+import { GetOperatorStruct, OperatorsInfo, OperatorsPhones, Phones } from './interfaces/operators.interfaces';
 import { NumbersInfo, Operators, OperatorsDocument } from './operators.schema';
 import { OPERATOR_DEFAULT_SETTINGS, OPERATOR_PROJ } from './operators.constants';
 import { OperatorsName } from './interfaces/operators.enum';
@@ -13,6 +13,21 @@ export class OperatorsService {
   public async getOperators(): Promise<OperatorsInfo[]> {
     const operators = await this.operatorsModel.find({});
     return this.formatOperatorsInfo(operators);
+  }
+
+  public async getOperatorsPhones(): Promise<OperatorsPhones[]> {
+    const operators = await this.getOperators();
+    const fromatOperatorsInfo: Phones[] = [];
+    operators.map((operator: OperatorsInfo) => {
+      const { name, numbers } = operator;
+      numbers.map((number: string) => {
+        fromatOperatorsInfo.push({
+          name,
+          phone: number,
+        });
+      });
+    });
+    return [{ numbers: fromatOperatorsInfo }];
   }
 
   public async getOperator(operatorName: string): Promise<Operators> {

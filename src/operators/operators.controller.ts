@@ -19,7 +19,7 @@ export class OperatorsController {
   @Get('')
   async getOperators(@Req() req: Request, @Res() res: Response) {
     try {
-      const result = await this.operatorsService.getOperators();
+      const result = await this.operatorsService.getOperatorsPhones();
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
