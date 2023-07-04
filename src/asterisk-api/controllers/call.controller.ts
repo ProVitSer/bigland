@@ -14,7 +14,7 @@ import { Role } from '@app/users/interfaces/users.enum';
 export class CallApiController {
   constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 
-  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard([Role.Admin]))
   @UseGuards(JwtGuard)
   @Post('monitoringCall')
   async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
@@ -26,7 +26,7 @@ export class CallApiController {
     }
   }
 
-  @UseGuards(RoleGuard(Role.Admin))
+  @UseGuards(RoleGuard([Role.Admin]))
   @UseGuards(JwtGuard)
   @Post('pozvonim')
   async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {

@@ -19,7 +19,7 @@ export class UsersService {
     }
   }
 
-  async getById(id: string) {
+  async getById(id: string): Promise<Users> {
     const user = await this.usersModel.findById(id);
     if (user) {
       return user;

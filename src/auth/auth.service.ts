@@ -9,6 +9,7 @@ import { RegisterDto } from './dto/register.dto';
 import { UsersService } from '@app/users/users.service';
 import { JwtTokenConfType } from './interfaces/auth.enum';
 import { INVALALID_CREDENTIALS, USER_NOT_FOUND } from './auth.constants';
+import { Users } from '@app/users/users.schema';
 
 @Injectable()
 export class AuthTokenService {
@@ -76,11 +77,7 @@ export class AuthTokenService {
 
 @Injectable()
 export class AuthUserService {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   public async register(registrationData: RegisterDto): Promise<RegisterResponse> {
     const { username, email, password } = registrationData;
@@ -106,7 +103,7 @@ export class AuthUserService {
     }
   }
 
-  public async getAuthenticatedUser(email: string, plainTextPassword: string) {
+  public async getAuthenticatedUser(email: string, plainTextPassword: string): Promise<Users> {
     try {
       const user = await this.usersService.getByEmail(email);
       if (user == null) {

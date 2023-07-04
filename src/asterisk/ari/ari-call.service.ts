@@ -32,9 +32,13 @@ export class AriACallService implements OnApplicationBootstrap {
   }
 
   public async sendCall(data: AsteriskCallApiUnion, callType: AriCallType): Promise<Ari.Channel> {
-    const provider = this.getProvider(callType);
-    const originateInfo = await provider.getOriginateInfo(data, this.client.ariClient);
-    return await this.sendAriCall(originateInfo);
+    try {
+      const provider = this.getProvider(callType);
+      const originateInfo = await provider.getOriginateInfo(data, this.client.ariClient);
+      return await this.sendAriCall(originateInfo);
+    } catch (e) {
+      throw e;
+    }
   }
 
   private getProvider(callType: AriCallType): AsteriskAriCall {

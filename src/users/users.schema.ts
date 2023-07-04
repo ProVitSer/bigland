@@ -19,7 +19,7 @@ export class Users {
   currentHashedRefreshToken?: string;
 
   @Prop({
-    type: String,
+    type: [String],
     enum: Role,
     default: Role.User,
   })

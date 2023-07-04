@@ -7,7 +7,7 @@ import { Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseG
 import { Request, Response } from 'express';
 import { LdsService } from './lds.service';
 
-@UseGuards(RoleGuard(Role.Admin))
+@UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @Controller('lds')
