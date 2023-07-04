@@ -4,12 +4,12 @@ import { CanActivate, ExecutionContext, HttpException, HttpStatus, mixin, Type }
 import { LIMITED_ACCESS } from '../auth.constants';
 import { RequestWithUser } from '../interfaces/auth.interfaces';
 
-export const RoleGuard = (role: Role): Type<CanActivate> => {
+export const RoleGuard = (roles: Role[]): Type<CanActivate> => {
   class RoleGuardMixin implements CanActivate {
     canActivate(context: ExecutionContext) {
       const request = context.switchToHttp().getRequest<RequestWithUser>();
       const user = request.user;
-      if (user?.roles.includes(role)) {
+      if (user?.roles.some((role) => roles.includes(role))) {
         return true;
       } else {
         throw new HttpException(

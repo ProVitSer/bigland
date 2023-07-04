@@ -9,7 +9,7 @@ import { OperatorsService } from './operators.service';
 import { OperatorsNumberDTO } from './dto/add-operator-numbers.dto';
 import { OperatorsName } from './interfaces/operators.enum';
 
-@UseGuards(RoleGuard(Role.User))
+@UseGuards(RoleGuard([Role.Admin, Role.User]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 @Controller('operators')
@@ -19,7 +19,7 @@ export class OperatorsController {
   @Get('')
   async getOperators(@Req() req: Request, @Res() res: Response) {
     try {
-      const result = await this.operatorsService.getOperators();
+      const result = await this.operatorsService.getOperatorsPhones();
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
