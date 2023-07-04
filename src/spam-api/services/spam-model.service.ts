@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { Spam } from '../spam.schema';
 import * as moment from 'moment';
 import { SpamType } from '../interfaces/spam-api.enum';
+import { SPAM_REPORT_DATE_FORMAT } from '../spam-api.constants';
+import { ActualSpamReportInfo } from '../interfaces/spam-api.interfaces';
 
 @Injectable()
 export class SpamModelService {
@@ -25,8 +27,8 @@ export class SpamModelService {
     return await this.spamModel.findOne({ applicationId }, { _id: 0 });
   }
 
-  public async getActualSpamReportInfo(dateString: string) {
-    const date = moment(dateString, 'DD.MM.YYYY');
+  public async getActualSpamReportInfo(dateString: string): Promise<ActualSpamReportInfo[]> {
+    const date = moment(dateString, SPAM_REPORT_DATE_FORMAT);
     const startDate = date.startOf('day').add(3, 'hours').toDate();
     const endDate = date.endOf('day').add(3, 'hours').toDate();
     const result = await this.spamModel
@@ -42,6 +44,7 @@ export class SpamModelService {
         },
         {
           $project: {
+            _id: 0,
             applicationId: -1,
             status: -1,
             resultSpamCheck: -1,
