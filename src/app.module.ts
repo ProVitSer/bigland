@@ -27,6 +27,10 @@ import { OperatorsModule } from './operators/operators.module';
 import { ReportsModule } from './reports/reports.module';
 import { FilesApiModule } from './files-api/files-api.module';
 import { ServerStaticModule } from './server-static/server-static.module';
+import { SpamApiModule } from './spam-api/spam-api.module';
+import { BiglandModule } from './bigland/bigland.module';
+// import { SpamApiModule } from './spam-api/spam-api.module';
+// import { BiglandModule } from './bigland/bigland.module';
 
 @Module({
   imports: [
@@ -60,6 +64,8 @@ import { ServerStaticModule } from './server-static/server-static.module';
     ReportsModule,
     FilesApiModule,
     ServerStaticModule,
+    SpamApiModule,
+    BiglandModule,
   ],
   controllers: [],
   providers: [],

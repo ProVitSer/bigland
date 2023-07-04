@@ -1,7 +1,7 @@
 import { AsteriskAmdCallStatus, AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class AmdCallResultDTO {
+export class CheckSpamCallResultDTO {
   @IsString()
   @IsEnum(AsteriskAmdCallStatus)
   amdStatus: AsteriskAmdCallStatus;
@@ -12,7 +12,7 @@ export class AmdCallResultDTO {
 
   @IsString()
   @IsNotEmpty()
-  asteriskApiId: string;
+  applicationId: string;
 
   @IsString()
   @IsNotEmpty()

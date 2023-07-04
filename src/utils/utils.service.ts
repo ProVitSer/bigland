@@ -22,6 +22,10 @@ export class UtilsService {
       return digits.slice(1);
     }
 
+    if (digits.length == 10) {
+      return '7' + digits;
+    }
+
     return digits;
   }
 

@@ -8,46 +8,14 @@ import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { LogModule } from '@app/log/log.module';
 import { SystemModule } from '@app/system/system.module';
 import { OperatorsModule } from '@app/operators/operators.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { AsterikkApi, AsterikkApiSchema } from './asterisk-api.schema';
-import {
-  AmocrmApiController,
-  AsteriskApiApiController,
-  CallApiController,
-  ChanspyApiController,
-  ServiceCodeApiController,
-} from './controllers';
-import {
-  AmocrmApiService,
-  CallApiService,
-  ChanspyApiService,
-  ServiceCodeApiService,
-  AsteriskApiModelService,
-  AsteriskApiService,
-} from './services';
-import { SpamApiController } from './controllers/spam.controller';
+import { AmocrmApiController, CallApiController, ChanspyApiController, ServiceCodeApiController } from './controllers';
+import { AmocrmApiService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
 
 @Module({
-  imports: [
-    ConfigModule,
-    MongooseModule.forFeature([{ name: AsterikkApi.name, schema: AsterikkApiSchema }]),
-    LogModule,
-    AsteriskModule,
-    AuthModule,
-    HttpResponseModule,
-    SystemModule,
-    OperatorsModule,
-  ],
-  controllers: [
-    CallApiController,
-    AmocrmApiController,
-    ServiceCodeApiController,
-    ChanspyApiController,
-    AsteriskApiApiController,
-    SpamApiController,
-  ],
-  providers: [AsteriskApiService, AsteriskApiModelService, CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
-  exports: [AsteriskApiService],
+  imports: [ConfigModule, LogModule, AsteriskModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
+  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController],
+  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
+  exports: [],
 })
 export class AsteriskApiModule {
   configure(consumer: MiddlewareConsumer): void {
@@ -59,10 +27,6 @@ export class AsteriskApiModule {
       .apply(LoggerMiddleware, AllowedIpMiddleware)
       .forRoutes(ServiceCodeApiController)
       .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ChanspyApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(AsteriskApiApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(SpamApiController);
+      .forRoutes(ChanspyApiController);
   }
 }
