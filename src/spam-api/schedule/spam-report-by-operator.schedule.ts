@@ -1,6 +1,6 @@
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
 import { ReportService } from '../../reports/reports.service';
 import { MangoSpamReport, MttSpamReport, BeelineSpamReport, OptimaSpamReport, ZadarmaSpamReport } from '../spam-report';
 import { EVERY_7_DAY_AT_10PM, EVERY_7_DAY_AT_9PM, EVERY_7_DAY_AT_9_10PM, EVERY_7_DAY_AT_9_40PM } from '../spam-api.constants';
@@ -17,7 +17,8 @@ export class SpamReportByOperatorSchedule {
     private readonly log: LogService,
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  // @Cron(CronExpression.EVERY_DAY_AT_10PM)
+  @Timeout(30000)
   async mangoReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {

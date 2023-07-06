@@ -6,7 +6,8 @@ export enum CheckSpamStatus {
 }
 
 export enum SpamType {
-  apiCheck = 'apiCheck',
+  checkNumber = 'checkNumber',
+  checkOperatorNumbers = 'checkOperatorNumbers',
   report = 'report',
-  allOperators = 'allOperators',
+  checkAllOperators = 'checkAllOperators',
 }

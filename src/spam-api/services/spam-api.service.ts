@@ -5,15 +5,7 @@ import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
 import { Spam, SpamCheckNumbersInfo } from '../spam.schema';
 import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import {
-  ActualSpamReportInfo,
-  CheckNumberSpamData,
-  CheckOperatorSpamData,
-  ResultSpamCheck,
-  SpamCheckInfo,
-  SpamCheckReportsResult,
-  SpamReportsResponseStruct,
-} from '../interfaces/spam-api.interfaces';
+import { CheckNumberSpamData, CheckOperatorSpamData, SpamReportsResponseStruct } from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
@@ -25,6 +17,8 @@ import { CheckSpamStatus, SpamType } from '../interfaces/spam-api.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { NumbersInfo, Operators } from '@app/operators/operators.schema';
 import { SpamModelService } from './spam-model.service';
+import { SpamDataAdapter } from '../adapters/spam-data.adapter';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SpamApiService {
@@ -33,9 +27,25 @@ export class SpamApiService {
     private readonly ari: AriACallService,
     private readonly operatorsService: OperatorsService,
     private readonly spamModelService: SpamModelService,
+    private readonly configService: ConfigService,
   ) {}
 
+  public async startCheckOperatorNumbers(
+    operatorsName: OperatorsName,
+    spamType: SpamType,
+    verificationNumber?: string,
+  ): Promise<DefaultApplicationApiStruct> {
+    const checkCriteria: CheckOperatorNumbersDTO = {
+      operator: operatorsName,
+      dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
+    };
+    return await this.checkOperatorNumbers(checkCriteria, spamType);
+  }
+
   public async checkOperatorNumbers(data: CheckOperatorNumbersDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
+    const actual = await this.isInitCheck(SpamType.checkOperatorNumbers);
+    if (actual.length !== 0) throw new Error(`Уже запущенна проверка в рамках ${actual[0].applicationId}`);
+
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
     const operatorInfo = await this.operatorsService.getOperator(data.operator);
     await this.saveCheckNumberInfo(
@@ -47,7 +57,7 @@ export class SpamApiService {
       spamType,
     );
 
-    this._checkOperatorNumbers(defaultApiStruct, { ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
+    this._checkOperatorNumbers({ ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
     return defaultApiStruct;
   }
 
@@ -62,87 +72,91 @@ export class SpamApiService {
     try {
       const result = await this.spamModelService.findByApplicationId(data.applicationId);
       if (result == null) return;
-      const callerId = UtilsService.normalizePhoneNumber(data.callerId);
-      const updatedData = {
-        ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
-        resultSpamCheck: result.resultSpamCheck.map((item) => {
-          if (item.numbers.find((number) => number.number === callerId)) {
-            return {
-              ...item,
-              numbers: item.numbers.map((number) => {
-                if (number.number === callerId) {
-                  return {
-                    ...number,
-                    status: this.getStatus(data),
-                  };
-                }
-                return number;
-              }),
-            };
-          }
-          return item;
-        }),
-      };
 
-      await this.spamModelService.update(data.applicationId, updatedData);
+      await this.spamModelService.update(data.applicationId, this.formatUpdateData(data, result));
     } catch (e) {
       throw e;
     }
   }
 
-  public async getResult(applicationId: string): Promise<Spam> {
+  public async getSpamResultById(applicationId: string): Promise<SpamReportsResponseStruct[]> {
     try {
       const result = await this.spamModelService.findByApplicationId(applicationId);
       if (result == null) throw new HttpException({ message: `По данному ID ${applicationId} ничего не найдено` }, HttpStatus.NOT_FOUND);
-      return result;
+      return new SpamDataAdapter([result]).get();
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  public async getReport(date: string): Promise<SpamReportsResponseStruct[]> {
+  public async getSpamReport(date: string): Promise<SpamReportsResponseStruct[]> {
     try {
       const result = await this.spamModelService.getActualSpamReportInfo(date);
-      if (result.length == 0) throw new HttpException({ message: `По дате  ${date} ничего не найдено` }, HttpStatus.NOT_FOUND);
-
-      return this.formatSpamReportsResponse(result);
+      if (result.length == 0) throw new HttpException({ message: `По дате ${date} ничего не найдено` }, HttpStatus.NOT_FOUND);
+      return new SpamDataAdapter(result).get();
     } catch (e) {
       throw e;
     }
-  }
-
-  private formatSpamReportsResponse(result: ActualSpamReportInfo[]): SpamReportsResponseStruct[] {
-    const spamCheckResult: SpamCheckReportsResult[] = [];
-    const response: SpamReportsResponseStruct[] = [];
-
-    result.map((r: ActualSpamReportInfo) => {
-      r.resultSpamCheck.map((result: ResultSpamCheck) => {
-        result.numbers.map((n: SpamCheckInfo) => {
-          spamCheckResult.push({
-            operator: result.operator,
-            status: n.status,
-            number: n.number,
-          });
-        });
-      });
-      response.push({
-        applicationId: r.applicationId,
-        status: r.status,
-        resultSpamCheck: spamCheckResult,
-        checkDate: r.checkDate,
-      });
-    });
-    return response;
   }
 
   public async stopCheck(applicationId: string): Promise<string> {
     try {
       const reuslt = await this.spamModelService.findByApplicationId(applicationId);
       if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
-      await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cancel });
+      await this._stopCheck(applicationId, reuslt);
       return 'Успешная отмена';
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public async isCancel(applicationId: string): Promise<boolean> {
+    const actualStatus = await this.spamModelService.findByApplicationId(applicationId);
+    return actualStatus.status === ApplicationApiActionStatus.cancel;
+  }
+
+  public async getSpamApplicationStatus(applicationId: string): Promise<Spam> {
+    return await this.spamModelService.findByApplicationId(applicationId);
+  }
+
+  public async isInitCheck(spamType: SpamType): Promise<Spam[]> {
+    return await this.spamModelService.getActualCheck(spamType);
+  }
+
+  private formatUpdateData(data: CheckSpamCallResultDTO, result: Spam) {
+    const callerId = UtilsService.normalizePhoneNumber(data.callerId);
+    return {
+      ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
+      resultSpamCheck: result.resultSpamCheck.map((item) => {
+        if (item.numbers.find((number) => number.number === callerId)) {
+          return {
+            ...item,
+            numbers: item.numbers.map((number) => {
+              if (number.number === callerId) {
+                return {
+                  ...number,
+                  status: this.getStatus(data),
+                };
+              }
+              return number;
+            }),
+          };
+        }
+        return item;
+      }),
+    };
+  }
+
+  private async _stopCheck(applicationId: string, reuslt: Spam) {
+    await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cancel });
+    if (reuslt.applicationIds.length !== 0) {
+      await this.stopAllSpamCheck(reuslt.applicationIds);
+    }
+  }
+
+  private async stopAllSpamCheck(applicationIds: string[]) {
+    for (const id of applicationIds) {
+      await this.spamModelService.update(id, { status: ApplicationApiActionStatus.cancel });
     }
   }
 
@@ -158,7 +172,7 @@ export class SpamApiService {
     }
   }
 
-  private async _checkOperatorNumbers(defaultApiStruct: DefaultApplicationApiStruct, data: CheckOperatorSpamData, operatorInfo: Operators) {
+  private async _checkOperatorNumbers(data: CheckOperatorSpamData, operatorInfo: Operators) {
     try {
       const numbers = [...operatorInfo.numbers];
 
@@ -186,11 +200,6 @@ export class SpamApiService {
     }
   }
 
-  private async isCancel(applicationId: string): Promise<boolean> {
-    const actualStatus = await this.spamModelService.findByApplicationId(applicationId);
-    return actualStatus.status === ApplicationApiActionStatus.cancel;
-  }
-
   private async saveCheckNumberInfo(
     defaultApiStruct: DefaultApplicationApiStruct,
     operator: OperatorsName,
@@ -215,9 +224,5 @@ export class SpamApiService {
       return CheckSpamStatus.failed;
     }
     return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
-  }
-
-  public async getSpamApplicationStatus(applicationId: string): Promise<Spam> {
-    return await this.spamModelService.findByApplicationId(applicationId);
   }
 }

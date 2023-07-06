@@ -8,6 +8,7 @@ import { SpamApiService } from '@app/spam-api/services/spam-api.service';
 import { Spam } from '@app/spam-api/spam.schema';
 import { BiglandService } from '@app/bigland/bigland.service';
 import { SpamReportService } from '../services/spam-report.service';
+import { SpamType } from '../interfaces/spam-api.enum';
 
 @Injectable()
 export class BeelineSpamReport extends ReportCreator {
@@ -41,7 +42,7 @@ export class BeelineSpamReport extends ReportCreator {
 
   private async getBeelineSpamReport(): Promise<ReportData[]> {
     try {
-      const { applicationId } = await this.spamReportService.startSpamCheck(this.operatorsName);
+      const { applicationId } = await this.spamApiService.startCheckOperatorNumbers(this.operatorsName, SpamType.report);
       this.applicationId = applicationId;
       const result = await this.biglandService.subscribeApiResult<Spam>(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
       return await this.spamReportService.getReportData(result, this.operatorsName);

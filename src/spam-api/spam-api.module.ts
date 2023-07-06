@@ -1,5 +1,4 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { SpamApiService } from './services/spam-api.service';
 import { SpamApiController } from './controllers/spam-api.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -19,11 +18,8 @@ import { FilesApiModule } from '@app/files-api/files-api.module';
 import { ServerStaticModule } from '@app/server-static/server-static.module';
 import { ReportsModule } from '@app/reports/reports.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SpamReportByOperatorSchedule } from './schedule/spam-report-by-operator.schedule';
-import { AggregatedSpamReportSchedule } from './schedule/aggregated-spam-report.schedule';
-import { SpamReportService } from './services/spam-report.service';
-import { SpamModelService } from './services/spam-model.service';
-import { AggregatedSpamService } from './services/aggregate-spam.service';
+import { AllOperatorsSpamReportSchedule, SpamReportByOperatorSchedule } from './schedule';
+import { SpamApiService, SpamModelService, SpamReportService, AllOperatorsSpamService } from './services';
 
 @Module({
   imports: [
@@ -45,14 +41,14 @@ import { AggregatedSpamService } from './services/aggregate-spam.service';
     SpamApiService,
     SpamModelService,
     SpamReportService,
-    AggregatedSpamService,
+    AllOperatorsSpamService,
     MangoSpamReport,
     MttSpamReport,
     BeelineSpamReport,
     OptimaSpamReport,
     ZadarmaSpamReport,
     SpamReportByOperatorSchedule,
-    AggregatedSpamReportSchedule,
+    AllOperatorsSpamReportSchedule,
   ],
   controllers: [SpamApiController, SpamResultController],
   exports: [SpamApiService],
