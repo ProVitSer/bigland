@@ -9,6 +9,9 @@ export class Spam {
   @Prop({ unique: true })
   applicationId: string;
 
+  @Prop()
+  applicationIds?: string[];
+
   @Prop({
     type: String,
     enum: ApplicationApiActionStatus,
