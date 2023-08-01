@@ -35,11 +35,15 @@ export class SpamApiService {
     spamType: SpamType,
     verificationNumber?: string,
   ): Promise<DefaultApplicationApiStruct> {
-    const checkCriteria: CheckOperatorNumbersDTO = {
-      operator: operatorsName,
-      dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
-    };
-    return await this.checkOperatorNumbers(checkCriteria, spamType);
+    try {
+      const checkCriteria: CheckOperatorNumbersDTO = {
+        operator: operatorsName,
+        dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
+      };
+      return await this.checkOperatorNumbers(checkCriteria, spamType);
+    } catch (e) {
+      throw e;
+    }
   }
 
   public async checkOperatorNumbers(data: CheckOperatorNumbersDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
@@ -47,7 +51,9 @@ export class SpamApiService {
     if (actual.length !== 0) throw new Error(`Уже запущенна проверка в рамках ${actual[0].applicationId}`);
 
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
+
     const operatorInfo = await this.operatorsService.getOperator(data.operator);
+
     await this.saveCheckNumberInfo(
       defaultApiStruct,
       data.operator,
