@@ -1,7 +1,6 @@
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { REPORT_DATE_FORMAT } from '../../reports/reports.constants';
 import * as moment from 'moment';
-import { CheckOperatorNumbersDTO } from '@app/spam-api/dto/check-spam.dto';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { ReportData } from '../../reports/interfaces/report.interfaces';
@@ -9,30 +8,18 @@ import { AttachmentsData, SendMailData, SpamReportContext, SpamReportLink } from
 import { FilesCreateService } from '@app/files-api/files-create/files-create.service';
 import { ServerStaticService } from '@app/server-static/server-static..service';
 import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
-import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { Spam, SpamCheckResult } from '@app/spam-api/spam.schema';
 import { SPAM_STATUS_DESCRIPTION } from '../spam-api.constants';
 import * as json2xls from 'json2xls';
 import { FileFormatType } from '@app/files-api/interfaces/files.enum';
-import { SpamType } from '../interfaces/spam-api.enum';
-import { SpamApiService } from './spam-api.service';
 
 @Injectable()
 export class SpamReportService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly spamApiService: SpamApiService,
     private readonly filesCreate: FilesCreateService,
     private readonly serverStatic: ServerStaticService,
   ) {}
-
-  public async startSpamCheck(operatorsName: OperatorsName, verificationNumber?: string): Promise<DefaultApplicationApiStruct> {
-    const checkCriteria: CheckOperatorNumbersDTO = {
-      operator: operatorsName,
-      dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
-    };
-    return await this.spamApiService.checkOperatorNumbers(checkCriteria, SpamType.report);
-  }
 
   public async getMailData(operatorsName: OperatorsName, data: ReportData[]): Promise<SendMailData> {
     const attachments = await this.getAttachmentsData(data);

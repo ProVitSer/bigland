@@ -39,6 +39,7 @@ export class BiglandService {
                 break;
               case ApplicationApiActionStatus.cancel:
                 subscriber.unsubscribe();
+                resolve(res);
                 break;
             }
           },

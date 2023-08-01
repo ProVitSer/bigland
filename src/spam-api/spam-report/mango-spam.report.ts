@@ -9,6 +9,7 @@ import { Spam } from '@app/spam-api/spam.schema';
 import { ReportCreator, ReportData } from '@app/reports/interfaces/report.interfaces';
 import { SpamReportService } from '../services/spam-report.service';
 import { BiglandService } from '@app/bigland/bigland.service';
+import { SpamType } from '../interfaces/spam-api.enum';
 
 @Injectable()
 export class MangoSpamReport extends ReportCreator {
@@ -42,7 +43,7 @@ export class MangoSpamReport extends ReportCreator {
 
   private async getMangoSpamReport(): Promise<ReportData[]> {
     try {
-      const { applicationId } = await this.spamReportService.startSpamCheck(this.operatorsName);
+      const { applicationId } = await this.spamApiService.startCheckOperatorNumbers(this.operatorsName, SpamType.report);
       this.applicationId = applicationId;
 
       const result = await this.biglandService.subscribeApiResult<Spam>(this.getReportResult.bind(this), REPORT_RESULT_SUB_TIMER);
