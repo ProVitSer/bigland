@@ -10,4 +10,5 @@ export enum SpamType {
   checkOperatorNumbers = 'checkOperatorNumbers',
   report = 'report',
   checkAllOperators = 'checkAllOperators',
+  checkBatch = 'checkBatch',
 }
