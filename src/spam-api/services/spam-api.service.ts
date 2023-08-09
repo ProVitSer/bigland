@@ -19,6 +19,8 @@ import { NumbersInfo, Operators } from '@app/operators/operators.schema';
 import { SpamModelService } from './spam-model.service';
 import { SpamDataAdapter } from '../adapters/spam-data.adapter';
 import { ConfigService } from '@nestjs/config';
+import { CheckBatchDTO } from '../dto/check-batch.dto';
+import { CheckBatchOperatorAdapter } from '../adapters/chack-batch-operator.adapter';
 
 @Injectable()
 export class SpamApiService {
@@ -44,6 +46,46 @@ export class SpamApiService {
     } catch (e) {
       throw e;
     }
+  }
+
+  public async checkBatch(data: CheckBatchDTO): Promise<DefaultApplicationApiStruct> {
+    try {
+      const actual = await this.isInitCheck(SpamType.checkBatch);
+      if (actual.length !== 0) throw new Error(`Уже запущенна проверка в рамках ${actual[0].applicationId}`);
+
+      const defaultApiStruct = this.biglandService.getDefaultApiStruct();
+      const fakeOperator = await this.getFakeOperatorInfo(data);
+      console.log(JSON.stringify(fakeOperator));
+      await this.saveCheckNumberInfo(
+        defaultApiStruct,
+        data.operator,
+        fakeOperator.numbers.map((number) => {
+          return { number: number.callerId };
+        }),
+        SpamType.checkBatch,
+      );
+      this._checkBatch(fakeOperator, defaultApiStruct);
+      return defaultApiStruct;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async _checkBatch(operatorInfo: Operators, defaultApiStruct: DefaultApplicationApiStruct): Promise<void> {
+    this._checkOperatorNumbers(
+      {
+        dstNumber: this.configService.get('reports.spam.verificationNumber'),
+        operator: operatorInfo.name,
+        applicationId: defaultApiStruct.applicationId,
+      },
+      operatorInfo,
+    );
+  }
+
+  private async getFakeOperatorInfo(data: CheckBatchDTO): Promise<Operators> {
+    const operatorInfo = await this.operatorsService.getOperator(data.operator);
+    const newOperatorInfo = new CheckBatchOperatorAdapter(data, operatorInfo);
+    return newOperatorInfo.operatorInfo;
   }
 
   public async checkOperatorNumbers(data: CheckOperatorNumbersDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {

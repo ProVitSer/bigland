@@ -18,7 +18,6 @@ export class SpamReportByOperatorSchedule {
   ) {}
 
   // @Cron(CronExpression.EVERY_DAY_AT_10PM)
-  @Timeout(30000)
   async mangoReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
@@ -29,7 +28,7 @@ export class SpamReportByOperatorSchedule {
     }
   }
 
-  @Cron(EVERY_7_DAY_AT_9PM)
+  // @Cron(EVERY_7_DAY_AT_9PM)
   async optimaReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
@@ -40,7 +39,7 @@ export class SpamReportByOperatorSchedule {
     }
   }
 
-  @Cron(EVERY_7_DAY_AT_9_10PM)
+  // @Cron(EVERY_7_DAY_AT_9_10PM)
   async beelineReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
@@ -51,7 +50,7 @@ export class SpamReportByOperatorSchedule {
     }
   }
 
-  @Cron(EVERY_7_DAY_AT_9_40PM)
+  // @Cron(EVERY_7_DAY_AT_9_40PM)
   async mttReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
@@ -62,7 +61,7 @@ export class SpamReportByOperatorSchedule {
     }
   }
 
-  @Cron(EVERY_7_DAY_AT_10PM)
+  // @Cron(EVERY_7_DAY_AT_10PM)
   async zadarmaReport() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
