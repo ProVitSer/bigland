@@ -1,7 +1,6 @@
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { Cdr, CdrDocument } from '../cdr.schema';
 import { CdrService } from '../cdr.service';
@@ -32,10 +31,6 @@ export class CdrSchedule {
       const noCompleteCdr = await this.cdrModel.find(criteria);
       if (noCompleteCdr.length == 0) return;
       this.log.info(JSON.stringify(noCompleteCdr), CdrSchedule.name);
-      // for (const cdr of noCompleteCdr) {
-      //   await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);
-      //   await this.cdrService.sendCdrInfo(cdr);
-      // }
     } catch (e) {
       this.log.error(e, CdrSchedule.name);
     }
