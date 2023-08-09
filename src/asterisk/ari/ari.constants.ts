@@ -14,3 +14,6 @@ export const AMI_OUTBOUND_CALL = {
   priority: '1',
   timeout: '50000',
 };
+
+export const POZVONIM_CALL_CC_PREFIX = '125';
+export const POZVONIM_CALL_LOCAL_PREFIX = '125';
