@@ -16,4 +16,4 @@ export const AMI_OUTBOUND_CALL = {
 };
 
 export const POZVONIM_CALL_CC_PREFIX = '125';
-export const POZVONIM_CALL_LOCAL_PREFIX = '125';
+export const POZVONIM_CALL_LOCAL_PREFIX = '124';
