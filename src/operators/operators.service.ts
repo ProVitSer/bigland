@@ -15,7 +15,7 @@ export class OperatorsService {
     return this.formatOperatorsInfo(operators);
   }
 
-  public async getOperatorsPhones(): Promise<OperatorsPhones[]> {
+  public async getOperatorsNumbers(): Promise<OperatorsPhones[]> {
     const operators = await this.getOperators();
     const fromatOperatorsInfo: Phones[] = [];
     operators.map((operator: OperatorsInfo) => {
@@ -47,7 +47,7 @@ export class OperatorsService {
     return await this.operatorsModel.find({ 'numbers.callerId': number }).exec();
   }
 
-  public async updateOperatorNumber(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
+  public async updateOperatorNumbers(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
     const operator = await this.operatorsModel.findOne({ name: operatorName });
     if (operator == null) throw new Error(`Оператор ${operatorName} не найден`);
     return await this.updateNumbers(operatorName, newNumbers);
@@ -86,6 +86,7 @@ export class OperatorsService {
                 {
                   ...OPERATOR_DEFAULT_SETTINGS[operatorName],
                   callerId: number,
+                  isActive: true,
                 },
               ],
             },

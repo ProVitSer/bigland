@@ -27,7 +27,7 @@ export class CheckSpamNumberAriCall implements AsteriskAriCall {
 
   private getActiveNumber(data: CheckNumberSpamData, operatorInfo: Operators): NumbersInfo {
     const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
-    if (!numberInfo[0].isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
+    //if (!numberInfo[0].isActive) throw new Error(NUMBER_IS_NOT_ACTIVE);
     return numberInfo[0];
   }
 
