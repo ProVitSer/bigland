@@ -8,10 +8,10 @@ import { FreepbxUsersApiService } from './freepbx-api-users.service';
 import { Request, Response } from 'express';
 import { Role } from '@app/users/interfaces/users.enum';
 
+@Controller('freepbx-api')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('freepbx-api')
 export class FreepbxApiController {
   constructor(private readonly http: HttpResponseService, private readonly freepbxUsersApi: FreepbxUsersApiService) {}
 

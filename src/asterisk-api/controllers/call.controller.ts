@@ -9,13 +9,13 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
-@UseFilters(HttpExceptionFilter)
 @Controller('call')
+@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(JwtGuard)
+@UseFilters(HttpExceptionFilter)
 export class CallApiController {
   constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 
-  @UseGuards(RoleGuard([Role.Admin]))
-  @UseGuards(JwtGuard)
   @Post('monitoringCall')
   async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
     try {
@@ -26,8 +26,6 @@ export class CallApiController {
     }
   }
 
-  @UseGuards(RoleGuard([Role.Admin]))
-  @UseGuards(JwtGuard)
   @Post('pozvonim')
   async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
     try {

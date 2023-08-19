@@ -9,10 +9,10 @@ import { OperatorsService } from './operators.service';
 import { OperatorsNumberDTO } from './dto/add-operator-numbers.dto';
 import { OperatorsName } from './interfaces/operators.enum';
 
+@Controller('operators')
 @UseGuards(RoleGuard([Role.Admin, Role.User]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('operators')
 export class OperatorsController {
   constructor(private readonly operatorsService: OperatorsService, private readonly http: HttpResponseService) {}
 

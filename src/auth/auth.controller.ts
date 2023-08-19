@@ -7,8 +7,8 @@ import { LocalAuthenticationGuard } from './guard/local-authentication.guard';
 import { RequestWithUser } from './interfaces/auth.interfaces';
 import { Request, Response } from 'express';
 
-@UseFilters(HttpExceptionFilter)
 @Controller('auth')
+@UseFilters(HttpExceptionFilter)
 export class AuthController {
   constructor(
     private readonly authUserService: AuthUserService,
@@ -26,9 +26,9 @@ export class AuthController {
     }
   }
 
+  @Post('apiToken')
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
-  @Post('apiToken')
   async getApiToken(@Req() req: RequestWithUser, @Res() res: Response) {
     try {
       const { user } = req;
