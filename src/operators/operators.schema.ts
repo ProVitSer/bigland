@@ -34,14 +34,11 @@ export class NumbersInfo {
   @Prop()
   authUsername?: string;
 
-  @Prop()
-  callCount?: number;
+  @Prop({ default: 0 })
+  callCount: number;
 
   @Prop({ type: Date, default: Date.now })
   createAt: Date;
-
-  // @Prop()
-  // isActive: boolean;
 }
 
 const OperatorsSchema = SchemaFactory.createForClass(Operators);
