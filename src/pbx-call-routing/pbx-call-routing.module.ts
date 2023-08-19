@@ -11,6 +11,7 @@ import { RouteInfoController } from './controllers/route-info.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PbxCallRouting, PbxCallRoutingSchema } from './pbx-call-routing.schema';
 import { OperatorsModule } from '@app/operators/operators.module';
+import { PbxCallRoutingModelService } from './services/pbx-call-routing-model.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { OperatorsModule } from '@app/operators/operators.module';
     MongooseModule.forFeature([{ name: PbxCallRouting.name, schema: PbxCallRoutingSchema }]),
     OperatorsModule,
   ],
-  providers: [PbxCallRoutingService],
+  providers: [PbxCallRoutingService, PbxCallRoutingModelService],
   controllers: [PbxCallRoutingController, RouteInfoController],
 })
 export class PbxCallRoutingModule {
