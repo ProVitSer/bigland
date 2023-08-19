@@ -34,6 +34,27 @@ export class OperatorsService {
     return await this.operatorsModel.findOne({ name: operatorName });
   }
 
+  public async getOperatorById(operatorId: string): Promise<Operators> {
+    return await this.operatorsModel.findOne({ operatorId });
+  }
+
+  public async resetNumbersCounts(operatorName: string) {
+    await this.operatorsModel.updateOne({ name: operatorName }, { $set: { 'numbers.$[].count': 0 } });
+  }
+
+  public async increaseCallerIdCount(callerId: string): Promise<void> {
+    await this.operatorsModel.updateOne(
+      {
+        'numbers.callerId': callerId,
+      },
+      {
+        $inc: {
+          'numbers.$.count': 1,
+        },
+      },
+    );
+  }
+
   public async getOperatorNumberInfo(operatorName: string): Promise<GetOperatorStruct> {
     const result = await this.operatorsModel.findOne({ name: operatorName }, OPERATOR_PROJ);
 
@@ -50,7 +71,8 @@ export class OperatorsService {
   public async updateOperatorNumbers(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
     const operator = await this.operatorsModel.findOne({ name: operatorName });
     if (operator == null) throw new Error(`Оператор ${operatorName} не найден`);
-    return await this.updateNumbers(operatorName, newNumbers);
+    await this.updateNumbers(operatorName, newNumbers);
+    return await this.resetNumbersCounts(operatorName);
   }
 
   public async deleteOperatorNumber(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
