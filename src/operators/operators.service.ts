@@ -5,6 +5,7 @@ import { GetOperatorStruct, OperatorsInfo, OperatorsPhones, Phones } from './int
 import { NumbersInfo, Operators, OperatorsDocument } from './operators.schema';
 import { OPERATOR_DEFAULT_SETTINGS, OPERATOR_PROJ } from './operators.constants';
 import { OperatorsName } from './interfaces/operators.enum';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class OperatorsService {
@@ -39,17 +40,17 @@ export class OperatorsService {
   }
 
   public async resetNumbersCounts(operatorName: string) {
-    await this.operatorsModel.updateOne({ name: operatorName }, { $set: { 'numbers.$[].count': 0 } });
+    await this.operatorsModel.updateOne({ name: operatorName }, { $set: { 'numbers.$[].callCount': 0 } });
   }
 
   public async increaseCallerIdCount(callerId: string): Promise<void> {
     await this.operatorsModel.updateOne(
       {
-        'numbers.callerId': callerId,
+        'numbers.callerId': UtilsService.normalizePhoneNumber(callerId),
       },
       {
         $inc: {
-          'numbers.$.count': 1,
+          'numbers.$.callCount': 1,
         },
       },
     );
@@ -108,7 +109,7 @@ export class OperatorsService {
                 {
                   ...OPERATOR_DEFAULT_SETTINGS[operatorName],
                   callerId: number,
-                  isActive: true,
+                  createAt: new Date(),
                 },
               ],
             },
