@@ -28,7 +28,7 @@ export class PbxCallRouting {
   staticCID?: string;
 
   @Prop({ type: Date, default: Date.now })
-  createAt: Date;
+  createAt?: Date;
 }
 
 export const PbxCallRoutingSchema = SchemaFactory.createForClass(PbxCallRouting);

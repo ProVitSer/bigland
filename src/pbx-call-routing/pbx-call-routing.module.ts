@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { PbxCallRoutingService } from './services/pbx-call-routing.service';
+import { RoutingInfoService } from './services/routing-info.service';
 import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { LoggerMiddleware } from '@app/middleware/logger.middleware';
 import { AuthModule } from '@app/auth/auth.module';
@@ -12,6 +12,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PbxCallRouting, PbxCallRoutingSchema } from './pbx-call-routing.schema';
 import { OperatorsModule } from '@app/operators/operators.module';
 import { PbxCallRoutingModelService } from './services/pbx-call-routing-model.service';
+import { PbxCallRoutingService } from './services/pbx-call-routing.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { PbxCallRoutingModelService } from './services/pbx-call-routing-model.se
     MongooseModule.forFeature([{ name: PbxCallRouting.name, schema: PbxCallRoutingSchema }]),
     OperatorsModule,
   ],
-  providers: [PbxCallRoutingService, PbxCallRoutingModelService],
+  providers: [RoutingInfoService, PbxCallRoutingModelService, PbxCallRoutingService],
   controllers: [PbxCallRoutingController, RouteInfoController],
 })
 export class PbxCallRoutingModule {
