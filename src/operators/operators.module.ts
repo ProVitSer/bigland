@@ -8,10 +8,20 @@ import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { LogModule } from '@app/log/log.module';
 import { HttpResponseModule } from '@app/http/http.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TelegramModule } from '@app/telegram/telegram.module';
+import { ResetOperatorsNummbersCountSchedule } from './schedule/reset-operators-number-count.schedule';
 
 @Module({
-  imports: [ConfigModule, LogModule, HttpResponseModule, MongooseModule.forFeature([{ name: Operators.name, schema: OperatorsSchema }])],
-  providers: [OperatorsService],
+  imports: [
+    ConfigModule,
+    LogModule,
+    HttpResponseModule,
+    MongooseModule.forFeature([{ name: Operators.name, schema: OperatorsSchema }]),
+    ScheduleModule.forRoot(),
+    TelegramModule,
+  ],
+  providers: [OperatorsService, ResetOperatorsNummbersCountSchedule],
   exports: [OperatorsService],
   controllers: [OperatorsController],
 })
