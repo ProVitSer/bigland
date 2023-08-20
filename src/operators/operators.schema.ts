@@ -35,10 +35,10 @@ export class NumbersInfo {
   authUsername?: string;
 
   @Prop({ default: 0 })
-  callCount: number;
+  callCount?: number;
 
   @Prop({ type: Date, default: Date.now })
-  createAt: Date;
+  createAt?: Date;
 }
 
 const OperatorsSchema = SchemaFactory.createForClass(Operators);
