@@ -72,7 +72,12 @@ export class OperatorsService {
   public async updateOperatorNumbers(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
     const operator = await this.operatorsModel.findOne({ name: operatorName });
     if (operator == null) throw new Error(`Оператор ${operatorName} не найден`);
-    await this.updateNumbers(operatorName, newNumbers);
+
+    const actualNumbers = operator.numbers.map((n: NumbersInfo) => n.callerId);
+    const updateNumbers = newNumbers.filter((number: string) => !actualNumbers.includes(number));
+
+    await this.updateNumbers(operatorName, updateNumbers);
+
     return await this.resetNumbersCounts(operatorName);
   }
 
