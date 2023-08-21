@@ -39,4 +39,25 @@ export class SystemService {
       throw e;
     }
   }
+
+  public async getAvailableExtension(): Promise<string> {
+    try {
+      const system = await this.getConfig();
+      const extension = system.freepbxAvailableExtension.shift();
+      await this.systemModel.updateOne({ _id: system._id }, { $set: { freepbxAvailableExtension: system.freepbxAvailableExtension } });
+      return extension;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async addAvailableExtension(extension: string): Promise<void> {
+    try {
+      const system = await this.getConfig();
+      const extensions = system.freepbxAvailableExtension.push(extension);
+      await this.systemModel.updateOne({ _id: system._id }, { $set: { freepbxAvailableExtension: extensions } });
+    } catch (e) {
+      throw e;
+    }
+  }
 }
