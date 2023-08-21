@@ -11,20 +11,12 @@ import { FreepbxCreateUser } from './freepbx-selenium/create-user';
 import { FreepbxSubmitChange } from './freepbx-selenium/submit-change';
 import { MailModule } from '@app/mail/mail.module';
 import { LogModule } from '@app/log/log.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { FreepbxApi, FreepbxApiSchema } from './freepbx-api.schema';
 import { SystemModule } from '@app/system/system.module';
+import { PbxCallRoutingModule } from '@app/pbx-call-routing/pbx-call-routing.module';
+import { TelegramModule } from '@app/telegram/telegram.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: FreepbxApi.name, schema: FreepbxApiSchema }]),
-    ConfigModule,
-    LogModule,
-    HttpResponseModule,
-    SeleniumModule,
-    MailModule,
-    SystemModule,
-  ],
+  imports: [ConfigModule, LogModule, HttpResponseModule, SeleniumModule, MailModule, SystemModule, PbxCallRoutingModule, TelegramModule],
   providers: [FreepbxUsersApiService, Login, FreepbxCreateUser, FreepbxSubmitChange],
   controllers: [FreepbxApiController],
 })

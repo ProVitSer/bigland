@@ -2,12 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Login } from './login';
 import { By, WebDriver } from 'selenium-webdriver';
-import { Users } from '../dto/create-users.dto';
-import { SetGeneralSetting, CreateUserResult } from '../interfaces/freepbx-api.interfaces';
+import { SetGeneralSetting, CreateUserResult, CreatePbxUserData } from '../interfaces/freepbx-api.interfaces';
 import { FreepbxSubmitChange } from './submit-change';
 import { LogService } from '@app/log/log.service';
-import { SystemService } from '@app/system/system.service';
-import { GENERAL_SETTING_ERROR } from './constants';
 
 @Injectable()
 export class FreepbxCreateUser {
@@ -15,29 +12,35 @@ export class FreepbxCreateUser {
   constructor(
     private readonly login: Login,
     private readonly configService: ConfigService,
-    private readonly systemService: SystemService,
     private readonly submitChange: FreepbxSubmitChange,
     private readonly log: LogService,
   ) {}
 
-  async createPbxUser(data: Users): Promise<CreateUserResult> {
+  async createPbxUser(data: CreatePbxUserData): Promise<CreateUserResult> {
     try {
       return this.create(data);
     } catch (e) {
+      this.log.error(e, FreepbxCreateUser.name);
       throw e;
     }
   }
 
-  private async create(data: Users): Promise<CreateUserResult> {
+  private async create(data: CreatePbxUserData): Promise<CreateUserResult> {
     try {
-      this.webDriver = await this.login.loginOnPbx();
+      this.webDriver = data.webDriver;
       await this.webDriver.get(
         `https://${this.configService.get('freepbx.domain')}/admin/config.php?display=extensions&tech_hardware=pjsip_generic`,
       );
       await this.webDriver.sleep(5000);
-      const userSetting = await this.setGeneralSetting(data.username);
+      const userSetting = await this.setGeneralSetting(data);
+
+      await this.webDriver.sleep(5000);
       await this.setAdvancedSetting();
+
+      await this.webDriver.sleep(5000);
       await this.submitChange.submit(this.webDriver);
+      await this.webDriver.sleep(5000);
+
       return userSetting;
     } catch (e) {
       !!this.webDriver ? await this.webDriver.quit() : '';
@@ -59,31 +62,19 @@ export class FreepbxCreateUser {
       await this.webDriver.findElement(By.xpath("//label[@for='recording_ondemand1']")).click();
       await this.webDriver.findElement(By.xpath("//input[@value='Сохранить']")).click();
     } catch (e) {
-      this.log.error(e, FreepbxCreateUser.name);
-      throw new Error('Ошибка занесение данных в расширенных настройках');
+      throw e;
     }
   }
 
-  private async setGeneralSetting(username: string): Promise<SetGeneralSetting> {
+  private async setGeneralSetting(data: CreatePbxUserData): Promise<SetGeneralSetting> {
     try {
-      const extension = await this.getAvaliableExtension();
-      await this.webDriver.findElement(By.id('extension')).sendKeys(String(extension));
-      await this.webDriver.findElement(By.id('name')).sendKeys(username);
+      await this.webDriver.findElement(By.id('extension')).sendKeys(data.extension);
+      await this.webDriver.findElement(By.id('name')).sendKeys(`${data.firstName} ${data.lastName}`);
       const password = await this.webDriver.findElement(By.id('devinfo_secret')).getAttribute('value');
       return {
-        extension,
+        extension: data.extension,
         password,
       };
-    } catch (e) {
-      this.log.error(e, FreepbxCreateUser.name);
-      throw new Error(GENERAL_SETTING_ERROR);
-    }
-  }
-
-  private async getAvaliableExtension() {
-    try {
-      const extensions = (await this.systemService.getConfig()).freepbxAvailableExtension;
-      return extensions[0];
     } catch (e) {
       throw e;
     }

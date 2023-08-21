@@ -3,7 +3,6 @@ import { SeleniumWebdriver } from '@app/selenium/selenium-webdriver';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { By, WebDriver } from 'selenium-webdriver';
-import { LOGIN_ERROR } from './constants';
 
 @Injectable()
 export class Login {
@@ -18,6 +17,7 @@ export class Login {
     try {
       return await this._login();
     } catch (e) {
+      this.log.error(e, Login.name);
       throw e;
     }
   }
@@ -48,8 +48,7 @@ export class Login {
       return this.webDriver;
     } catch (e) {
       !!this.webDriver ? await this.webDriver.quit() : '';
-      this.log.error(e, Login.name);
-      throw new Error(LOGIN_ERROR);
+      throw e;
     }
   }
 }
