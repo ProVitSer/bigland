@@ -17,7 +17,7 @@ export class UpdateSystemConfigSchedule {
     private readonly ussd: GsmUSSDActionService,
   ) {}
 
-  @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+  //@Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async updateChanSpyPassword() {
     try {
       const newPassword = UtilsService.generateRandomNumber(4);

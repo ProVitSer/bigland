@@ -8,10 +8,10 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
+@Controller('chanspy')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('chanspy')
 export class ChanspyApiController {
   constructor(private readonly chanspyService: ChanspyApiService, private readonly http: HttpResponseService) {}
 

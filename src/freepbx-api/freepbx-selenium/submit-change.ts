@@ -1,7 +1,6 @@
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
 import { By, WebDriver } from 'selenium-webdriver';
-import { SUBMIT_CHANGE_ERROR } from './constants';
 
 @Injectable()
 export class FreepbxSubmitChange {
@@ -13,6 +12,7 @@ export class FreepbxSubmitChange {
       this.webDriver = webDriver;
       return await this.submitChange();
     } catch (e) {
+      this.log.error(e, FreepbxSubmitChange.name);
       throw e;
     }
   }
@@ -23,8 +23,7 @@ export class FreepbxSubmitChange {
       await this.webDriver.sleep(30000);
       await this.webDriver.quit();
     } catch (e) {
-      this.log.error(e, FreepbxSubmitChange.name);
-      throw new Error(SUBMIT_CHANGE_ERROR);
+      throw e;
     }
   }
 }

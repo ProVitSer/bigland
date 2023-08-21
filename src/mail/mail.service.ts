@@ -31,7 +31,6 @@ export class MailService {
       context,
       template,
     };
-    console.log(JSON.stringify(mailData));
     const att = !!attachments ? { attachments: this.getAttachmentStruct(attachments) } : {};
     Object.assign(mailData, att);
 

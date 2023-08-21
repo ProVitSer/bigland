@@ -5,6 +5,7 @@ import { GetOperatorStruct, OperatorsInfo, OperatorsPhones, Phones } from './int
 import { NumbersInfo, Operators, OperatorsDocument } from './operators.schema';
 import { OPERATOR_DEFAULT_SETTINGS, OPERATOR_PROJ } from './operators.constants';
 import { OperatorsName } from './interfaces/operators.enum';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class OperatorsService {
@@ -15,7 +16,7 @@ export class OperatorsService {
     return this.formatOperatorsInfo(operators);
   }
 
-  public async getOperatorsPhones(): Promise<OperatorsPhones[]> {
+  public async getOperatorsNumbers(): Promise<OperatorsPhones[]> {
     const operators = await this.getOperators();
     const fromatOperatorsInfo: Phones[] = [];
     operators.map((operator: OperatorsInfo) => {
@@ -34,6 +35,27 @@ export class OperatorsService {
     return await this.operatorsModel.findOne({ name: operatorName });
   }
 
+  public async getOperatorById(operatorId: string): Promise<Operators> {
+    return await this.operatorsModel.findOne({ operatorId });
+  }
+
+  public async resetNumbersCounts(operatorName: string) {
+    await this.operatorsModel.updateOne({ name: operatorName }, { $set: { 'numbers.$[].callCount': 0 } });
+  }
+
+  public async increaseCallerIdCount(callerId: string): Promise<void> {
+    await this.operatorsModel.updateOne(
+      {
+        'numbers.callerId': UtilsService.normalizePhoneNumber(callerId),
+      },
+      {
+        $inc: {
+          'numbers.$.callCount': 1,
+        },
+      },
+    );
+  }
+
   public async getOperatorNumberInfo(operatorName: string): Promise<GetOperatorStruct> {
     const result = await this.operatorsModel.findOne({ name: operatorName }, OPERATOR_PROJ);
 
@@ -47,10 +69,16 @@ export class OperatorsService {
     return await this.operatorsModel.find({ 'numbers.callerId': number }).exec();
   }
 
-  public async updateOperatorNumber(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
+  public async updateOperatorNumbers(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
     const operator = await this.operatorsModel.findOne({ name: operatorName });
     if (operator == null) throw new Error(`Оператор ${operatorName} не найден`);
-    return await this.updateNumbers(operatorName, newNumbers);
+
+    const actualNumbers = operator.numbers.map((n: NumbersInfo) => n.callerId);
+    const updateNumbers = newNumbers.filter((number: string) => !actualNumbers.includes(number));
+
+    await this.updateNumbers(operatorName, updateNumbers);
+
+    return await this.resetNumbersCounts(operatorName);
   }
 
   public async deleteOperatorNumber(operatorName: OperatorsName, newNumbers: string[]): Promise<void> {
@@ -86,6 +114,7 @@ export class OperatorsService {
                 {
                   ...OPERATOR_DEFAULT_SETTINGS[operatorName],
                   callerId: number,
+                  createAt: new Date(),
                 },
               ],
             },

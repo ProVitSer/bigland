@@ -28,10 +28,10 @@ import * as moment from 'moment';
 import { DATE_FROMAT } from '../spam-api.constants';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
 
+@Controller('spam-api')
 @UseGuards(RoleGuard([Role.User, Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('spam-api')
 export class SpamApiController {
   constructor(
     private readonly http: HttpResponseService,

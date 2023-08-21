@@ -12,12 +12,12 @@ export class CheckBatchOperatorAdapter {
     this.operatorInfo = {
       name: operator.name,
       formatNumber: operator.formatNumber,
+      operatorId: operator.operatorId,
       numbers: data.numbers.map((number: string) => {
         return {
           pbxTrunkNumber: this.pbxTrunkNumber,
           callerId: number,
           outSuffix: this.outSuffix,
-          isActive: true,
         };
       }),
     };

@@ -9,17 +9,17 @@ import { OperatorsService } from './operators.service';
 import { OperatorsNumberDTO } from './dto/add-operator-numbers.dto';
 import { OperatorsName } from './interfaces/operators.enum';
 
+@Controller('operators')
 @UseGuards(RoleGuard([Role.Admin, Role.User]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('operators')
 export class OperatorsController {
   constructor(private readonly operatorsService: OperatorsService, private readonly http: HttpResponseService) {}
 
   @Get('')
   async getOperators(@Req() req: Request, @Res() res: Response) {
     try {
-      const result = await this.operatorsService.getOperatorsPhones();
+      const result = await this.operatorsService.getOperatorsNumbers();
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,12 +39,12 @@ export class OperatorsController {
   @Post(':operatorName/numbers')
   async addOperatorNumber(
     @Req() req: Request,
-    @Param('operatorName') operatorName: string,
+    @Param('operatorName') operatorName: OperatorsName,
     @Body() body: OperatorsNumberDTO,
     @Res() res: Response,
   ) {
     try {
-      const result = await this.operatorsService.updateOperatorNumber(operatorName as OperatorsName, body.numbers);
+      const result = await this.operatorsService.updateOperatorNumbers(operatorName, body.numbers);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,12 +54,12 @@ export class OperatorsController {
   @Delete(':operatorName')
   async deleteOperatorNumber(
     @Req() req: Request,
-    @Param('operatorName') operatorName: string,
+    @Param('operatorName') operatorName: OperatorsName,
     @Body() body: OperatorsNumberDTO,
     @Res() res: Response,
   ) {
     try {
-      const result = await this.operatorsService.deleteOperatorNumber(operatorName as OperatorsName, body.numbers);
+      const result = await this.operatorsService.deleteOperatorNumber(operatorName, body.numbers);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);

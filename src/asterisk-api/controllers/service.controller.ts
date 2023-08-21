@@ -8,10 +8,10 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
+@Controller('service')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('service')
 export class ServiceCodeApiController {
   constructor(private readonly serviceCode: ServiceCodeApiService, private readonly http: HttpResponseService) {}
 

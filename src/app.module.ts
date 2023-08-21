@@ -31,6 +31,7 @@ import { SpamApiModule } from './spam-api/spam-api.module';
 import { BiglandModule } from './bigland/bigland.module';
 // import { SpamApiModule } from './spam-api/spam-api.module';
 // import { BiglandModule } from './bigland/bigland.module';
+import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { BiglandModule } from './bigland/bigland.module';
     ServerStaticModule,
     SpamApiModule,
     BiglandModule,
+    PbxCallRoutingModule,
   ],
   controllers: [],
   providers: [],
