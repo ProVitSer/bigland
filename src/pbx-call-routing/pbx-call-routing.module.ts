@@ -25,6 +25,7 @@ import { PbxCallRoutingService } from './services/pbx-call-routing.service';
   ],
   providers: [RoutingInfoService, PbxCallRoutingModelService, PbxCallRoutingService],
   controllers: [PbxCallRoutingController, RouteInfoController],
+  exports: [PbxCallRoutingService],
 })
 export class PbxCallRoutingModule {
   configure(consumer: MiddlewareConsumer): void {

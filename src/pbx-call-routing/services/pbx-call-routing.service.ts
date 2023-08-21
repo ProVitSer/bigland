@@ -5,7 +5,7 @@ import { LogService } from '@app/log/log.service';
 import { ExtensionRouteInfo } from '../interfaces/pbx-call-routing.interfaces';
 import { EXTENSION_ROUTE_PROJ } from '../pbx-call-routing.constants';
 import { UpdateGroupRouteDTO } from '../dto/update-group-route.dto';
-import { AddExtensionRouteDTO } from '../dto/add-extension-route.dto';
+import { ExtensionRouteItem } from '../dto/add-extension-route.dto';
 import { PbxGroup, PbxRoutingStrategy } from '../interfaces/pbx-call-routing.enum';
 
 @Injectable()
@@ -42,16 +42,26 @@ export class PbxCallRoutingService {
     }
   }
 
-  public async addExtensionRoute(data: AddExtensionRouteDTO): Promise<void> {
+  public async addExtensionsRoute(data: ExtensionRouteItem[]): Promise<void> {
     try {
-      const { operatorId } = await this.operatorsService.getOperator(data.operatorName);
-      await this.pbxCallRoutingModelService.create({
-        operatorId,
-        localExtension: data.localExtension,
-        group: data.groupName || PbxGroup.manager,
-        routingStrategy: !!data.staticCID ? PbxRoutingStrategy.static : PbxRoutingStrategy.roundRobin,
-        ...(!!data.staticCID ? { staticCID: data.staticCID } : {}),
-      });
+      for (const ext of data) {
+        const { operatorId } = await this.operatorsService.getOperator(ext.operatorName);
+        await this.pbxCallRoutingModelService.create({
+          operatorId,
+          localExtension: ext.localExtension,
+          group: ext.groupName || PbxGroup.manager,
+          routingStrategy: !!ext.staticCID ? PbxRoutingStrategy.static : PbxRoutingStrategy.roundRobin,
+          ...(!!ext.staticCID ? { staticCID: ext.staticCID } : {}),
+        });
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async deleteExtensionRoute(extension: string) {
+    try {
+      return await this.pbxCallRoutingModelService.delete({ localExtension: extension });
     } catch (e) {
       throw e;
     }

@@ -38,9 +38,9 @@ export class PbxCallRoutingController {
   }
 
   @Post('add')
-  async addExtensionRoute(@Req() req: Request, @Body() body: AddExtensionRouteDTO, @Res() res: Response) {
+  async addExtensionsRoute(@Req() req: Request, @Body() body: AddExtensionRouteDTO, @Res() res: Response) {
     try {
-      const result = await this.pbxCallRoutingService.addExtensionRoute(body);
+      const result = await this.pbxCallRoutingService.addExtensionsRoute(body.extensionRoutes);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);

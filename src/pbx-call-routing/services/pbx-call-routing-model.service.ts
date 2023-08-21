@@ -22,4 +22,8 @@ export class PbxCallRoutingModelService {
     });
     return await spam.save();
   }
+
+  public async delete(filter: { [key: string]: any }) {
+    return await this.operatorsModel.deleteOne({ filter });
+  }
 }

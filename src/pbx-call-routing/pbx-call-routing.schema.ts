@@ -4,7 +4,7 @@ import { PbxGroup, PbxRoutingStrategy } from './interfaces/pbx-call-routing.enum
 
 @Schema({ collection: 'pbx-call-routing', versionKey: false })
 export class PbxCallRouting {
-  @Prop()
+  @Prop({ unique: true })
   localExtension: string;
 
   @Prop({

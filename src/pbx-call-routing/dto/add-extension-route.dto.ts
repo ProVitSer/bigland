@@ -1,8 +1,9 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { PbxGroup } from '../interfaces/pbx-call-routing.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
+import { Type } from 'class-transformer';
 
-export class AddExtensionRouteDTO {
+export class ExtensionRouteItem {
   @IsNotEmpty({ message: 'Поле extension не может быть пустым' })
   @IsString({ message: 'Поле extension должно быть строкой' })
   localExtension: string;
@@ -18,4 +19,11 @@ export class AddExtensionRouteDTO {
   @IsOptional()
   @IsString({ message: 'Поле extension должно быть строкой' })
   staticCID?: string;
+}
+
+export class AddExtensionRouteDTO {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ExtensionRouteItem)
+  extensionRoutes: ExtensionRouteItem[];
 }
