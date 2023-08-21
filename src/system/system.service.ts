@@ -54,8 +54,10 @@ export class SystemService {
   public async addAvailableExtension(extension: string): Promise<void> {
     try {
       const system = await this.getConfig();
-      const extensions = system.freepbxAvailableExtension.push(extension);
-      await this.systemModel.updateOne({ _id: system._id }, { $set: { freepbxAvailableExtension: extensions } });
+      if (!system.freepbxAvailableExtension.includes(extension)) {
+        system.freepbxAvailableExtension.push(extension);
+      }
+      await this.systemModel.updateOne({ _id: system._id }, { $set: { freepbxAvailableExtension: system.freepbxAvailableExtension } });
     } catch (e) {
       throw e;
     }
