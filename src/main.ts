@@ -17,7 +17,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(new WsAdapter(app));
   app.use(cookieParser());
   app.useGlobalPipes(new GlobalValidationPipe());
-  app.setGlobalPrefix('api/v2');
+  app.setGlobalPrefix(config.get('apiPrefix'));
 
   const docConfig = new DocumentBuilder()
     .setTitle('VPNP VoIP API')

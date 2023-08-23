@@ -32,6 +32,7 @@ import { BiglandModule } from './bigland/bigland.module';
 // import { SpamApiModule } from './spam-api/spam-api.module';
 // import { BiglandModule } from './bigland/bigland.module';
 import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module';
+import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module
     SpamApiModule,
     BiglandModule,
     PbxCallRoutingModule,
+    ProxyCallingTtsModule,
   ],
   controllers: [],
   providers: [],
