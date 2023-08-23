@@ -41,7 +41,7 @@ export class AmocrmUpdateTokenSchedule {
     this.tg.tgAlert('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
   }
 
-  @Cron('05 22 * * *')
+  @Cron('01 22 * * *')
   async updtaeAmocrmServiceToken() {
     try {
       const token = await this.amocrmConnect.getToken();

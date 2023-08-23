@@ -1,7 +1,7 @@
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
-import { Amocrm } from './amocrm.schema';
-import { AmocrmSaveData } from './interfaces/amocrm.interfaces';
+import { Amocrm } from '../amocrm.schema';
+import { AmocrmSaveData } from '../interfaces/amocrm.interfaces';
 
 export class ResponseDataAdapter<T> {
   public statusCode: number | undefined;

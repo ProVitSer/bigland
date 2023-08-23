@@ -4,6 +4,8 @@ import { LogService } from '@app/log/log.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { AmocrmAPIV2 } from '../interfaces/amocrm.enum';
 import { AmocrmV2Connector } from './amocrm-v2.connect';
+import { firstValueFrom, catchError } from 'rxjs';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class AmocrmV2Service {
@@ -12,11 +14,18 @@ export class AmocrmV2Service {
   public async incomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
     try {
       await this.amocrm.auth();
-      const result = await this.httpService
-        .post(`${this.amocrm.amocrmApiV2Domain}${AmocrmAPIV2.events}`, this.getEventsData(incomingNumber, eventResponsibleUserId), {
-          headers: { Cookie: this.amocrm.authCookies },
-        })
-        .toPromise();
+      const result = await firstValueFrom(
+        this.httpService
+          .post(`${this.amocrm.amocrmApiV2Domain}${AmocrmAPIV2.events}`, this.getEventsData(incomingNumber, eventResponsibleUserId), {
+            headers: { Cookie: this.amocrm.authCookies },
+          })
+          .pipe(
+            catchError((error: AxiosError) => {
+              throw error;
+            }),
+          ),
+      );
+
       return !!result.data;
     } catch (e) {
       this.log.error(JSON.stringify(e), AmocrmV2Service.name);
