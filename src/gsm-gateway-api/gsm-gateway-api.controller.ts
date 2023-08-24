@@ -24,7 +24,7 @@ import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
 @Controller('gsm-gateway')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class GsmGatewayApiController {

@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthTokenService, AuthUserService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
@@ -10,6 +9,8 @@ import { LoggerMiddleware } from '@app/middleware/logger.middleware';
 import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { LogModule } from '@app/log/log.module';
 import { UsersModule } from '@app/users/users.module';
+import { AuthUserService } from './services/auth-user.service';
+import { AuthTokenService } from './services/auth-token.service';
 
 @Module({
   imports: [ConfigModule, LogModule, PassportModule, HttpResponseModule, JwtModule.register({}), UsersModule],

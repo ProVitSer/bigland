@@ -10,7 +10,7 @@ import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 
 @Controller('call')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class CallApiController {
