@@ -1,13 +1,19 @@
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
-import { AuthTokenService, AuthUserService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthenticationGuard } from './guard/local-authentication.guard';
 import { RequestWithUser } from './interfaces/auth.interfaces';
 import { Request, Response } from 'express';
+import { AuthUserService } from './services/auth-user.service';
+import { AuthTokenService } from './services/auth-token.service';
+import { JwtGuard } from './guard/jwt.guard';
+import { Role } from '@app/users/interfaces/users.enum';
+import { RoleGuard } from './guard/role.guard';
 
 @Controller('auth')
+@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class AuthController {
   constructor(
@@ -32,7 +38,7 @@ export class AuthController {
   async getApiToken(@Req() req: RequestWithUser, @Res() res: Response) {
     try {
       const { user } = req;
-      const accessToken = await this.authTokenService.getApiToken(user._id, '1y');
+      const accessToken = await this.authTokenService.getApiToken(user.userId);
       return this.http.response(req, res, HttpStatus.OK, accessToken);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, e?.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR);

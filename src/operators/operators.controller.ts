@@ -10,7 +10,7 @@ import { OperatorsNumberDTO } from './dto/add-operator-numbers.dto';
 import { OperatorsName } from './interfaces/operators.enum';
 
 @Controller('operators')
-@UseGuards(RoleGuard([Role.Admin, Role.User]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class OperatorsController {
@@ -27,7 +27,7 @@ export class OperatorsController {
   }
 
   @Get(':operatorName')
-  async getOperatorNumberInfo(@Req() req: Request, @Param('operatorName') operatorName: string, @Res() res: Response) {
+  async getOperatorNumberInfo(@Req() req: Request, @Param('operatorName') operatorName: OperatorsName, @Res() res: Response) {
     try {
       const result = await this.operatorsService.getOperatorNumberInfo(operatorName);
       return this.http.response(req, res, HttpStatus.OK, result);

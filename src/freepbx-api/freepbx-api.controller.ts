@@ -10,7 +10,7 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { FreePBXDeleteUsersDto } from './dto/freepbx-delete-users.dto';
 
 @Controller('freepbx-api')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class FreepbxApiController {

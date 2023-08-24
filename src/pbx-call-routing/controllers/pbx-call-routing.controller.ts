@@ -11,7 +11,7 @@ import { UpdateGroupRouteDTO } from '../dto/update-group-route.dto';
 import { AddExtensionRouteDTO } from '../dto/add-extension-route.dto';
 
 @Controller('pbx-call-routing')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class PbxCallRoutingController {

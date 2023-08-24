@@ -31,7 +31,7 @@ export class OperatorsService {
     return [{ numbers: fromatOperatorsInfo }];
   }
 
-  public async getOperator(operatorName: string): Promise<Operators> {
+  public async getOperator(operatorName: OperatorsName): Promise<Operators> {
     return await this.operatorsModel.findOne({ name: operatorName });
   }
 
@@ -39,7 +39,7 @@ export class OperatorsService {
     return await this.operatorsModel.findOne({ operatorId });
   }
 
-  public async resetNumbersCounts(operatorName: string) {
+  public async resetNumbersCounts(operatorName: OperatorsName) {
     await this.operatorsModel.updateOne({ name: operatorName }, { $set: { 'numbers.$[].callCount': 0 } });
   }
 
@@ -56,7 +56,7 @@ export class OperatorsService {
     );
   }
 
-  public async getOperatorNumberInfo(operatorName: string): Promise<GetOperatorStruct> {
+  public async getOperatorNumberInfo(operatorName: OperatorsName): Promise<GetOperatorStruct> {
     const result = await this.operatorsModel.findOne({ name: operatorName }, OPERATOR_PROJ);
 
     return {
@@ -75,6 +75,7 @@ export class OperatorsService {
 
     const actualNumbers = operator.numbers.map((n: NumbersInfo) => n.callerId);
     const updateNumbers = newNumbers.filter((number: string) => !actualNumbers.includes(number));
+    if (updateNumbers.length == 0) return;
 
     await this.updateNumbers(operatorName, updateNumbers);
 

@@ -10,6 +10,7 @@ export default (config: ConfigService): HttpsOptions => {
     ? {
         key: readFileSync(path.join(__dirname, config.get('security.key'))),
         cert: readFileSync(path.join(__dirname, config.get('security.cert'))),
+        ca: readFileSync(path.join(__dirname, config.get('security.ca'))),
       }
     : undefined;
 };

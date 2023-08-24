@@ -11,7 +11,7 @@ export class JwtGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err: any, user: any) {
-    if (user == false) {
+    if (!!err || user == false) {
       throw new HttpException(
         {
           logEventType: LogEventType.token_fail,

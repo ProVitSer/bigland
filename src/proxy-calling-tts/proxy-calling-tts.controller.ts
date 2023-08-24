@@ -31,7 +31,7 @@ export class ProxyCallingResultController {
 }
 
 @Controller('calling')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Tts]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class ProxyCallingController {
@@ -135,7 +135,7 @@ export class ProxyCallingController {
 }
 
 @Controller('tts')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Tts]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class ProxyTtsController {
