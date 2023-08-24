@@ -3,6 +3,7 @@ export enum PbxGroup {
   callCenter = 'callCenter',
   buh = 'buh',
   other = 'other',
+  tts = 'tts',
 }
 
 export enum PbxRoutingStrategy {
