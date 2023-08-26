@@ -6,6 +6,9 @@ import { Role } from './interfaces/users.enum';
 export class Users {
   _id: string;
 
+  @Prop({ unique: true })
+  userId: string;
+
   @Prop()
   email: string;
 
@@ -25,14 +28,14 @@ export class Users {
   })
   roles: Role[];
 
-  @Prop()
-  stamp: Date;
+  @Prop({ type: Boolean, default: true })
+  isActive?: boolean;
+
+  @Prop({ type: Date, default: Date.now })
+  createAt: Date;
 
   @Prop()
-  deleted?: boolean;
-
-  @Prop()
-  changed?: Date;
+  updateAt?: Date;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(Users);

@@ -29,7 +29,7 @@ import { DATE_FROMAT } from '../spam-api.constants';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
 
 @Controller('spam-api')
-@UseGuards(RoleGuard([Role.User, Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class SpamApiController {

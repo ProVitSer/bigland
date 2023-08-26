@@ -1,15 +1,11 @@
+import { UsersService } from '@app/users/users.service';
 import { UtilsService } from '@app/utils/utils.service';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { JwtTokenConfType } from '../interfaces/auth.enum';
+import { JwtPayload, GetApiTokenReponse } from '../interfaces/auth.interfaces';
 import { Request } from 'express';
-import { GetApiTokenReponse, JwtPayload, RegisterResponse } from './interfaces/auth.interfaces';
-import * as bcrypt from 'bcrypt';
-import { RegisterDto } from './dto/register.dto';
-import { UsersService } from '@app/users/users.service';
-import { JwtTokenConfType } from './interfaces/auth.enum';
-import { INVALALID_CREDENTIALS, USER_NOT_FOUND } from './auth.constants';
-import { Users } from '@app/users/users.schema';
 
 @Injectable()
 export class AuthTokenService {
@@ -43,7 +39,7 @@ export class AuthTokenService {
     return token;
   }
 
-  public async getApiToken(userId: string, expiresIn: string): Promise<GetApiTokenReponse> {
+  public async getApiToken(userId: string, expiresIn = '5m'): Promise<GetApiTokenReponse> {
     return {
       accessToken: await this.getToken(userId, JwtTokenConfType.access, expiresIn),
     };
@@ -71,56 +67,6 @@ export class AuthTokenService {
       return this.jwtService.decode(token) as JwtPayload;
     } catch (e) {
       throw e;
-    }
-  }
-}
-
-@Injectable()
-export class AuthUserService {
-  constructor(private readonly usersService: UsersService) {}
-
-  public async register(registrationData: RegisterDto): Promise<RegisterResponse> {
-    const { username, email, password } = registrationData;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    try {
-      const checkUser = await this.usersService.getByEmail(email.toLowerCase());
-      if (checkUser)
-        throw {
-          message: `Пользователь с почтой  ${email} уже зарегистрирован`,
-          httpStatus: HttpStatus.BAD_REQUEST,
-        };
-      await this.usersService.create({
-        username,
-        email: email.toLowerCase(),
-        passHash: hashedPassword,
-      });
-      return {
-        email,
-        username,
-      };
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  public async getAuthenticatedUser(email: string, plainTextPassword: string): Promise<Users> {
-    try {
-      const user = await this.usersService.getByEmail(email);
-      if (user == null) {
-        throw USER_NOT_FOUND;
-      }
-      await this.verifyPassword(plainTextPassword, user.passHash);
-      user.passHash = undefined;
-      return user;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
-    const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
-    if (!isPasswordMatching) {
-      throw INVALALID_CREDENTIALS;
     }
   }
 }
