@@ -1,0 +1,95 @@
+import { Injectable } from '@nestjs/common';
+import {
+  AmocrmAddCallInfoResponse,
+  AmocrmCreateContactResponse,
+  AmocrmCreateLeadResponse,
+  AmocrmGetContactsRequest,
+  AmocrmGetContactsResponse,
+  SendCallInfoToCRM,
+} from '../../interfaces/amocrm.interfaces';
+import { ConfigService } from '@nestjs/config';
+import { LogService } from '@app/log/log.service';
+import { UtilsService } from '@app/utils/utils.service';
+import { SystemService } from '@app/system/system.service';
+import { NumberInfo } from '@app/system/system.schema';
+import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
+import { AmocrmCallDataAdapter, AmocrmCreateContactDataAdapter, AmocrmCreateLeadDataAdapter } from '../../adapters';
+import { AmocrmV4ApiService } from './amocrm-v4-api.service';
+
+@Injectable()
+export class AmocrmV4Service {
+  private readonly recordUrl = `${this.configService.get('amocrm.recordDomain')}${this.configService.get('asterisk.recordPath')}`;
+
+  constructor(
+    private readonly log: LogService,
+    private readonly configService: ConfigService,
+    private readonly system: SystemService,
+    private readonly amocrmV4ApiService: AmocrmV4ApiService,
+    private readonly amocrmUsersService: AmocrmUsersService,
+  ) {}
+
+  public async actionsInAmocrm(incomingNumber: string, incomingTrunk: string): Promise<void> {
+    try {
+      if (!(await this.checkContactByNumber(incomingNumber))) {
+        const numberConfig = await this.getIncomingNumberConfig(incomingTrunk);
+        const createContactData = await this.createContact(new AmocrmCreateContactDataAdapter(incomingNumber, numberConfig));
+        await this.createLeads(new AmocrmCreateLeadDataAdapter(incomingNumber, numberConfig, createContactData));
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async sendCallInfoToCRM(data: SendCallInfoToCRM): Promise<AmocrmAddCallInfoResponse> {
+    try {
+      const amocrmUsers = await this.amocrmUsersService.getAmocrmUsers();
+      const dataDatapter = new AmocrmCallDataAdapter(data, amocrmUsers, this.recordUrl);
+      const response = await this.amocrmV4ApiService.sendCallInfo<AmocrmAddCallInfoResponse>(dataDatapter.amocrmRequestData);
+      return response.data;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async checkContactByNumber(incomingNumber: string): Promise<boolean> {
+    try {
+      const getContactsInfo: AmocrmGetContactsRequest = {
+        query: UtilsService.formatIncomingNumber(incomingNumber),
+      };
+
+      const response = await this.amocrmV4ApiService.searchContact<AmocrmGetContactsResponse>(getContactsInfo);
+      this.log.info(`Результат поиска контакта ${incomingNumber}: ${JSON.stringify(response.data)}`, AmocrmV4Service.name);
+
+      return !!response.data?._embedded;
+    } catch (e) {
+      throw `${e}: ${incomingNumber}`;
+    }
+  }
+
+  private async createContact(dataAdapter: AmocrmCreateContactDataAdapter): Promise<AmocrmCreateContactResponse> {
+    try {
+      const response = await this.amocrmV4ApiService.createContact<AmocrmCreateContactResponse>(dataAdapter.amocrmRequestData);
+      return response.data;
+    } catch (e) {
+      throw `${e}: ${dataAdapter.incomingNumber}`;
+    }
+  }
+
+  private async createLeads(dataAdapter: AmocrmCreateLeadDataAdapter): Promise<AmocrmCreateLeadResponse> {
+    try {
+      const response = await this.amocrmV4ApiService.createLeads<AmocrmCreateLeadResponse>(dataAdapter.amocrmRequestData);
+      return response.data;
+    } catch (e) {
+      throw `${e}: ${dataAdapter.incomingNumber} ${dataAdapter.incomingTrunk} ${dataAdapter.contactsId}`;
+    }
+  }
+
+  private async getIncomingNumberConfig(incomingTrunk: string): Promise<NumberInfo | undefined> {
+    try {
+      const config = await this.system.getConfig();
+      return config.numbersInfo.find((numberInfo: NumberInfo) => numberInfo.trunkNumber === incomingTrunk);
+    } catch (e) {
+      throw e;
+    }
+  }
+}

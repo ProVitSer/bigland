@@ -2,22 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { LogService } from '@app/log/log.service';
 import { UtilsService } from '@app/utils/utils.service';
-import { AmocrmAPIV2 } from '../interfaces/amocrm.enum';
-import { AmocrmV2Connector } from './amocrm-v2.connect';
+import { AmocrmAPIV2, AmocrmV2EventType } from '../../interfaces/amocrm.enum';
+import { AmocrmV2AuthService } from './amocrm-v2-auth.service';
 import { firstValueFrom, catchError } from 'rxjs';
 import { AxiosError } from 'axios';
 
 @Injectable()
-export class AmocrmV2Service {
-  constructor(private readonly amocrm: AmocrmV2Connector, private readonly log: LogService, private httpService: HttpService) {}
+export class AmocrmV2ApiService {
+  constructor(private readonly amocrm: AmocrmV2AuthService, private readonly log: LogService, private httpService: HttpService) {}
 
-  public async incomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
+  public async sendIncomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
     try {
-      await this.amocrm.auth();
       const result = await firstValueFrom(
         this.httpService
           .post(`${this.amocrm.amocrmApiV2Domain}${AmocrmAPIV2.events}`, this.getEventsData(incomingNumber, eventResponsibleUserId), {
-            headers: { Cookie: this.amocrm.authCookies },
+            headers: { Cookie: await this.amocrm.getAuthCookies() },
           })
           .pipe(
             catchError((error: AxiosError) => {
@@ -28,7 +27,7 @@ export class AmocrmV2Service {
 
       return !!result.data;
     } catch (e) {
-      this.log.error(JSON.stringify(e), AmocrmV2Service.name);
+      this.log.error(e, AmocrmV2ApiService.name);
       throw e;
     }
   }
@@ -37,13 +36,13 @@ export class AmocrmV2Service {
     const eventsData = JSON.stringify({
       add: [
         {
-          type: 'phone_call',
+          type: AmocrmV2EventType.phoneCall,
           phone_number: UtilsService.formatIncomingNumber(incomingNumber),
           users: [eventResponsibleUserId],
         },
       ],
     });
-    this.log.info(eventsData, AmocrmV2Service.name);
+    this.log.info(eventsData, AmocrmV2ApiService.name);
     return eventsData;
   }
 }

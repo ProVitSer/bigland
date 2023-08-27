@@ -4,14 +4,14 @@ import { ChannelType, EndpointState } from '@app/asterisk/interfaces/asterisk.en
 import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import Ari from 'ari-client';
 import { Injectable } from '@nestjs/common';
-import { AmocrmV2Service } from '@app/amocrm/v2/amocrm-v2.service';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { PozvonimCallDataAdapter } from '../adapters/pozvonim-call.adapter';
+import { AmocrmV2ApiService } from '@app/amocrm/v2/services/amocrm-v2-api.service';
 
 @Injectable()
 export class PozvonimAriCall implements AsteriskAriCall {
   constructor(
-    private readonly amocrmV2Service: AmocrmV2Service,
+    private readonly amocrmV2ApiService: AmocrmV2ApiService,
     private readonly amocrmUsers: AmocrmUsersService,
     private readonly pozvonimDataAdapter: PozvonimCallDataAdapter,
   ) {}
@@ -36,7 +36,7 @@ export class PozvonimAriCall implements AsteriskAriCall {
   private async sendCallToLocalExtension(data: PozvominCall): Promise<AsteriskAriOriginate> {
     try {
       const amocrmUsers = await this.amocrmUsers.getAmocrmUser(data.SIP_ID);
-      await this.amocrmV2Service.incomingCallEvent(data.DST_NUM, Number(amocrmUsers[0]?.amocrmId));
+      await this.amocrmV2ApiService.sendIncomingCallEvent(data.DST_NUM, Number(amocrmUsers[0]?.amocrmId));
       return await this.pozvonimDataAdapter.getLocalExtensionOriginateInfo(data);
     } catch (e) {
       throw e;

@@ -1,4 +1,3 @@
-import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { AsteriskUtilsService } from '@app/asterisk/asterisk.utils';
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { LogService } from '@app/log/log.service';
@@ -6,6 +5,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_INCOMINGCALL_ERROR } from '../ari.constants';
+import { AmocrmV4Service } from '@app/amocrm/v4/services';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {
@@ -38,8 +38,8 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
 
   private async actionsInAmocrm(event: StasisStart): Promise<void> {
     try {
-      const incomingTrunk = event.channel.dialplan.exten;
-      return await this.amocrmV4Service.actionsInAmocrm(event.channel.caller.number, incomingTrunk);
+      const incomingTrunkNumber = event.channel.dialplan.exten;
+      return await this.amocrmV4Service.actionsInAmocrm(event.channel.caller.number, incomingTrunkNumber);
     } catch (e) {
       throw e;
     }

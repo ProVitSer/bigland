@@ -5,12 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import { LogService } from '@app/log/log.service';
 import { Client } from 'amocrm-js';
 import { ITokenData } from 'amocrm-js/dist/interfaces/common';
-import { INIT_AMO, INIT_AMO_ERROR, INIT_AMO_SUCCESS } from '../amocrm.constants';
-import { AmocrmAPIV4 } from '../interfaces/amocrm.enum';
+import { INIT_AMO, INIT_AMO_ERROR, INIT_AMO_SUCCESS } from '../../amocrm.constants';
+import { AmocrmAPIV4 } from '../../interfaces/amocrm.enum';
 import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
-export class AmocrmV4Connector {
+export class AmocrmV4AuthService {
   public amocrmClient: Client;
   private tokenPath: string = this.configService.get('amocrm.tokenPath');
 
@@ -21,7 +21,7 @@ export class AmocrmV4Connector {
   ) {}
 
   public async initAmocrmClient(): Promise<Client> {
-    this.log.info(INIT_AMO, AmocrmV4Connector.name);
+    this.log.info(INIT_AMO, AmocrmV4AuthService.name);
     await this.setToken();
     this.handleConnection();
     this.checkAmocrmInteraction();
@@ -32,13 +32,18 @@ export class AmocrmV4Connector {
     return this.amocrm;
   }
 
+  public async getToken(): Promise<ITokenData> {
+    const token = await readFile(path.join(__dirname, this.tokenPath));
+    return JSON.parse(token.toString());
+  }
+
   private async checkAmocrmInteraction(): Promise<void> {
     try {
       const response = await this.amocrm.request.get(AmocrmAPIV4.account);
       if (!response.data.hasOwnProperty('id')) {
-        this.log.error(`${INIT_AMO_ERROR} ${JSON.stringify(response)}`, AmocrmV4Connector.name);
+        this.log.error(`${INIT_AMO_ERROR} ${JSON.stringify(response)}`, AmocrmV4AuthService.name);
       }
-      this.log.info(INIT_AMO_SUCCESS, AmocrmV4Connector.name);
+      this.log.info(INIT_AMO_SUCCESS, AmocrmV4AuthService.name);
     } catch (e) {
       throw e;
     }
@@ -61,11 +66,6 @@ export class AmocrmV4Connector {
     }
   }
 
-  public async getToken(): Promise<ITokenData> {
-    const token = await readFile(path.join(__dirname, this.tokenPath));
-    return JSON.parse(token.toString());
-  }
-
   private async amocrmAuth(): Promise<void> {
     try {
       const authUrl = this.amocrmClient.auth.getUrl('popup');
@@ -86,20 +86,20 @@ export class AmocrmV4Connector {
 
   private handleConnection(): Promise<void> {
     this.amocrm.token.on('change', async () => {
-      this.log.info('token:newToken :', AmocrmV4Connector.name);
+      this.log.info('token:change :', AmocrmV4AuthService.name);
     });
 
     this.amocrm.connection.on('connectionError', async (error: any) => {
-      this.log.error(`connection:authError ${error}`, AmocrmV4Connector.name);
+      this.log.error(`connection:connectionError ${error}`, AmocrmV4AuthService.name);
       await this.refreshToken();
     });
 
     this.amocrm.token.on('beforeRefresh', () => {
-      this.log.info('token:beforeRefreshToken', AmocrmV4Connector.name);
+      this.log.info('token:beforeRefreshToken', AmocrmV4AuthService.name);
     });
 
     this.amocrm.token.on('refresh', () => {
-      this.log.info('token:refresh', AmocrmV4Connector.name);
+      this.log.info('token:refresh', AmocrmV4AuthService.name);
     });
 
     return;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
@@ -5,11 +6,11 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmocrmUsers } from '@app/amocrm-users/amocrm-users.schema';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
-import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
 import { AsteriskAmiEventProviderInterface, AsteriskHangupHandlerProviderInterface, AsteriskNewExten } from '../interfaces/ami.interfaces';
 import { HangupHandler } from '@app/asterisk/interfaces/asterisk.enum';
 import { DEFAULT_TIMEOUT_HANDLER } from '@app/asterisk/asterisk.config';
+import { AmocrmV4Service } from '@app/amocrm/v4/services';
 
 @Injectable()
 export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {

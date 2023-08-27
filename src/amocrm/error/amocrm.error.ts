@@ -1,5 +1,5 @@
 import { DataObject } from '@app/platform-types/common/interfaces';
-import { ResponseDataAdapter } from '../adapters/amocrm.adapters';
+import { ResponseDataAdapter } from '../adapters/amocrm-response-data.adapter';
 
 export class AmocrmErrors {
   private static getDetail(response: ResponseDataAdapter<any>): string[] {

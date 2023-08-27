@@ -6,8 +6,8 @@ import { CallType } from './interfaces/cdr.enum';
 import { LogService } from '@app/log/log.service';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
-import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { UtilsService } from '@app/utils/utils.service';
+import { AmocrmV4Service } from '@app/amocrm/v4/services';
 
 @Injectable()
 export class CdrService {
