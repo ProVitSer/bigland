@@ -9,7 +9,7 @@ export const getAmocrmV2Config = async (configService: ConfigService): Promise<H
       'User-Agent': configService.get('userAgent'),
       'Content-Type': configService.get('amocrm.v2.contentType'),
     },
-    timeout: 5000,
+    timeout: 10000,
     maxRedirects: 5,
     validateStatus: () => true,
   };

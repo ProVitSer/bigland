@@ -14,7 +14,7 @@ const getMariadbConfig = (configService: ConfigService): SequelizeModuleOptions 
   return {
     dialect: 'mariadb',
     dialectOptions: {
-      connectTimeout: 5000,
+      connectTimeout: 10000,
     },
     host,
     port,
