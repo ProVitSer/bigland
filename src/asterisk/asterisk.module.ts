@@ -20,6 +20,7 @@ import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperat
 import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication } from './ari/applications';
 import { HangupEventParser, BlindTransferEventParser, DialBeginEventParser, NewExtenEventParser } from './ami/events';
 import { AriACallService } from './ari/ari-call.service';
+import { PbxCallRoutingModule } from '@app/pbx-call-routing/pbx-call-routing.module';
 
 const asteriskAriProviders = createAsteriskAri();
 const asteriskAmiProviders = createAsteriskAmi();
@@ -27,7 +28,16 @@ const ariProvidersName = getAsteriskAriProvidesName();
 const amiProvidersName = getAsteriskAmiProvidesName();
 
 @Module({
-  imports: [ConfigModule, LogModule, AsteriskCdrModule, SystemModule, AmocrmUsersModule, AmocrmModule, OperatorsModule],
+  imports: [
+    ConfigModule,
+    LogModule,
+    AsteriskCdrModule,
+    SystemModule,
+    AmocrmUsersModule,
+    AmocrmModule,
+    OperatorsModule,
+    PbxCallRoutingModule,
+  ],
   providers: [
     ...asteriskAriProviders,
     ...asteriskAmiProviders,

@@ -12,6 +12,7 @@ import {
   StatustextExtensionStatus,
 } from './asterisk.enum';
 import { OperatorFormatNumber } from '@app/operators/interfaces/operators.enum';
+import { PbxGroup } from '@app/pbx-call-routing/interfaces/pbx-call-routing.enum';
 
 export interface AsteriskHungupEvent {
   lines: [string];
@@ -292,4 +293,14 @@ export interface AmdCallData {
 export interface OperatorInfo {
   amountOfNmber: number;
   formatNumber: OperatorFormatNumber;
+}
+
+export interface CallData {
+  incomingNumber: string;
+  exten: string;
+}
+
+export interface IncomingCallRoutingInfo {
+  group: PbxGroup;
+  localExtension: string;
 }
