@@ -5,7 +5,7 @@ import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './am
 import { Cdr } from '@app/cdr/cdr.schema';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
 
-export interface AmocrmGetContactsRequest {
+export interface AmocrmGetRequest {
   with?: string;
   page?: number;
   limit?: number;
@@ -249,7 +249,7 @@ export interface AmocrmCreateTasksResponse {
 }
 
 export type AmocrmReponse = AmocrmAddCallInfoResponse | AmocrmCreateTasksResponse | AmocrmCreateLeadResponse | AmocrmCreateContactResponse;
-export type AmocrmRequestData = AmocrmAddTasks | AmocrmAddCallInfo | AmocrmCreateContact | AmocrmCreateLead | AmocrmGetContactsRequest;
+export type AmocrmRequestData = AmocrmAddTasks | AmocrmAddCallInfo | AmocrmCreateContact | AmocrmCreateLead;
 
 export interface SendCallInfoToCRM {
   msg: Cdr;
@@ -270,7 +270,7 @@ export interface AmocrmAPIV2AuthBody {
 export interface AmocrmV4ApiMethod {
   createTask<T>(amocrmRequestData: AmocrmAddTasks): Promise<IAPIResponse<T>>;
   sendCallInfo<T>(amocrmRequestData: AmocrmAddCallInfo): Promise<IAPIResponse<T>>;
-  searchContact<T>(data: AmocrmGetContactsRequest): Promise<IAPIResponse<T>>;
+  searchContact<T>(data: AmocrmGetRequest): Promise<IAPIResponse<T>>;
   createContact<T>(amocrmRequestData: AmocrmCreateContact): Promise<IAPIResponse<T>>;
   createLeads<T>(amocrmRequestData: AmocrmCreateLead): Promise<IAPIResponse<T>>;
 }

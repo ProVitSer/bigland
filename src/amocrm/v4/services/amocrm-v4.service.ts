@@ -3,7 +3,7 @@ import {
   AmocrmAddCallInfoResponse,
   AmocrmCreateContactResponse,
   AmocrmCreateLeadResponse,
-  AmocrmGetContactsRequest,
+  AmocrmGetRequest,
   AmocrmGetContactsResponse,
   SendCallInfoToCRM,
 } from '../../interfaces/amocrm.interfaces';
@@ -53,7 +53,7 @@ export class AmocrmV4Service {
 
   public async checkContactByNumber(incomingNumber: string): Promise<boolean> {
     try {
-      const getContactsInfo: AmocrmGetContactsRequest = {
+      const getContactsInfo: AmocrmGetRequest = {
         query: UtilsService.formatIncomingNumber(incomingNumber),
       };
 

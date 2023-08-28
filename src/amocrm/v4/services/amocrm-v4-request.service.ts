@@ -1,7 +1,7 @@
 import { AmocrmSaveDataAdapter } from '@app/amocrm/adapters/amocrm-save-data.adapters';
 import { AMOCRM_ERROR_RESPONSE_CODE } from '@app/amocrm/amocrm.constants';
 import { AmocrmErrors } from '@app/amocrm/error/amocrm.error';
-import { AmocrmRequestData } from '@app/amocrm/interfaces/amocrm.interfaces';
+import { AmocrmGetRequest, AmocrmRequestData } from '@app/amocrm/interfaces/amocrm.interfaces';
 import { UtilsService } from '@app/utils/utils.service';
 import { HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Client } from 'amocrm-js';
@@ -16,11 +16,12 @@ import { ResponseDataAdapter } from '@app/amocrm/adapters/amocrm-response-data.a
 export abstract class AmocrmV4Request {
   constructor(private amocrmModel: Model<AmocrmDocument>) {}
 
-  protected abstract request<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>>;
+  protected abstract post<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>>;
+  protected abstract get<T>(url: string, amocrmRequestData: AmocrmGetRequest): Promise<IAPIResponse<T>>;
 
-  public async amocrmRequest<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
+  public async amocrmPostRequest<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
     try {
-      const response = await this.request<T>(url, amocrmRequestData);
+      const response = await this.post<T>(url, amocrmRequestData);
       await this.saveReqResData(new ResponseDataAdapter(response), amocrmRequestData);
       return response;
     } catch (e) {
@@ -28,7 +29,17 @@ export abstract class AmocrmV4Request {
     }
   }
 
-  private async saveReqResData<T>(response: ResponseDataAdapter<T>, request: AmocrmRequestData): Promise<Amocrm> {
+  public async amocrmGetRequest<T>(url: string, amocrmRequestData: AmocrmGetRequest): Promise<IAPIResponse<T>> {
+    try {
+      const response = await this.get<T>(url, amocrmRequestData);
+      await this.saveReqResData(new ResponseDataAdapter(response), amocrmRequestData);
+      return response;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async saveReqResData<T>(response: ResponseDataAdapter<T>, request: AmocrmRequestData | AmocrmGetRequest): Promise<Amocrm> {
     const data = new AmocrmSaveDataAdapter<T>(response, request);
     const amocrm = new this.amocrmModel({ ...data.amocrmData });
     return await amocrm.save();
@@ -55,11 +66,24 @@ export class AmocrmV4RequestService extends AmocrmV4Request implements OnApplica
     this.amocrm.token.setValue(token);
   }
 
-  protected async request<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
-    return await this.sendRequest(url, amocrmRequestData);
+  protected async get<T>(url: string, amocrmRequestData: AmocrmGetRequest): Promise<IAPIResponse<T>> {
+    return await this._get(url, amocrmRequestData);
   }
 
-  private async sendRequest<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
+  protected async post<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
+    return await this._post(url, amocrmRequestData);
+  }
+
+  private async _get<T>(url: string, amocrmRequestData: AmocrmGetRequest): Promise<IAPIResponse<T>> {
+    this.log.info(amocrmRequestData, AmocrmV4RequestService.name);
+    const response = await this.amocrm.request.get<T>(url, amocrmRequestData);
+    this.log.info(response.data, AmocrmV4RequestService.name);
+    this.checkResponse(new ResponseDataAdapter(response));
+
+    return response;
+  }
+
+  private async _post<T>(url: string, amocrmRequestData: AmocrmRequestData): Promise<IAPIResponse<T>> {
     this.log.info(amocrmRequestData, AmocrmV4RequestService.name);
     const response = await this.amocrm.request.post<T>(url, [amocrmRequestData]);
     this.log.info(response.data, AmocrmV4RequestService.name);
