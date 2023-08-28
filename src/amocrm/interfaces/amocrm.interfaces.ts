@@ -4,6 +4,8 @@ import { ObjectId } from 'mongoose';
 import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './amocrm.enum';
 import { Cdr } from '@app/cdr/cdr.schema';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
+import { NumberInfo } from '@app/system/system.schema';
+import { CallData } from '@app/asterisk/interfaces/asterisk.interfaces';
 
 export interface AmocrmGetRequest {
   with?: string;
@@ -273,4 +275,15 @@ export interface AmocrmV4ApiMethod {
   searchContact<T>(data: AmocrmGetRequest): Promise<IAPIResponse<T>>;
   createContact<T>(amocrmRequestData: AmocrmCreateContact): Promise<IAPIResponse<T>>;
   createLeads<T>(amocrmRequestData: AmocrmCreateLead): Promise<IAPIResponse<T>>;
+}
+
+export interface AmocrmCreateContactData {
+  callData: CallData;
+  numberConfig: NumberInfo | undefined;
+}
+
+export interface AmocrmCreateLeadData {
+  callData: CallData;
+  numberConfig: NumberInfo | undefined;
+  createContactData: AmocrmCreateContactResponse;
 }

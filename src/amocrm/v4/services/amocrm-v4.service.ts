@@ -15,6 +15,7 @@ import { NumberInfo } from '@app/system/system.schema';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AmocrmCallDataAdapter, AmocrmCreateContactDataAdapter, AmocrmCreateLeadDataAdapter } from '../../adapters';
 import { AmocrmV4ApiService } from './amocrm-v4-api.service';
+import { CallData } from '@app/asterisk/interfaces/asterisk.interfaces';
 
 @Injectable()
 export class AmocrmV4Service {
@@ -28,13 +29,11 @@ export class AmocrmV4Service {
     private readonly amocrmUsersService: AmocrmUsersService,
   ) {}
 
-  public async actionsInAmocrm(incomingNumber: string, incomingTrunk: string): Promise<void> {
+  public async actionsInAmocrm(callData: CallData): Promise<void> {
     try {
-      if (!(await this.checkContactByNumber(incomingNumber))) {
-        const numberConfig = await this.getIncomingNumberConfig(incomingTrunk);
-        const createContactData = await this.createContact(new AmocrmCreateContactDataAdapter(incomingNumber, numberConfig));
-        await this.createLeads(new AmocrmCreateLeadDataAdapter(incomingNumber, numberConfig, createContactData));
-      }
+      const numberConfig = await this.getIncomingNumberConfig(callData.exten);
+      const createContactData = await this.createContact(new AmocrmCreateContactDataAdapter({ callData, numberConfig }));
+      await this.createLeads(new AmocrmCreateLeadDataAdapter({ callData, numberConfig, createContactData }));
     } catch (e) {
       throw e;
     }
@@ -51,7 +50,7 @@ export class AmocrmV4Service {
     }
   }
 
-  public async checkContactByNumber(incomingNumber: string): Promise<boolean> {
+  public async getContactByNumber(incomingNumber: string): Promise<AmocrmGetContactsResponse> {
     try {
       const getContactsInfo: AmocrmGetRequest = {
         query: UtilsService.formatIncomingNumber(incomingNumber),
@@ -60,7 +59,7 @@ export class AmocrmV4Service {
       const response = await this.amocrmV4ApiService.searchContact<AmocrmGetContactsResponse>(getContactsInfo);
       this.log.info(`Результат поиска контакта ${incomingNumber}: ${JSON.stringify(response.data)}`, AmocrmV4Service.name);
 
-      return !!response.data?._embedded;
+      return response.data;
     } catch (e) {
       throw `${e}: ${incomingNumber}`;
     }
