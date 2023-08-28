@@ -33,7 +33,7 @@ export class AmocrmV4AuthService {
   }
 
   public async getToken(): Promise<ITokenData> {
-    const token = await readFile(path.join(__dirname, this.tokenPath));
+    const token = await readFile(path.join(__dirname, '..', this.tokenPath));
     return JSON.parse(token.toString());
   }
 
@@ -56,7 +56,7 @@ export class AmocrmV4AuthService {
 
   private async getConfigToken(): Promise<ITokenData> {
     try {
-      const isFileExist = await UtilsService.isAccessible(path.join(__dirname, this.tokenPath));
+      const isFileExist = await UtilsService.isAccessible(path.join(__dirname, '..', this.tokenPath));
       if (!isFileExist) {
         await this.amocrmAuth();
       }
