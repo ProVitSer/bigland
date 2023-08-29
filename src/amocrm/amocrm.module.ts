@@ -32,7 +32,7 @@ import { AmocrmV4ApiService, AmocrmV4AuthService, AmocrmV4RequestService, Amocrm
   ],
   providers: [
     {
-      provide: 'Amocrm',
+      provide: 'AMOCRM',
       useFactory: getAmocrmV4Config,
       inject: [ConfigService],
     },
