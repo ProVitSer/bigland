@@ -4,12 +4,16 @@ import { LogService } from '@app/log/log.service';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_INCOMINGCALL_ERROR } from '../ari.constants';
+import {
+  CALL_CENTER_EXTENSIONS,
+  CONTINUE_DIALPLAN,
+  CONTINUE_DIALPLAN_INCOMINGCALL_ERROR,
+  INCOMING_CALL_DEFAULT_ROUTING,
+} from '../ari.constants';
 import { AmocrmV4Service } from '@app/amocrm/v4/services';
 import { CallData, IncomingCallRoutingInfo } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { AmocrmGetContactsResponse } from '@app/amocrm/interfaces/amocrm.interfaces';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
-import { CALL_CENTER_EXTENSIONS, INCOMING_CALL_DEFAULT_ROUTING } from '@app/asterisk/asterisk.constants';
 import { PbxCallRoutingService } from '@app/pbx-call-routing/services/pbx-call-routing.service';
 import { ExtensionRouteInfo } from '@app/pbx-call-routing/interfaces/pbx-call-routing.interfaces';
 

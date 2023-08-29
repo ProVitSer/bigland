@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AsteriskAmi } from './ami/asterisk-ami';
+import { AsteriskAmi } from './ami/ami';
 import { AmiActionService } from './ami/services/action-service';
 import { LogModule } from '@app/log/log.module';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';

@@ -1,7 +1,7 @@
 import { IDnd } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Injectable } from '@nestjs/common';
 import * as namiLib from 'nami';
-import { AsteriskAmi } from '../asterisk-ami';
+import { AsteriskAmi } from '../ami';
 import {
   AsteriskDNDStatusResponse,
   AsteriskStatusResponse,
@@ -33,8 +33,10 @@ export class AmiActionService {
       action.exten = outgoingNumber;
       action.async = AMI_OUTBOUND_CALL.async;
       const resultInitCall: any = await this.ami.amiClientSend(action);
-      this.log.info(`Результат инициации вызова ${resultInitCall}`, AmiActionService.name);
-    } catch (e) {}
+      this.log.info(`Результат инициации вызова ` + resultInitCall, AmiActionService.name);
+    } catch (e) {
+      throw e;
+    }
   }
 
   private async setHintStatus(extension: string, hint: statusHint): Promise<void> {
@@ -42,7 +44,9 @@ export class AmiActionService {
       const action = new namiLib.Actions.Command();
       action.Command = `devstate change Custom:DND${extension} ${hint}`;
       return await this.ami.amiClientSend(action);
-    } catch (e) {}
+    } catch (e) {
+      throw e;
+    }
   }
 
   public async setDNDStatus(data: IDnd): Promise<SetDNDStatusResult> {
@@ -71,7 +75,9 @@ export class AmiActionService {
       );
 
       return extensionStatusList;
-    } catch (e) {}
+    } catch (e) {
+      throw e;
+    }
   }
 
   private async dndPut(sipId: string, dndStatus: string): Promise<AsteriskStatusResponse> {
@@ -89,23 +95,18 @@ export class AmiActionService {
     return await this.ami.amiClientSend(action);
   }
 
-  public async getCallStatus(): Promise<AsteriskStatusResponse> {
+  public async getCallStatus(): Promise<EventsStatus[]> {
     const action = new namiLib.Actions.Status();
-    const callInfo: AsteriskStatusResponse = await this.ami.amiClientSend(action);
-    return this.deleteNoUserProp(callInfo) as AsteriskStatusResponse;
+    const callInfo = await this.ami.amiClientSend<AsteriskStatusResponse>(action);
+    return this.deleteNoUserProp(callInfo);
   }
 
-  private deleteNoUserProp(callInfo: AsteriskStatusResponse): any {
-    try {
-      return callInfo.events.map((event: EventsStatus) => {
-        delete event.lines;
-        delete event.EOL;
-        delete event.variables;
-        return event;
-      });
-    } catch (e) {
-      this.log.error(e, AmiActionService.name);
-      return callInfo;
-    }
+  private deleteNoUserProp(callInfo: AsteriskStatusResponse): EventsStatus[] {
+    return callInfo.events.map((event: EventsStatus) => {
+      delete event.lines;
+      delete event.EOL;
+      delete event.variables;
+      return event;
+    });
   }
 }

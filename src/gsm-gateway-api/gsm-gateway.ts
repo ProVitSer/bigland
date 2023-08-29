@@ -22,7 +22,7 @@ export class GsmGateway implements OnApplicationBootstrap {
     private readonly log: LogService,
   ) {}
 
-  get providers(): any {
+  private get providers(): any {
     return {
       [GsmGatewaykEventType.UpdateSMSSend]: this.updateSMSSend,
       [GsmGatewaykEventType.ReceivedSMSEvent]: this.receivedSMSEvent,

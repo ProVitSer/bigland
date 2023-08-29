@@ -2,15 +2,17 @@ import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfac
 import { AsteriskAriCall } from '../interfaces/ari.interfaces';
 import { AsteriskContext, AsteriskOperatorTrunkName, ChannelType } from '@app/asterisk/interfaces/asterisk.enum';
 import { Injectable } from '@nestjs/common';
+import { LogService } from '@app/log/log.service';
 
 @Injectable()
 export class MonitoringAriCall implements AsteriskAriCall {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  constructor() {}
+  constructor(private readonly log: LogService) {}
 
-  async getOriginateInfo(data: { number: string }): Promise<AsteriskAriOriginate> {
+  public async getOriginateInfo(data: { number: string }): Promise<AsteriskAriOriginate> {
     try {
     } catch (e) {
+      this.log.error(e, MonitoringAriCall.name);
+
       throw e;
     }
     return {

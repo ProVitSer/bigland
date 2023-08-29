@@ -5,13 +5,13 @@ import { OperatorsUtils } from '@app/operators/operators.utils';
 import { Injectable } from '@nestjs/common';
 import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
 import { AsteriskAriOriginate } from '../../interfaces/asterisk.interfaces';
-import { NumbersInfo } from '@app/operators/operators.schema';
 import {
   POZVONIM_CALL_LOCAL_PREFIX,
   POZVONIM_CALL_CC_PREFIX,
   POZVONIM_LOCAL_EXTENSION_TIMEOUT,
   POZVONIM_GROUP_TIMEOUT,
 } from '../ari.constants';
+import { PozvonimOperatorInfoData, PozvonimOriginateInfo } from '../interfaces/ari.interfaces';
 
 @Injectable()
 export class PozvonimCallDataAdapter {
@@ -27,11 +27,11 @@ export class PozvonimCallDataAdapter {
     return await this.getOriginateInfo(data, POZVONIM_CALL_CC_PREFIX, POZVONIM_GROUP_TIMEOUT);
   }
 
-  private async getOriginateInfo(data: PozvominCall, prifix: string, timeout: number) {
+  private async getOriginateInfo(data: PozvominCall, prefix: string, timeout: number): Promise<PozvonimOriginateInfo> {
     const info = await this.getOperatorInfo(data);
 
     return {
-      endpoint: `${ChannelType.LOCAL}/${prifix}${data.SIP_ID}@${AsteriskContext.fromInternalAdditional}`,
+      endpoint: `${ChannelType.LOCAL}/${prefix}${data.SIP_ID}@${AsteriskContext.fromInternalAdditional}`,
       callerId: info.dstNumber,
       context: AsteriskContext.pozvonim,
       extension: data.SIP_ID,
@@ -47,11 +47,7 @@ export class PozvonimCallDataAdapter {
     };
   }
 
-  private async getOperatorInfo(data: PozvominCall): Promise<{
-    dstNumber: string;
-    callerId: string;
-    numberInfo: NumbersInfo;
-  }> {
+  private async getOperatorInfo(data: PozvominCall): Promise<PozvonimOperatorInfoData> {
     const operatorInfo = await this.operatorsService.getOperator(this.operator);
     const numberInfo = operatorInfo.numbers[Math.floor(Math.random() * operatorInfo.numbers.length)];
     const { dstNumber, callerId } = OperatorsUtils.formatOperatorNumber(

@@ -24,10 +24,10 @@ export class AmocrmApiService {
         case 'cdr':
           return {};
         default:
-          this.log.error(`Ошибка запроса ${query}`, AmocrmApiService.name);
+          this.log.error(query, AmocrmApiService.name);
       }
     } catch (e) {
-      throw e;
+      this.log.error(e, AmocrmApiService.name);
     }
   }
 }

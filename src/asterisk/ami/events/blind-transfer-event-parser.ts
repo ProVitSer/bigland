@@ -17,11 +17,12 @@ export class BlindTransferEventParser implements AsteriskAmiEventProviderInterfa
     try {
       return await this.parseBlindTransferEvent(event);
     } catch (e) {
-      this.log.error(String(event), BlindTransferEventParser.name);
+      this.log.error(event, BlindTransferEventParser.name);
+      throw e;
     }
   }
 
-  private async parseBlindTransferEvent(event: AsteriskBlindTransferEvent) {
+  private async parseBlindTransferEvent(event: AsteriskBlindTransferEvent): Promise<void> {
     try {
       if (!!event.extension && event.extension.toString().length == 3 && event.transfererconnectedlinenum.toString().length >= 10) {
         const resultSearchId = await this.amocrmUsers.getAmocrmUser(event.extension);

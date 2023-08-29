@@ -80,7 +80,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
     }
   }
 
-  private async playSound(incomingChannel: Channel, sound: string): Promise<any> {
+  private async playSound(incomingChannel: Channel, sound: string): Promise<void> {
     try {
       await new Promise(async (resolve: any) => {
         const playback = this.client.ariClient.Playback();
@@ -91,6 +91,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
           playback,
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         play.once('PlaybackFinished', async (event: PlaybackStarted, _: Playback) => {
           resolve(event);
         });
