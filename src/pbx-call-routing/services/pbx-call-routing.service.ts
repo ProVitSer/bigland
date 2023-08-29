@@ -18,9 +18,10 @@ export class PbxCallRoutingService {
 
   public async getExtensionRouteInfo(extension: string): Promise<ExtensionRouteInfo> {
     try {
-      const extInfo = await this.pbxCallRoutingModelService.getPbxCallRouting({ extension }, EXTENSION_ROUTE_PROJ);
+      const extInfo = await this.pbxCallRoutingModelService.getPbxCallRouting({ localExtension: extension }, EXTENSION_ROUTE_PROJ);
       if (extInfo == null) throw new HttpException({ message: `Добавочный номер ${extension} не найден` }, HttpStatus.NOT_FOUND);
       const operatorInfo = await this.operatorsService.getOperatorById(extInfo.operatorId);
+
       return {
         localExtension: extInfo.localExtension,
         operatorsName: operatorInfo.name,
