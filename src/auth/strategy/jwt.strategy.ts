@@ -5,6 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtTokenConfType } from '../interfaces/auth.enum';
 import { TokenPayload } from '../interfaces/auth.interfaces';
 import { AuthUserService } from '../services/auth-user.service';
+import { Users } from '@app/users/users.schema';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: TokenPayload) {
+  async validate(payload: TokenPayload): Promise<Users> {
     try {
       return await this.authUserService.validateUser(payload.userId);
     } catch (e) {

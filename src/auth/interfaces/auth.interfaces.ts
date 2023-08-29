@@ -1,5 +1,4 @@
 import { Users } from '@app/users/users.schema';
-import { ApiProperty } from '@nestjs/swagger';
 import { Request } from 'express';
 
 export type JwtPayload = {
@@ -15,15 +14,7 @@ export interface TokenPayload {
 }
 
 export class RegisterResponse {
-  @ApiProperty({
-    description: 'Почта указанная при регистрации',
-    nullable: false,
-  })
   email: string;
-  @ApiProperty({
-    description: 'Имя указанное при регистрации',
-    nullable: false,
-  })
   username: string;
 }
 
@@ -32,9 +23,5 @@ export interface RequestWithUser extends Request {
 }
 
 export class GetApiTokenReponse {
-  @ApiProperty({
-    description: 'accessToken',
-    nullable: false,
-  })
   accessToken: string;
 }

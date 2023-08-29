@@ -49,7 +49,7 @@ export class UsersService {
     return user;
   }
 
-  public async removeRefreshToken(userId: string) {
+  public async removeRefreshToken(userId: string): Promise<Users> {
     const user = await this.usersModel.findByIdAndUpdate(userId, {
       currentHashedRefreshToken: null,
     });
