@@ -1,14 +1,17 @@
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AsteriskDialBeginEvent } from '../interfaces/asterisk.interfaces';
-import { AsteriskEventType } from '../interfaces/asterisk.enum';
 import { BlindTransferEventParser } from './events/blind-transfer-event-parser';
 import { LogService } from '@app/log/log.service';
 import { AsteriskAmiProvider } from '@app/config/interfaces/config.enum';
 import { HangupEventParser } from './events/hangup-event-parser';
 import { DialBeginEventParser } from './events/dial-begin-event-parser';
 import { NewExtenEventParser } from './events/new-exten-event-parser';
-import { AsteriskAmiEventProviderInterface, AsteriskAmiEventProviders, AsteriskUnionEvent } from './interfaces/ami.interfaces';
+import {
+  AsteriskAmiEventProviderInterface,
+  AsteriskAmiEventProviders,
+  AsteriskDialBeginEvent,
+  AsteriskUnionEvent,
+} from './interfaces/ami.interfaces';
 import {
   AMI_CONNECT_SUCCESS,
   AMI_INCORRECT_LOGIN,
@@ -17,6 +20,7 @@ import {
   ERROR_AMI,
   INVALIDE_PEER,
 } from './ami.constants';
+import { AsteriskEventType } from './interfaces/ami.enum';
 
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {

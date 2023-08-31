@@ -3,15 +3,14 @@ import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { OperatorsService } from '@app/operators/operators.service';
 import { OperatorsUtils } from '@app/operators/operators.utils';
 import { Injectable } from '@nestjs/common';
-import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
-import { AsteriskAriOriginate } from '../../interfaces/asterisk.interfaces';
 import {
   POZVONIM_CALL_LOCAL_PREFIX,
   POZVONIM_CALL_CC_PREFIX,
   POZVONIM_LOCAL_EXTENSION_TIMEOUT,
   POZVONIM_GROUP_TIMEOUT,
 } from '../ari.constants';
-import { PozvonimOperatorInfoData, PozvonimOriginateInfo } from '../interfaces/ari.interfaces';
+import { AsteriskAriOriginate, PozvonimOperatorInfoData, PozvonimOriginateInfo } from '../interfaces/ari.interfaces';
+import { AsteriskContext, ChannelType } from '../interfaces/ari.enum';
 
 @Injectable()
 export class PozvonimCallDataAdapter {

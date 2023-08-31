@@ -13,9 +13,9 @@ import {
   AsteriskHangupHandlerProviders,
   AsteriskNewExten,
 } from '../interfaces/ami.interfaces';
-import { HangupHandler } from '@app/asterisk/interfaces/asterisk.enum';
 import { AmocrmV4Service } from '@app/amocrm/v4/services';
 import { DEFAULT_TIMEOUT_HANDLER } from '../ami.constants';
+import { HangupHandler } from '../interfaces/ami.enum';
 
 @Injectable()
 export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {

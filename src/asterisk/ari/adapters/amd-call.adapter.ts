@@ -1,9 +1,8 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { OperatorsUtils } from '@app/operators/operators.utils';
-import { AsteriskContext, ChannelType } from '../../interfaces/asterisk.enum';
 import { DEFAULT_LOCAL_EXTENSION } from '../ari.constants';
 import { SpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
-import { AmdSpamData } from '../interfaces/ari.interfaces';
+import { AmdSpamData, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
+import { AsteriskContext, ChannelType } from '../interfaces/ari.enum';
 
 export class AmdSpamDataAdapter {
   originateInfo: AsteriskAriOriginate;

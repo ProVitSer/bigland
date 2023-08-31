@@ -6,7 +6,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_CHANSPY_ERROR, PLAYBACK_ERROR } from '../ari.constants';
-import { PlaybackSounds } from '@app/asterisk/interfaces/asterisk.enum';
+import { PlaybackSounds } from '../interfaces/ari.enum';
 
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {

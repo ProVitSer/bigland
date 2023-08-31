@@ -1,6 +1,4 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskAriCall } from '../interfaces/ari.interfaces';
-import { ChannelType, EndpointState } from '@app/asterisk/interfaces/asterisk.enum';
+import { AsteriskAriCall, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
 import { PozvominCall } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import Ari from 'ari-client';
 import { Injectable } from '@nestjs/common';
@@ -8,6 +6,7 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { PozvonimCallDataAdapter } from '../adapters/pozvonim-call.adapter';
 import { AmocrmV2ApiService } from '@app/amocrm/v2/services/amocrm-v2-api.service';
 import { LogService } from '@app/log/log.service';
+import { ChannelType, EndpointState } from '../interfaces/ari.enum';
 
 @Injectable()
 export class PozvonimAriCall implements AsteriskAriCall {

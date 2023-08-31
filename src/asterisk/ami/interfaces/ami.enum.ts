@@ -4,7 +4,8 @@ export enum AsteriskEventType {
   DialBeginEvent = 'DialBeginEvent',
   EventNewexten = 'EventNewexten',
 }
-export enum Bridgevideosourcemode {
+
+export enum BridgeVideoSourceMode {
   talker = 'talker',
   single = 'single',
 }
@@ -21,13 +22,13 @@ export enum AsteriskEvent {
   DialBegin = 'DialBegin',
 }
 
-export enum StatustextExtensionStatus {
+export enum StatusTextExtensionStatus {
   InUse = 'InUse',
   Idle = 'Idle',
   Ringing = 'Ringing',
 }
 
-export enum StatusExtensionStatus {
+export enum ExtensionCallStatus {
   InUse = '1',
   Idle = '0',
   Ringing = '8',
@@ -47,7 +48,7 @@ export enum AsteriskChannelStateDesc {
   DialingOffhook = 'Dialing Offhook',
 }
 
-export enum statusHint {
+export enum HintStatus {
   on = 'Busy',
   off = 'Unavailable',
 }
@@ -100,25 +101,14 @@ export enum AsteriskCause {
   NOT_DEFINED = '0',
 }
 
-export enum CallType {
-  Incoming = 'incoming',
-  Outgoing = 'outgoing',
-}
-
-export enum statusDND {
+export enum DNDStatus {
   on = '1',
   off = '',
 }
 
-export enum apiStatusDND {
+export enum DNDApiStatus {
   on = 'on',
   off = 'off',
-}
-
-export enum ChannelType {
-  PJSIP = 'PJSIP',
-  SIP = 'SIP',
-  LOCAL = 'local',
 }
 
 export enum DbFamilyType {
@@ -129,50 +119,4 @@ export enum HangupHandler {
   outbound = 'outbound-hangup-handler',
   inbound = 'inbound-hangup-handler',
   pozvonim = 'pozvonim-hangup-handler',
-}
-
-export enum PlaybackSounds {
-  IncorrectPass = 'sound:vm-incorrect',
-  Goodbye = 'sound:vm-goodbye',
-  DialPass = 'sound:agent-pass',
-}
-
-export enum EndpointState {
-  offline = 'offline',
-  online = 'online',
-}
-
-export enum HangupReason {
-  normal = 'normal',
-  busy = 'busy',
-  congestion = 'congestion',
-  noAnswer = 'no_answer',
-}
-
-export enum AsteriskContext {
-  monitoring = 'monitoring',
-  fromInternal = 'from-internal',
-  pozvonim = 'pozvonim',
-  amdCheckSpam = 'amd-check-spam',
-  fromInternalAdditional = 'from-internal-additional',
-}
-
-export enum AsteriskOperatorTrunkName {
-  monitoring = 'Monitoring',
-}
-
-export enum AsteriskDialStatus {
-  CHANUNAVAIL = 'CHANUNAVAIL',
-  CONGESTION = 'CONGESTION',
-  NOANSWER = 'NOANSWER',
-  BUSY = 'BUSY',
-  ANSWER = 'ANSWER',
-  CANCEL = 'CANCEL',
-}
-
-export enum AsteriskAmdCallStatus {
-  MACHINE = 'MACHINE',
-  HUMAN = 'HUMAN',
-  NOTSURE = 'NOTSURE',
-  HANGUP = 'HANGUP',
 }

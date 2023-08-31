@@ -4,6 +4,7 @@ import { AmocrmDto } from '../dto/amocrm.dto';
 import { AmiActionService } from '@app/asterisk/ami/services/action-service';
 import { ConfigService } from '@nestjs/config';
 import { AUTH_AMOCRM_ERROR } from '../asterisk-api.constants';
+import { AmocrmActionStatus } from '../interfaces/asterisk-api.enum';
 
 @Injectable()
 export class AmocrmApiService {
@@ -14,10 +15,10 @@ export class AmocrmApiService {
     if (query._login == this.config.get('amocrm.widget.login') && query._secret == this.config.get('amocrm.widget.secret')) {
       try {
         switch (query._action) {
-          case 'call':
+          case AmocrmActionStatus.call:
             await this.ami.sendAmiCall(query.from, query.to);
             return {};
-          case 'status':
+          case AmocrmActionStatus.status:
             const callIfo = await this.ami.getCallStatus();
             const sendStatus = {
               status: 'ok',
@@ -25,7 +26,7 @@ export class AmocrmApiService {
               data: callIfo[0],
             };
             return 'asterisk_cb(' + JSON.stringify(sendStatus) + ');';
-          case 'cdr':
+          case AmocrmActionStatus.cdr:
             return {};
           default:
             this.log.error(query, AmocrmApiService.name);

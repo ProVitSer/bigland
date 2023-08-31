@@ -1,8 +1,7 @@
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
-import { AsteriskBlindTransferEvent } from '../../interfaces/asterisk.interfaces';
-import { AsteriskAmiEventProviderInterface } from '../interfaces/ami.interfaces';
+import { AsteriskAmiEventProviderInterface, AsteriskBlindTransferEvent } from '../interfaces/ami.interfaces';
 import { AmocrmV2ApiService } from '@app/amocrm/v2/services/amocrm-v2-api.service';
 
 @Injectable()

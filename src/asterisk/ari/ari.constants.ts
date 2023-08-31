@@ -1,5 +1,5 @@
 import { PbxGroup } from '@app/pbx-call-routing/interfaces/pbx-call-routing.enum';
-import { AsteriskContext } from '../interfaces/asterisk.enum';
+import { AsteriskContext } from './interfaces/ari.enum';
 
 export const CONTINUE_DIALPLAN = 'Вызов маршрутизируется по стандартному маршруту для канала';
 export const CONTINUE_DIALPLAN_INCOMINGCALL_ERROR = 'Ошибка маршрутизации вызова по стандартному маршруту';
@@ -27,3 +27,4 @@ export const INCOMING_CALL_DEFAULT_ROUTING = {
   localExtension: '900',
 };
 export const CALL_CENTER_EXTENSIONS: string[] = ['102', '262', '494', '296', '203', '422', '865', '230', '890'];
+export const POZVONIM_PBX_ROUTE_EXTENSION = '2222';

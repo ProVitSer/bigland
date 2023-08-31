@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
-import { AsteriskAmiEventProviderInterface } from '../interfaces/ami.interfaces';
-import { AsteriskHungupEvent } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskCause } from '@app/asterisk/interfaces/asterisk.enum';
+import { AsteriskAmiEventProviderInterface, AsteriskHungupEvent } from '../interfaces/ami.interfaces';
 import { DEFAULT_HANGUP_CDR_TIMEOUT, NOT_LOCAL_NUMBER } from '../ami.constants';
+import { AsteriskCause } from '../interfaces/ami.enum';
 
 @Injectable()
 export class HangupEventParser implements AsteriskAmiEventProviderInterface {

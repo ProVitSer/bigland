@@ -1,5 +1,4 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskAriCall } from '../interfaces/ari.interfaces';
+import { AsteriskAriCall, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
 import { Injectable } from '@nestjs/common';
 import { AmdSpamDataAdapter } from '../adapters/amd-call.adapter';
 import { CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';

@@ -11,11 +11,11 @@ import {
   INCOMING_CALL_DEFAULT_ROUTING,
 } from '../ari.constants';
 import { AmocrmV4Service } from '@app/amocrm/v4/services';
-import { CallData, IncomingCallRoutingInfo } from '@app/asterisk/interfaces/asterisk.interfaces';
 import { AmocrmGetContactsResponse } from '@app/amocrm/interfaces/amocrm.interfaces';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { PbxCallRoutingService } from '@app/pbx-call-routing/services/pbx-call-routing.service';
 import { ExtensionRouteInfo } from '@app/pbx-call-routing/interfaces/pbx-call-routing.interfaces';
+import { CallData, IncomingCallRoutingInfo } from '../interfaces/ari.interfaces';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {

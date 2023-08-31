@@ -1,8 +1,8 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskAriCall } from '../interfaces/ari.interfaces';
-import { AsteriskContext, AsteriskOperatorTrunkName, ChannelType } from '@app/asterisk/interfaces/asterisk.enum';
+import { AsteriskAriCall, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
 import { Injectable } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
+import { AsteriskContext, AsteriskOperatorTrunkName, ChannelType } from '../interfaces/ari.enum';
+import { POZVONIM_PBX_ROUTE_EXTENSION } from '../ari.constants';
 
 @Injectable()
 export class MonitoringAriCall implements AsteriskAriCall {
@@ -18,7 +18,7 @@ export class MonitoringAriCall implements AsteriskAriCall {
     return {
       endpoint: `${ChannelType.PJSIP}/${data.number}@${AsteriskOperatorTrunkName.monitoring}`,
       context: AsteriskContext.monitoring,
-      extension: '2222',
+      extension: POZVONIM_PBX_ROUTE_EXTENSION,
       appArgs: 'dialed',
     };
   }

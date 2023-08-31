@@ -2,8 +2,7 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { LogService } from '@app/log/log.service';
 import { Injectable } from '@nestjs/common';
 import { UtilsService } from '@app/utils/utils.service';
-import { AsteriskDialBeginEvent } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskAmiEventProviderInterface } from '../interfaces/ami.interfaces';
+import { AsteriskAmiEventProviderInterface, AsteriskDialBeginEvent } from '../interfaces/ami.interfaces';
 import { AmocrmV2ApiService } from '@app/amocrm/v2/services/amocrm-v2-api.service';
 import { EVENT_INTERVAL, MIN_EXTERNAL_NUMBER_LENGTH } from '../ami.constants';
 

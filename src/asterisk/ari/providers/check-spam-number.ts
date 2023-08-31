@@ -1,5 +1,4 @@
-import { AsteriskAriOriginate } from '@app/asterisk/interfaces/asterisk.interfaces';
-import { AsteriskAriCall } from '../interfaces/ari.interfaces';
+import { AsteriskAriCall, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
 import { Injectable } from '@nestjs/common';
 import { OperatorsService } from '@app/operators/operators.service';
 import { NumbersInfo, Operators } from '@app/operators/operators.schema';

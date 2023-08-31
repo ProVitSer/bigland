@@ -5,8 +5,8 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../../asterisk.utils';
-import { HangupReason } from '../../interfaces/asterisk.enum';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
+import { HangupReason } from '../interfaces/ari.enum';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {

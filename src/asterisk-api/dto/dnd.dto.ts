@@ -1,4 +1,4 @@
-import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
+import { DNDApiStatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { IsEnum, IsNotEmpty, IsArray } from 'class-validator';
 
 export class DNDDto {
@@ -7,8 +7,8 @@ export class DNDDto {
   sip_id: string[];
 
   @IsNotEmpty({ message: 'Поле dnd_status не может быть пустым, on/off. ' })
-  @IsEnum(apiStatusDND, {
+  @IsEnum(DNDApiStatus, {
     message: 'Поле dnd_status должно быть одним из значений on/off. ',
   })
-  dnd_status: apiStatusDND;
+  dnd_status: DNDApiStatus;
 }
