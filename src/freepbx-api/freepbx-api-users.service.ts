@@ -49,7 +49,7 @@ export class FreepbxUsersApiService {
     }
   }
 
-  private async createFreepbxUser(data: FreePBXCreateUsersDto) {
+  private async createFreepbxUser(data: FreePBXCreateUsersDto): Promise<void> {
     try {
       for (const user of data.users) {
         const webDriver = await this.freePBXLogin.loginOnPbx();

@@ -1,9 +1,9 @@
-import { apiStatusDND } from '@app/asterisk/interfaces/asterisk.enum';
+import { DNDApiStatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 
 export interface IDnd {
   sip_id: string[];
-  dnd_status: apiStatusDND;
+  dnd_status: DNDApiStatus;
 }
 
 export interface MonitoringCall {

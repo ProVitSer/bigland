@@ -15,7 +15,7 @@ export class AmocrmV4AuthService {
   private tokenPath: string = this.configService.get('amocrm.tokenPath');
 
   constructor(
-    @Inject('Amocrm') private readonly amocrm: Client,
+    @Inject('AMOCRM') private readonly amocrm: Client,
     private readonly configService: ConfigService,
     private readonly log: LogService,
   ) {}

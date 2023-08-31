@@ -5,8 +5,8 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../../asterisk.utils';
-import { HangupReason } from '../../interfaces/asterisk.enum';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
+import { HangupReason } from '../interfaces/ari.enum';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
@@ -51,7 +51,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private check(arr: string[], val: string) {
+  private check(arr: string[], val: string): boolean {
     return arr.some((arrVal) => val.substring(val.length - NUMBER_FORMAT) === arrVal.substring(val.length - NUMBER_FORMAT));
   }
 
@@ -68,7 +68,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private hangupChannel(event: StasisStart) {
+  private hangupChannel(event: StasisStart): Promise<void> {
     this.log.info(`${NUMBER_IN_BLACK_LIST}:  ${JSON.stringify(event)}`, AriBlackListApplication.name);
     return this.client.ariClient.channels.hangup({ channelId: event.channel.id, reason: HangupReason.busy });
   }

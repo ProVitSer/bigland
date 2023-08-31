@@ -1,4 +1,4 @@
-import { AsteriskAmdCallStatus, AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
+import { AsteriskAmdCallStatus, AsteriskDialStatus } from '@app/asterisk/ari/interfaces/ari.enum';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CheckSpamCallResultDTO {

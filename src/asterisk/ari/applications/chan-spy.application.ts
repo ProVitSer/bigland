@@ -6,7 +6,7 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_CHANSPY_ERROR, PLAYBACK_ERROR } from '../ari.constants';
-import { PlaybackSounds } from '@app/asterisk/interfaces/asterisk.enum';
+import { PlaybackSounds } from '../interfaces/ari.enum';
 
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {
@@ -80,7 +80,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
     }
   }
 
-  private async playSound(incomingChannel: Channel, sound: string): Promise<any> {
+  private async playSound(incomingChannel: Channel, sound: string): Promise<void> {
     try {
       await new Promise(async (resolve: any) => {
         const playback = this.client.ariClient.Playback();
@@ -91,6 +91,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
           playback,
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         play.once('PlaybackFinished', async (event: PlaybackStarted, _: Playback) => {
           resolve(event);
         });

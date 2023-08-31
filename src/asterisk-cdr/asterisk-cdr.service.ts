@@ -9,6 +9,7 @@ import {
   ASTERISK_CDR_POZVONIM_CALL_ERROR,
   CDR_ATTRIBUTES,
 } from './asterisk-cdr.constants';
+import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
 
 @Injectable()
 export class AsteriskCdrService {
@@ -46,6 +47,7 @@ export class AsteriskCdrService {
 
   public async searchTransferPozvonimIncomingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
     try {
+      //Костыль по двуканальным вызовам, убираем информацию о них
       const formatUniqueid = uniqueid.includes(';2') ? uniqueid.replace(';2', '') : uniqueid;
       const newUniqueid = formatUniqueid.substring(0, formatUniqueid.length - 5);
 
@@ -113,12 +115,14 @@ export class AsteriskCdrService {
           },
         },
       });
+
       // Небольшой костыл, меняем channel с локальным каналом "Local/124997@from-internal-additional-00002a89;1" на реальный канал пользователя "PJSIP/790-0012ec3b"
       const updateResult = result.map((c: AsteriskCdr) => {
-        const newChannel = `PJSIP/${c.cnum}-0012ec3b`;
+        const newChannel = `${ChannelType.PJSIP}/${c.cnum}-0012ec3b`;
         return { ...c, channel: newChannel };
       }) as AsteriskCdr[];
       this.log.info(updateResult, AsteriskCdrService.name);
+
       return updateResult;
     } catch (e) {
       this.log.error(`${ASTERISK_CDR_POZVONIM_CALL_ERROR}: ${e}`, AsteriskCdrService.name);

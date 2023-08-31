@@ -1,14 +1,13 @@
 import { AsteriskAriProvider } from '@app/config/interfaces/config.enum';
 import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import Ari, { Channel } from 'ari-client';
-import { AsteriskAriOriginate } from '../interfaces/asterisk.interfaces';
 import { AsteriskCallApiUnion } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { AriCallType } from './interfaces/ari.enum';
-import { AsteriskAriCall, AsteriskAriCallProviders } from './interfaces/ari.interfaces';
+import { AsteriskAriCall, AsteriskAriCallProviders, AsteriskAriOriginate } from './interfaces/ari.interfaces';
 import { MonitoringAriCall, PozvonimAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
 
 @Injectable()
-export class AriACallService implements OnApplicationBootstrap {
+export class AriCallService implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
   constructor(
     @Inject(AsteriskAriProvider.aricall) private readonly ari: { ariClient: Ari.Client },

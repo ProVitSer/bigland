@@ -29,6 +29,8 @@ import { SpamApiModule } from './spam-api/spam-api.module';
 import { BiglandModule } from './bigland/bigland.module';
 import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module';
 import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.module';
+import { AriModule } from './asterisk/ari/ari.module';
+import { AmiModule } from './asterisk/ami/ami.module';
 
 @Module({
   imports: [
@@ -52,6 +54,8 @@ import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.mod
     MailModule,
     SystemModule,
     RedisModule,
+    AmiModule,
+    AriModule,
     AsteriskCdrModule,
     AmocrmUsersModule,
     AsteriskApiModule,

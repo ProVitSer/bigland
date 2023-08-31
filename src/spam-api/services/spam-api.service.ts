@@ -3,7 +3,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
 import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
 import { Spam } from '../spam.schema';
-import { AriACallService } from '@app/asterisk/ari/ari-call.service';
+import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
 import {
   CheckNumberSpamData,
@@ -15,9 +15,8 @@ import {
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
-import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { AriCallType, AsteriskDialStatus } from '@app/asterisk/ari/interfaces/ari.enum';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
-import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 import { AMD_STATUS_TO_SPAM_MAP } from '../spam-api.constants';
 import { CheckSpamStatus, SpamType } from '../interfaces/spam-api.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
@@ -32,7 +31,7 @@ import { CheckBatchOperatorAdapter } from '../adapters/chack-batch-operator.adap
 export class SpamApiService {
   constructor(
     private readonly biglandService: BiglandService,
-    private readonly ari: AriACallService,
+    private readonly ari: AriCallService,
     private readonly operatorsService: OperatorsService,
     private readonly spamModelService: SpamModelService,
     private readonly configService: ConfigService,
