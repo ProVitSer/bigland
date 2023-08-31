@@ -33,7 +33,7 @@ export class UtilsService {
     return ip && ip.indexOf('::ffff:') > -1 ? ip.substring(7) : ip;
   }
 
-  static getClientIp(request: Request) {
+  static getClientIp(request: Request): string {
     return this.normalizeIp(requestIp.getClientIp(request));
   }
 
@@ -63,7 +63,7 @@ export class UtilsService {
     }
   }
 
-  static sleep(ms: number): Promise<any> {
+  static sleep(ms: number): Promise<NodeJS.Timeout> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
@@ -95,7 +95,7 @@ export class UtilsService {
     return str.split('\n').filter((i) => i != '');
   }
 
-  static getToken(req: Request) {
+  static getToken(req: Request): string {
     try {
       let token = req.headers.authorization;
       if (!token) throw new Error('Проблемы с авторизацией по token');
@@ -108,7 +108,7 @@ export class UtilsService {
     }
   }
 
-  static createSetObj(propName: string, setObj: DataObject) {
+  static createSetObj(propName: string, setObj: DataObject): DataObject {
     const newObj = {};
     for (const key in setObj) {
       newObj[`${propName}.$.${key}`] = setObj[key];

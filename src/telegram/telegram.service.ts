@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TelegramService as Tg } from 'nestjs-telegram';
+import { TelegramMessage, TelegramService as Tg } from 'nestjs-telegram';
 
 @Injectable()
 export class TelegramService {
   private readonly chartId = this.configService.get('telegram.chartId');
   constructor(private readonly telegramService: Tg, private readonly configService: ConfigService) {}
 
-  public async tgAlert(message: string, context: string): Promise<any> {
+  public async tgAlert(message: string, context: string): Promise<TelegramMessage> {
     try {
       return await this.telegramService
         .sendMessage({

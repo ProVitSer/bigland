@@ -2,7 +2,7 @@ import { DockerService } from '@app/docker/docker.service';
 import { LogService } from '@app/log/log.service';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Builder } from 'selenium-webdriver';
+import { Builder, WebDriver } from 'selenium-webdriver';
 import { Capabilities } from './interfaces/selenium.interfaces';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class SeleniumWebdriver implements OnApplicationBootstrap {
     }
   }
 
-  public async getWebDriver() {
+  public async getWebDriver(): Promise<WebDriver> {
     try {
       return await new Builder().usingServer(this.configService.get('selenium.host')).withCapabilities(this.capabilities).build();
     } catch (e) {

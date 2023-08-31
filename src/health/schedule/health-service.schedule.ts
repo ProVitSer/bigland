@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { HEALTH_ERROR_SCHEDULE, HEALTH_MAIL_ERROR } from '../health.constants';
 import { HealthCheckStatusType, ReturnHealthFormatType } from '../interfaces/health.enum';
-import { HealthCheckMailFormat, HealthCheckStatusMap, MailSendInfo } from '../interfaces/health.interface';
+import { HealthCheckMailFormat, MailSendInfo } from '../interfaces/health.interface';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 
 @Injectable()
@@ -52,7 +52,7 @@ export class HealthScheduledService {
     }
   }
 
-  private async sendMailInfo(healthResult: HealthCheckMailFormat) {
+  private async sendMailInfo(healthResult: HealthCheckMailFormat): Promise<void> {
     try {
       const sendMailInfo = this.getSendMailInfoData(healthResult);
       return await this.mail.sendMail(sendMailInfo);
@@ -75,7 +75,7 @@ export class HealthScheduledService {
     return {
       to: mail.mailListNotifyer,
       from: mail.from,
-      subject: HealthCheckStatusMap[healthResult.status],
+      subject: HealthCheckStatusType[healthResult.status],
       context: { service: healthResult.service },
       template: TemplateTypes.heathService,
     };

@@ -7,10 +7,10 @@ import { Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseG
 import { Request, Response } from 'express';
 import { LdsService } from './lds.service';
 
+@Controller('lds')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
-@Controller('lds')
 export class LdsController {
   constructor(private readonly http: HttpResponseService, private readonly ldsService: LdsService) {}
 

@@ -18,7 +18,7 @@ export class CdrService {
     private readonly log: LogService,
   ) {}
 
-  public async sendCdrInfo(msg: Cdr) {
+  public async sendCdrInfo(msg: Cdr): Promise<void> {
     try {
       this.log.info(msg, CdrService.name);
       let asteriskCdrInfo: AsteriskCdr[] = [];
@@ -46,7 +46,7 @@ export class CdrService {
     }
   }
 
-  private async sendInfoToAmo(cdr: AsteriskCdr[], msg: Cdr) {
+  private async sendInfoToAmo(cdr: AsteriskCdr[], msg: Cdr): Promise<void> {
     this.log.info(cdr, CdrService.name);
     if (cdr.length == 0) return;
     for (const c of cdr) {
@@ -59,7 +59,7 @@ export class CdrService {
     }
   }
 
-  private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr) {
+  private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr): Promise<void> {
     this.log.info(cdrData, CdrService.name);
     return await this.cdrModel.findOneAndUpdate({ _id: cdrId }, { $set: { complete: true } });
   }

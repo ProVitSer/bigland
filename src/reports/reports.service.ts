@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ReportCreator } from './interfaces/report.interfaces';
+import { ReportCreator } from './interfaces/reports.interfaces';
 import { MailService } from '@app/mail/mail.service';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 
@@ -12,7 +12,7 @@ export class ReportService {
     await this.sendReport(mailData);
   }
 
-  private async sendReport(data: SendMailData) {
+  private async sendReport(data: SendMailData): Promise<void> {
     await this.mail.sendMail({
       ...data,
     });

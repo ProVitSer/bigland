@@ -27,7 +27,7 @@ export class SpamModelService {
     return await this.spamModel.findOne({ applicationId }, { _id: 0 });
   }
 
-  public async getActualCheck(spamType: SpamType) {
+  public async getActualCheck(spamType: SpamType): Promise<Spam[]> {
     const query = {
       spamType,
       status: ApplicationApiActionStatus.inProgress,

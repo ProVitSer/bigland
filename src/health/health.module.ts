@@ -18,10 +18,8 @@ import {
   RedisHealthIndicator,
   AsteriskAriApplicationHealthIndicator,
   AsteriskHealthIndicator,
-  GsmGatewayHealthIndicator,
   AmocrmHealthIndicator,
 } from './health-indicators';
-import { GsmGatewayApiModule } from '@app/gsm-gateway-api/gsm-gateway-api.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
 
 @Module({
@@ -35,7 +33,6 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     HttpResponseModule,
     AsteriskModule,
     RedisModule,
-    GsmGatewayApiModule,
     AmocrmModule,
   ],
   providers: [
@@ -46,7 +43,6 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     AsteriskHealthIndicator,
     AsteriskAriApplicationHealthIndicator,
     RedisHealthIndicator,
-    GsmGatewayHealthIndicator,
     AmocrmHealthIndicator,
   ],
   controllers: [HealthController],

@@ -3,7 +3,7 @@ import { REPORT_DATE_FORMAT } from '../../reports/reports.constants';
 import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import { ReportData } from '../../reports/interfaces/report.interfaces';
+import { ReportData } from '../../reports/interfaces/reports.interfaces';
 import { AttachmentsData, SendMailData, SpamReportContext, SpamReportLink } from '@app/mail/interfaces/mail.interfaces';
 import { FilesCreateService } from '@app/files-api/files-create/files-create.service';
 import { ServerStaticService } from '@app/server-static/server-static..service';
@@ -80,7 +80,7 @@ export class SpamReportService {
     ];
   }
 
-  private getBufferResult(result: Spam, operatorsName: OperatorsName) {
+  private getBufferResult(result: Spam, operatorsName: OperatorsName): Buffer {
     const format = this.formatReportData(result, operatorsName);
     const xls = json2xls(format);
     return Buffer.from(xls, 'binary');

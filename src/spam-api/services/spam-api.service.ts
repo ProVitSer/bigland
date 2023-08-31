@@ -2,10 +2,16 @@ import { BiglandService } from '@app/bigland/bigland.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
 import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
-import { Spam, SpamCheckNumbersInfo } from '../spam.schema';
+import { Spam } from '../spam.schema';
 import { AriACallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import { CheckNumberSpamData, CheckOperatorSpamData, SpamReportsResponseStruct } from '../interfaces/spam-api.interfaces';
+import {
+  CheckNumberSpamData,
+  CheckOperatorSpamData,
+  FormatSpamUpdateData,
+  SaveCheckNumberData,
+  SpamReportsResponseStruct,
+} from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
@@ -55,15 +61,14 @@ export class SpamApiService {
 
       const defaultApiStruct = this.biglandService.getDefaultApiStruct();
       const fakeOperator = await this.getFakeOperatorInfo(data);
-      console.log(JSON.stringify(fakeOperator));
-      await this.saveCheckNumberInfo(
+      await this.saveCheckNumberInfo({
         defaultApiStruct,
-        data.operator,
-        fakeOperator.numbers.map((number) => {
+        operator: data.operator,
+        numbers: fakeOperator.numbers.map((number) => {
           return { number: number.callerId };
         }),
-        SpamType.checkBatch,
-      );
+        spamType: SpamType.checkBatch,
+      });
       this._checkBatch(fakeOperator, defaultApiStruct);
       return defaultApiStruct;
     } catch (e) {
@@ -96,14 +101,14 @@ export class SpamApiService {
 
     const operatorInfo = await this.operatorsService.getOperator(data.operator);
 
-    await this.saveCheckNumberInfo(
+    await this.saveCheckNumberInfo({
       defaultApiStruct,
-      data.operator,
-      operatorInfo.numbers.map((number) => {
+      operator: data.operator,
+      numbers: operatorInfo.numbers.map((number) => {
         return { number: number.callerId };
       }),
       spamType,
-    );
+    });
 
     this._checkOperatorNumbers({ ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
     return defaultApiStruct;
@@ -111,7 +116,7 @@ export class SpamApiService {
 
   public async checkNumber(data: CheckNumberDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
-    await this.saveCheckNumberInfo(defaultApiStruct, data.operator, [{ number: data.callerId }], spamType);
+    await this.saveCheckNumberInfo({ defaultApiStruct, operator: data.operator, numbers: [{ number: data.callerId }], spamType });
     this._checkNumber({ ...data, applicationId: defaultApiStruct.applicationId });
     return defaultApiStruct;
   }
@@ -171,7 +176,7 @@ export class SpamApiService {
     return await this.spamModelService.getActualCheck(spamType);
   }
 
-  private formatUpdateData(data: CheckSpamCallResultDTO, result: Spam) {
+  private formatUpdateData(data: CheckSpamCallResultDTO, result: Spam): FormatSpamUpdateData {
     const callerId = UtilsService.normalizePhoneNumber(data.callerId);
     return {
       ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
@@ -195,14 +200,14 @@ export class SpamApiService {
     };
   }
 
-  private async _stopCheck(applicationId: string, reuslt: Spam) {
+  private async _stopCheck(applicationId: string, reuslt: Spam): Promise<void> {
     await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cancel });
     if (reuslt.applicationIds.length !== 0) {
       await this.stopAllSpamCheck(reuslt.applicationIds);
     }
   }
 
-  private async stopAllSpamCheck(applicationIds: string[]) {
+  private async stopAllSpamCheck(applicationIds: string[]): Promise<void> {
     for (const id of applicationIds) {
       await this.spamModelService.update(id, { status: ApplicationApiActionStatus.cancel });
     }
@@ -220,7 +225,7 @@ export class SpamApiService {
     }
   }
 
-  private async _checkOperatorNumbers(data: CheckOperatorSpamData, operatorInfo: Operators) {
+  private async _checkOperatorNumbers(data: CheckOperatorSpamData, operatorInfo: Operators): Promise<void> {
     try {
       const numbers = [...operatorInfo.numbers];
 
@@ -248,20 +253,15 @@ export class SpamApiService {
     }
   }
 
-  private async saveCheckNumberInfo(
-    defaultApiStruct: DefaultApplicationApiStruct,
-    operator: OperatorsName,
-    numbers: SpamCheckNumbersInfo[],
-    spamType: SpamType,
-  ) {
+  private async saveCheckNumberInfo(data: SaveCheckNumberData): Promise<void> {
     await this.spamModelService.create({
-      ...defaultApiStruct,
-      spamType,
+      ...data.defaultApiStruct,
+      spamType: data.spamType,
       checkDate: new Date(),
       resultSpamCheck: [
         {
-          operator,
-          numbers,
+          operator: data.operator,
+          numbers: data.numbers,
         },
       ],
     });

@@ -50,14 +50,14 @@ export class AuthUserService {
     }
   }
 
-  private async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+  private async verifyPassword(plainTextPassword: string, hashedPassword: string): Promise<void> {
     const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
     if (!isPasswordMatching) {
       throw INVALALID_CREDENTIALS;
     }
   }
 
-  public async validateUser(userId: string) {
+  public async validateUser(userId: string): Promise<Users> {
     return await this.usersService.getActiveUserById(userId);
   }
 }

@@ -1,4 +1,4 @@
-export interface LdsUserStatusResponse {
+export interface LdsUseresponse {
   items: Item[];
 }
 

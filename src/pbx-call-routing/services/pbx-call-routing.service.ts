@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PbxCallRoutingModelService } from './pbx-call-routing-model.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import { LogService } from '@app/log/log.service';
 import { ExtensionRouteInfo } from '../interfaces/pbx-call-routing.interfaces';
 import { EXTENSION_ROUTE_PROJ } from '../pbx-call-routing.constants';
 import { UpdateGroupRouteDTO } from '../dto/update-group-route.dto';
@@ -11,7 +10,6 @@ import { PbxGroup, PbxRoutingStrategy } from '../interfaces/pbx-call-routing.enu
 @Injectable()
 export class PbxCallRoutingService {
   constructor(
-    private readonly log: LogService,
     private readonly pbxCallRoutingModelService: PbxCallRoutingModelService,
     private readonly operatorsService: OperatorsService,
   ) {}

@@ -3,9 +3,10 @@ import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { JwtTokenConfType } from '../interfaces/auth.enum';
-import { JwtPayload, GetApiTokenReponse } from '../interfaces/auth.interfaces';
+import { JwtPayload, GetApiTokenReponse, CookieJwtRefreshData } from '../interfaces/auth.interfaces';
 import { Request } from 'express';
+import { JwtTokenConfType } from '@app/config/interfaces/config.enum';
+import { Users } from '@app/users/users.schema';
 
 @Injectable()
 export class AuthTokenService {
@@ -15,12 +16,12 @@ export class AuthTokenService {
     private readonly usersService: UsersService,
   ) {}
 
-  public async getCookieWithJwtAccessToken(userId: string) {
+  public async getCookieWithJwtAccessToken(userId: string): Promise<string> {
     const token = await this.getToken(userId, JwtTokenConfType.access);
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.access).expiresIn}`;
   }
 
-  public async getCookieWithJwtRefreshToken(userId: string) {
+  public async getCookieWithJwtRefreshToken(userId: string): Promise<CookieJwtRefreshData> {
     const token = await this.getToken(userId, JwtTokenConfType.refresh);
     const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.refresh).expiresIn}`;
     return {
@@ -29,7 +30,7 @@ export class AuthTokenService {
     };
   }
 
-  private async getToken(userId: string, jwtConfType: JwtTokenConfType, expiresIn?: string) {
+  private async getToken(userId: string, jwtConfType: JwtTokenConfType, expiresIn?: string): Promise<string> {
     const payload: JwtPayload = { userId };
     const token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get(jwtConfType).tokenSecretKey,
@@ -45,15 +46,15 @@ export class AuthTokenService {
     };
   }
 
-  public getCookiesForLogOut() {
+  public getCookiesForLogOut(): string[] {
     return ['Authentication=; HttpOnly; Path=/; Max-Age=0', 'Refresh=; HttpOnly; Path=/; Max-Age=0'];
   }
 
-  public async removeRefreshToken(userId: string) {
+  public async removeRefreshToken(userId: string): Promise<Users> {
     return await this.usersService.removeRefreshToken(userId);
   }
 
-  public async varifyToken(token: string, jwtConfType: JwtTokenConfType) {
+  public async verifyToken(token: string, jwtConfType: JwtTokenConfType) {
     try {
       return await this.jwtService.verify(token, this.configService.get(jwtConfType).tokenSecretKey);
     } catch (e) {
