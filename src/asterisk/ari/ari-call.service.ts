@@ -7,7 +7,7 @@ import { AsteriskAriCall, AsteriskAriCallProviders, AsteriskAriOriginate } from 
 import { MonitoringAriCall, PozvonimAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
 
 @Injectable()
-export class AriACallService implements OnApplicationBootstrap {
+export class AriCallService implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
   constructor(
     @Inject(AsteriskAriProvider.aricall) private readonly ari: { ariClient: Ari.Client },

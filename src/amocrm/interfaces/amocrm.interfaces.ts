@@ -5,7 +5,7 @@ import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './am
 import { Cdr } from '@app/cdr/cdr.schema';
 import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
 import { NumberInfo } from '@app/system/system.schema';
-import { CallData } from '@app/asterisk/interfaces/asterisk.interfaces';
+import { CallData } from '@app/asterisk/ari/interfaces/ari.interfaces';
 
 export interface AmocrmGetRequest {
   with?: string;

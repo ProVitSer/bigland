@@ -1,4 +1,3 @@
-import { AsteriskModule } from '@app/asterisk/asterisk.module';
 import { AuthModule } from '@app/auth/auth.module';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -10,9 +9,11 @@ import { SystemModule } from '@app/system/system.module';
 import { OperatorsModule } from '@app/operators/operators.module';
 import { AmocrmApiController, CallApiController, ChanspyApiController, ServiceCodeApiController } from './controllers';
 import { AmocrmApiService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
+import { AmiModule } from '@app/asterisk/ami/ami.module';
+import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
-  imports: [ConfigModule, LogModule, AsteriskModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
+  imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
   controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController],
   providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
   exports: [],

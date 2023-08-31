@@ -15,7 +15,7 @@ import { NumberInfo } from '@app/system/system.schema';
 import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AmocrmCallDataAdapter, AmocrmCreateContactDataAdapter, AmocrmCreateLeadDataAdapter } from '../../adapters';
 import { AmocrmV4ApiService } from './amocrm-v4-api.service';
-import { CallData } from '@app/asterisk/interfaces/asterisk.interfaces';
+import { CallData } from '@app/asterisk/ari/interfaces/ari.interfaces';
 
 @Injectable()
 export class AmocrmV4Service {

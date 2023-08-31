@@ -18,50 +18,6 @@ import { DEFAULT_TIMEOUT_HANDLER } from '../ami.constants';
 import { HangupHandler } from '../interfaces/ami.enum';
 
 @Injectable()
-export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
-  constructor(
-    private readonly log: LogService,
-    private readonly outboundHangupHandler: OutboundHangupHandler,
-    private readonly inboundHangupHandler: InboundHangupHandler,
-    private readonly pozvonimHangupHandler: PozvonimHangupHandler,
-  ) {}
-
-  private get providers(): AsteriskHangupHandlerProviders {
-    return {
-      [HangupHandler.outbound]: this.outboundHangupHandler,
-      [HangupHandler.inbound]: this.inboundHangupHandler,
-      [HangupHandler.pozvonim]: this.pozvonimHangupHandler,
-    };
-  }
-
-  async parseEvent(event: AsteriskNewExten): Promise<void> {
-    try {
-      return await this.parseNewExtenEvent(event);
-    } catch (e) {
-      this.log.error(String(event), NewExtenEventParser.name);
-    }
-  }
-
-  private async parseNewExtenEvent(event: AsteriskNewExten): Promise<void> {
-    try {
-      if (
-        [HangupHandler.outbound, HangupHandler.inbound, HangupHandler.pozvonim].includes(event.context as HangupHandler) &&
-        event.application === 'NoOp'
-      ) {
-        await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
-        await this.getProvider(event.context as HangupHandler).handler(event);
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  private getProvider(context: HangupHandler): AsteriskHangupHandlerProviderInterface {
-    return this.providers[context];
-  }
-}
-
-@Injectable()
 export class BaseHangupHandlerService {
   constructor(
     protected readonly log: LogService,
@@ -127,5 +83,49 @@ export class PozvonimHangupHandler extends BaseHangupHandlerService implements A
     } catch (e) {
       this.log.error(e, PozvonimHangupHandler.name);
     }
+  }
+}
+
+@Injectable()
+export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
+  constructor(
+    private readonly log: LogService,
+    private readonly outboundHangupHandler: OutboundHangupHandler,
+    private readonly inboundHangupHandler: InboundHangupHandler,
+    private readonly pozvonimHangupHandler: PozvonimHangupHandler,
+  ) {}
+
+  private get providers(): AsteriskHangupHandlerProviders {
+    return {
+      [HangupHandler.outbound]: this.outboundHangupHandler,
+      [HangupHandler.inbound]: this.inboundHangupHandler,
+      [HangupHandler.pozvonim]: this.pozvonimHangupHandler,
+    };
+  }
+
+  async parseEvent(event: AsteriskNewExten): Promise<void> {
+    try {
+      return await this.parseNewExtenEvent(event);
+    } catch (e) {
+      this.log.error(String(event), NewExtenEventParser.name);
+    }
+  }
+
+  private async parseNewExtenEvent(event: AsteriskNewExten): Promise<void> {
+    try {
+      if (
+        [HangupHandler.outbound, HangupHandler.inbound, HangupHandler.pozvonim].includes(event.context as HangupHandler) &&
+        event.application === 'NoOp'
+      ) {
+        await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
+        await this.getProvider(event.context as HangupHandler).handler(event);
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private getProvider(context: HangupHandler): AsteriskHangupHandlerProviderInterface {
+    return this.providers[context];
   }
 }

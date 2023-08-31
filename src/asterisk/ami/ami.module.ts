@@ -3,7 +3,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AsteriskAmi } from './ami';
 import { AmiActionService } from './services/action-service';
-import { BlindTransferEventParser, DialBeginEventParser, HangupEventParser, NewExtenEventParser } from './events';
+import {
+  BaseHangupHandlerService,
+  BlindTransferEventParser,
+  DialBeginEventParser,
+  HangupEventParser,
+  InboundHangupHandler,
+  NewExtenEventParser,
+  OutboundHangupHandler,
+  PozvonimHangupHandler,
+} from './events';
 import { LogModule } from '@app/log/log.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
@@ -36,6 +45,10 @@ const amiProvidersName = getAsteriskAmiProvidesName();
     BlindTransferEventParser,
     DialBeginEventParser,
     NewExtenEventParser,
+    BaseHangupHandlerService,
+    OutboundHangupHandler,
+    InboundHangupHandler,
+    PozvonimHangupHandler,
   ],
   exports: [...amiProvidersName, AsteriskAmi, AmiActionService],
 })

@@ -11,7 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AsteriskUtilsService } from '../asterisk.utils';
 import { PozvonimCallDataAdapter } from './adapters/pozvonim-call.adapter';
 import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication } from './applications';
-import { AriACallService } from './ari-call.service';
+import { AriCallService } from './ari-call.service';
 import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
 
 const asteriskAriProviders = createAsteriskAri();
@@ -33,7 +33,7 @@ const ariProvidersName = getAsteriskAriProvidesName();
     AriIncomingCallApplication,
     AriBlackListApplication,
     AriChanSpyApplication,
-    AriACallService,
+    AriCallService,
     AsteriskUtilsService,
     PozvonimCallDataAdapter,
     PozvonimAriCall,
@@ -41,6 +41,6 @@ const ariProvidersName = getAsteriskAriProvidesName();
     CheckSpamNumberAriCall,
     CheckOperatorSpamAriCall,
   ],
-  exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriACallService],
+  exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriCallService],
 })
 export class AriModule {}
