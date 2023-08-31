@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtTokenConfType } from '../interfaces/auth.enum';
 import { TokenPayload } from '../interfaces/auth.interfaces';
 import { AuthUserService } from '../services/auth-user.service';
+import { JwtTokenConfType } from '@app/config/interfaces/config.enum';
 import { Users } from '@app/users/users.schema';
 
 @Injectable()

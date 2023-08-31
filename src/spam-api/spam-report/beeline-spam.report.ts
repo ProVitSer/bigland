@@ -1,7 +1,7 @@
 import { LogService } from '@app/log/log.service';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { Injectable } from '@nestjs/common';
-import { ReportData, ReportCreator } from '../../reports/interfaces/report.interfaces';
+import { ReportData, ReportCreator } from '../../reports/interfaces/reports.interfaces';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
 import { SpamApiService } from '@app/spam-api/services/spam-api.service';

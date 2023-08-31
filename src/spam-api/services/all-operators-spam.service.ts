@@ -9,7 +9,6 @@ import { Spam, SpamCheckResult } from '../spam.schema';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { SpamType } from '../interfaces/spam-api.enum';
-import { SpamReportService } from './spam-report.service';
 import { SpamModelService } from './spam-model.service';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 
@@ -20,7 +19,6 @@ export class AllOperatorsSpamService {
   constructor(
     private readonly log: LogService,
     private readonly spamApiService: SpamApiService,
-    private readonly spamReportService: SpamReportService,
     private readonly spamModelService: SpamModelService,
     private readonly biglandService: BiglandService,
     private readonly operatorsService: OperatorsService,

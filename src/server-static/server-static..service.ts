@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 export class ServerStaticService {
   constructor(private readonly configService: ConfigService) {}
 
-  public getStaticUrl() {
+  public getStaticUrl(): string {
     return `${this.configService.get('appProtocol')}://${this.configService.get('appUrl')}:${this.configService.get(
       'appPort',
     )}${this.configService.get('serveStatic')}`;

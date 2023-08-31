@@ -3,7 +3,7 @@ import { RabbitSubscribe, Nack } from '@golevelup/nestjs-rabbitmq';
 import { Cdr, CdrDocument } from './cdr.schema';
 import { CdrService } from './cdr.service';
 import { UtilsService } from '@app/utils/utils.service';
-import { QueueTypes } from './interfaces/cdr.enum';
+import { MQExchange, MQQueue } from './interfaces/cdr.enum';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CdrPubSubInfo } from './interfaces/cdr.interfaces';
@@ -14,8 +14,8 @@ export class CdrMessagingService {
   constructor(@InjectModel(Cdr.name) private cdrModel: Model<CdrDocument>, private readonly cdrService: CdrService) {}
 
   @RabbitSubscribe({
-    exchange: 'presence',
-    queue: QueueTypes.cdr,
+    exchange: MQExchange.presence,
+    queue: MQQueue.cdr,
   })
   public async pubSubHandler(msg: CdrPubSubInfo): Promise<void | Nack> {
     try {

@@ -5,7 +5,7 @@ import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { REPORT_RESULT_SUB_TIMER } from '@app/reports/reports.constants';
 import { SpamApiService } from '@app/spam-api/services/spam-api.service';
 import { Spam } from '@app/spam-api/spam.schema';
-import { ReportCreator, ReportData } from '@app/reports/interfaces/report.interfaces';
+import { ReportCreator, ReportData } from '@app/reports/interfaces/reports.interfaces';
 import { SpamReportService } from '../services/spam-report.service';
 import { BiglandService } from '@app/bigland/bigland.service';
 import { SpamType } from '../interfaces/spam-api.enum';

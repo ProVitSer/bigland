@@ -30,7 +30,7 @@ export class CdrSchedule {
       };
       const noCompleteCdr = await this.cdrModel.find(criteria);
       if (noCompleteCdr.length == 0) return;
-      this.log.info(JSON.stringify(noCompleteCdr), CdrSchedule.name);
+      this.log.info(noCompleteCdr, CdrSchedule.name);
     } catch (e) {
       this.log.error(e, CdrSchedule.name);
     }

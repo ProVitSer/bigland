@@ -25,3 +25,8 @@ export interface RequestWithUser extends Request {
 export class GetApiTokenReponse {
   accessToken: string;
 }
+
+export interface CookieJwtRefreshData {
+  cookie: string;
+  token: string;
+}

@@ -3,9 +3,9 @@ import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { JwtTokenConfType } from '../interfaces/auth.enum';
-import { JwtPayload, GetApiTokenReponse } from '../interfaces/auth.interfaces';
+import { JwtPayload, GetApiTokenReponse, CookieJwtRefreshData } from '../interfaces/auth.interfaces';
 import { Request } from 'express';
+import { JwtTokenConfType } from '@app/config/interfaces/config.enum';
 import { Users } from '@app/users/users.schema';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class AuthTokenService {
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.access).expiresIn}`;
   }
 
-  public async getCookieWithJwtRefreshToken(userId: string) {
+  public async getCookieWithJwtRefreshToken(userId: string): Promise<CookieJwtRefreshData> {
     const token = await this.getToken(userId, JwtTokenConfType.refresh);
     const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(JwtTokenConfType.refresh).expiresIn}`;
     return {
@@ -54,7 +54,7 @@ export class AuthTokenService {
     return await this.usersService.removeRefreshToken(userId);
   }
 
-  public async varifyToken(token: string, jwtConfType: JwtTokenConfType) {
+  public async verifyToken(token: string, jwtConfType: JwtTokenConfType) {
     try {
       return await this.jwtService.verify(token, this.configService.get(jwtConfType).tokenSecretKey);
     } catch (e) {

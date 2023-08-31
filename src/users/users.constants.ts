@@ -1,1 +1,1 @@
-export const USER_NOT_FOUND = 'User with this id does not exist';
+export const USER_NOT_FOUND = 'Пользователь с данным id не найден';

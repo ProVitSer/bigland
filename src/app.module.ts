@@ -12,7 +12,6 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UtilsModule } from './utils/utils.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GsmGatewayApiModule } from './gsm-gateway-api/gsm-gateway-api.module';
 import { FreepbxApiModule } from './freepbx-api/freepbx-api.module';
 import { MailModule } from './mail/mail.module';
 import { SystemModule } from './system/system.module';
@@ -22,15 +21,12 @@ import { AmocrmUsersModule } from './amocrm-users/amocrm-users.module';
 import { AsteriskApiModule } from './asterisk-api/asterisk-api.module';
 import { AmocrmModule } from './amocrm/amocrm.module';
 import { getMongoUseFactory } from './config/project-configs/mongo.config';
-import { HealthModule } from './health/health.module';
 import { OperatorsModule } from './operators/operators.module';
 import { ReportsModule } from './reports/reports.module';
 import { FilesApiModule } from './files-api/files-api.module';
 import { ServerStaticModule } from './server-static/server-static.module';
 import { SpamApiModule } from './spam-api/spam-api.module';
 import { BiglandModule } from './bigland/bigland.module';
-// import { SpamApiModule } from './spam-api/spam-api.module';
-// import { BiglandModule } from './bigland/bigland.module';
 import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module';
 import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.module';
 
@@ -42,7 +38,6 @@ import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.mod
       useFactory: getMongoUseFactory,
       inject: [ConfigService],
     }),
-    //HealthModule,
     LogModule,
     TelegramModule,
     CdrModule,
@@ -53,7 +48,6 @@ import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.mod
     AuthModule,
     UsersModule,
     UtilsModule,
-    GsmGatewayApiModule,
     FreepbxApiModule,
     MailModule,
     SystemModule,

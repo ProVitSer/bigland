@@ -4,8 +4,12 @@ export enum CallType {
   pozvonim = 'pozvonim',
 }
 
-export enum QueueTypes {
+export enum MQQueue {
   cdr = 'cdr',
+}
+
+export enum MQExchange {
+  presence = 'presence',
 }
 
 export enum Disposition {
