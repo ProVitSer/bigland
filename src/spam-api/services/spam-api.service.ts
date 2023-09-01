@@ -26,9 +26,12 @@ import { SpamDataAdapter } from '../adapters/spam-data.adapter';
 import { ConfigService } from '@nestjs/config';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
 import { CheckBatchOperatorAdapter } from '../adapters/chack-batch-operator.adapter';
+import { ReportsEnviromentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class SpamApiService {
+  private reportsConfig = this.configService.get<ReportsEnviromentVariables>('reports');
+
   constructor(
     private readonly biglandService: BiglandService,
     private readonly ari: AriCallService,
@@ -45,7 +48,7 @@ export class SpamApiService {
     try {
       const checkCriteria: CheckOperatorNumbersDTO = {
         operator: operatorsName,
-        dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
+        dstNumber: verificationNumber || this.reportsConfig.spam.verificationNumber,
       };
       return await this.checkOperatorNumbers(checkCriteria, spamType);
     } catch (e) {
@@ -78,7 +81,7 @@ export class SpamApiService {
   private async _checkBatch(operatorInfo: Operators, defaultApiStruct: DefaultApplicationApiStruct): Promise<void> {
     this._checkOperatorNumbers(
       {
-        dstNumber: this.configService.get('reports.spam.verificationNumber'),
+        dstNumber: this.reportsConfig.spam.verificationNumber,
         operator: operatorInfo.name,
         applicationId: defaultApiStruct.applicationId,
       },

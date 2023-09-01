@@ -12,9 +12,13 @@ import { Spam, SpamCheckResult } from '@app/spam-api/spam.schema';
 import { SPAM_STATUS_DESCRIPTION } from '../spam-api.constants';
 import * as json2xls from 'json2xls';
 import { FileFormatType } from '@app/files-api/interfaces/files.enum';
+import { MailEnvironmentVariables, ReportsEnviromentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class SpamReportService {
+  private reportsConfig = this.configService.get<ReportsEnviromentVariables>('reports');
+  private mailConfig = this.configService.get<MailEnvironmentVariables>('mail');
+
   constructor(
     private readonly configService: ConfigService,
     private readonly filesCreate: FilesCreateService,
@@ -24,9 +28,9 @@ export class SpamReportService {
   public async getMailData(operatorsName: OperatorsName, data: ReportData[]): Promise<SendMailData> {
     const attachments = await this.getAttachmentsData(data);
     return {
-      to: this.configService.get('reports.spam.to'),
-      from: this.configService.get('mail.from'),
-      subject: `${this.configService.get('reports.spam.subject')} ${operatorsName} за ${moment().format(REPORT_DATE_FORMAT)}`,
+      to: this.reportsConfig.spam.to,
+      from: this.mailConfig.from,
+      subject: `${this.reportsConfig.spam.subject} ${operatorsName} за ${moment().format(REPORT_DATE_FORMAT)}`,
       context: this.formatReportsLink(attachments),
       attachments,
       template: TemplateTypes.spamReport,

@@ -8,12 +8,12 @@ import { ITokenData } from 'amocrm-js/dist/interfaces/common';
 import { INIT_AMO, INIT_AMO_ERROR, INIT_AMO_SUCCESS } from '../../amocrm.constants';
 import { AmocrmAPIV4 } from '../../interfaces/amocrm.enum';
 import { UtilsService } from '@app/utils/utils.service';
+import { AmocrmEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AmocrmV4AuthService {
   public amocrmClient: Client;
-  private tokenPath: string = this.configService.get('amocrm.tokenPath');
-
+  private amocrmConfig = this.configService.get<AmocrmEnvironmentVariables>('amocrm');
   constructor(
     @Inject('AMOCRM') private readonly amocrm: Client,
     private readonly configService: ConfigService,
@@ -33,7 +33,7 @@ export class AmocrmV4AuthService {
   }
 
   public async getToken(): Promise<ITokenData> {
-    const token = await readFile(path.join(__dirname, '..', this.tokenPath));
+    const token = await readFile(path.join(__dirname, '..', this.amocrmConfig.tokenPath));
     return JSON.parse(token.toString());
   }
 
@@ -56,7 +56,7 @@ export class AmocrmV4AuthService {
 
   private async getConfigToken(): Promise<ITokenData> {
     try {
-      const isFileExist = await UtilsService.isAccessible(path.join(__dirname, '..', this.tokenPath));
+      const isFileExist = await UtilsService.isAccessible(path.join(__dirname, '..', this.amocrmConfig.tokenPath));
       if (!isFileExist) {
         await this.amocrmAuth();
       }
@@ -72,7 +72,7 @@ export class AmocrmV4AuthService {
       console.log('Вам нужно перейти по ссылке и выдать права на аккаунт, а после перезагрузить приложение', authUrl);
       await this.amocrm.request.get(AmocrmAPIV4.account);
       const tokenInit: ITokenData = this.amocrm.token.getValue();
-      await writeFile(path.join(__dirname, this.tokenPath), JSON.stringify(tokenInit));
+      await writeFile(path.join(__dirname, this.amocrmConfig.tokenPath), JSON.stringify(tokenInit));
       return;
     } catch (e) {
       throw e;
@@ -81,7 +81,7 @@ export class AmocrmV4AuthService {
 
   private async refreshToken(): Promise<void> {
     const token: ITokenData = await this.amocrm.token.refresh();
-    return await writeFile(path.join(__dirname, this.tokenPath), JSON.stringify(token));
+    return await writeFile(path.join(__dirname, this.amocrmConfig.tokenPath), JSON.stringify(token));
   }
 
   private handleConnection(): Promise<void> {

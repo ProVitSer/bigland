@@ -13,9 +13,12 @@ import { PbxCallRoutingService } from '@app/pbx-call-routing/services/pbx-call-r
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { FreePBXDeleteUsersDto } from './dto/freepbx-delete-users.dto';
 import { TelegramService } from '@app/telegram/telegram.service';
+import { MailEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class FreepbxUsersApiService {
+  private mailConfig = this.configService.get<MailEnvironmentVariables>('mail');
+
   constructor(
     private readonly configService: ConfigService,
     private readonly log: LogService,
@@ -78,7 +81,7 @@ export class FreepbxUsersApiService {
           password: data.password,
         },
         template: TemplateTypes.userCreate,
-        from: this.configService.get('mail.from'),
+        from: this.mailConfig.from,
         subject: `Авторизационные данные для добавочного ${data.extension}`,
       };
       await this.mailService.sendMail(mailData);

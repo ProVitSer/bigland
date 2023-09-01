@@ -16,10 +16,12 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { PbxCallRoutingService } from '@app/pbx-call-routing/services/pbx-call-routing.service';
 import { ExtensionRouteInfo } from '@app/pbx-call-routing/interfaces/pbx-call-routing.interfaces';
 import { CallData, IncomingCallRoutingInfo } from '../interfaces/ari.interfaces';
+import { AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AriIncomingCallApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
 
   constructor(
     @Inject(AsteriskAriProvider.amocrm) private readonly ari: { ariClient: Ari.Client },
@@ -32,7 +34,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
 
   public async onApplicationBootstrap() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      const amocrmConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.amocrm);
+      const amocrmConf = AsteriskUtilsService.getStasis(this.asteriskConfig.ari, AsteriskAriProvider.amocrm);
       this.client = this.ari;
       this.client.ariClient.on('StasisStart', async (stasisStartEvent: StasisStart) => {
         try {

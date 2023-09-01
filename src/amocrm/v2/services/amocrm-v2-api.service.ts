@@ -15,9 +15,13 @@ export class AmocrmV2ApiService {
     try {
       const result = await firstValueFrom(
         this.httpService
-          .post(`${this.amocrm.amocrmApiV2Domain}${AmocrmAPIV2.events}`, this.getEventsData(incomingNumber, eventResponsibleUserId), {
-            headers: { Cookie: await this.amocrm.getAuthCookies() },
-          })
+          .post(
+            `${this.amocrm.amocrmConfig.v2.apiV2Domain}${AmocrmAPIV2.events}`,
+            this.getEventsData(incomingNumber, eventResponsibleUserId),
+            {
+              headers: { Cookie: await this.amocrm.getAuthCookies() },
+            },
+          )
           .pipe(
             catchError((error: AxiosError) => {
               throw error;

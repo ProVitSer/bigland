@@ -7,10 +7,12 @@ import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../../asterisk.utils';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
 import { HangupReason } from '../interfaces/ari.enum';
+import { AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
 
   constructor(
     @Inject(AsteriskAriProvider.blacklist) private readonly ari: { ariClient: Ari.Client },
@@ -21,7 +23,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
 
   public async onApplicationBootstrap() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      const blacklistConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
+      const blacklistConf = AsteriskUtilsService.getStasis(this.asteriskConfig.ari, AsteriskAriProvider.blacklist);
 
       this.client = this.ari;
 

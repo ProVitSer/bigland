@@ -21,11 +21,13 @@ import {
   INVALIDE_PEER,
 } from './ami.constants';
 import { AsteriskEventType } from './interfaces/ami.enum';
+import { AmiAsteriskEnvironmentVariables, AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AsteriskAmi implements OnApplicationBootstrap {
   private client: any;
-
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
+  private amiConfig = this.asteriskConfig.ami.filter((a: AmiAsteriskEnvironmentVariables) => a.providerName == AsteriskAmiProvider.ami)[0];
   constructor(
     @Inject(AsteriskAmiProvider.ami) private readonly ami: any,
     private readonly configService: ConfigService,
@@ -49,7 +51,7 @@ export class AsteriskAmi implements OnApplicationBootstrap {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
       try {
         this.client = await this.ami;
-        this.client.logLevel = this.configService.get('asterisk.ami.logLevel');
+        this.client.logLevel = this.amiConfig.logLevel;
         this.client.open();
         this.client.on('namiConnected', () => this.log.info(AMI_CONNECT_SUCCESS, AsteriskAmi.name));
         this.client.on('namiConnectionClose', () => this.connectionClose());

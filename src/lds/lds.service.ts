@@ -7,9 +7,12 @@ import { Item, LdsUseresponse } from './interfaces/lds.interfaces';
 import { Lds, LdsDocument } from './lds.schema';
 import { AxiosError } from 'axios';
 import { firstValueFrom, catchError } from 'rxjs';
+import { LDSEnviromentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class LdsService {
+  private ldsConfig = this.configService.get<LDSEnviromentVariables>('lds');
+
   constructor(
     private httpService: HttpService,
     private readonly configService: ConfigService,
@@ -28,7 +31,7 @@ export class LdsService {
   private async getLSDUserStatus(): Promise<LdsUseresponse> {
     try {
       const result = await firstValueFrom(
-        this.httpService.get(this.configService.get('lds.url')).pipe(
+        this.httpService.get(this.ldsConfig.url).pipe(
           catchError((error: AxiosError) => {
             throw error;
           }),

@@ -1,16 +1,16 @@
 import { ConfigService } from '@nestjs/config';
 import { SequelizeModuleOptions } from '@nestjs/sequelize';
-import { DatabaseEnvironmentVariables } from '../interfaces/config.interface';
+import { ConfigEnvironmentVariables } from '../interfaces/config.interface';
 
-export const getMariadbUseFactory = async (configService: ConfigService): Promise<SequelizeModuleOptions> => {
+export const getMariadbUseFactory = async (configService: ConfigService<ConfigEnvironmentVariables>): Promise<SequelizeModuleOptions> => {
   return {
     ...getMariadbConfig(configService),
     ...getMariadbOptions(),
   };
 };
 
-const getMariadbConfig = (configService: ConfigService): SequelizeModuleOptions => {
-  const { username, password, database, host, port } = configService.get('database.mariadb') as DatabaseEnvironmentVariables;
+const getMariadbConfig = (configService: ConfigService<ConfigEnvironmentVariables>): SequelizeModuleOptions => {
+  const { username, password, database, host, port } = configService.get('database.mariadb', { infer: true });
   return {
     dialect: 'mariadb',
     dialectOptions: {

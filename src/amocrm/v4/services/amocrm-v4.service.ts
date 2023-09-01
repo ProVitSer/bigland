@@ -16,10 +16,13 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AmocrmCallDataAdapter, AmocrmCreateContactDataAdapter, AmocrmCreateLeadDataAdapter } from '../../adapters';
 import { AmocrmV4ApiService } from './amocrm-v4-api.service';
 import { CallData } from '@app/asterisk/ari/interfaces/ari.interfaces';
+import { AmocrmEnvironmentVariables, AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AmocrmV4Service {
-  private readonly recordUrl = `${this.configService.get('amocrm.recordDomain')}${this.configService.get('asterisk.recordPath')}`;
+  private amocrmConfig = this.configService.get<AmocrmEnvironmentVariables>('amocrm');
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
+  private readonly recordUrl = `${this.amocrmConfig.recordDomain}${this.asteriskConfig.recordPath}`;
 
   constructor(
     private readonly log: LogService,

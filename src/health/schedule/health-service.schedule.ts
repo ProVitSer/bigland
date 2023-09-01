@@ -15,6 +15,8 @@ import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 export class HealthScheduledService {
   private mailSendInfo: MailSendInfo;
   private serviceContext: string;
+  private healthConfig = this.configService.get<HealthMailEnvironmentVariables>('health');
+
   constructor(
     private readonly configService: ConfigService,
     private readonly log: LogService,
@@ -71,7 +73,7 @@ export class HealthScheduledService {
   }
 
   private getSendMailInfoData(healthResult: HealthCheckMailFormat): SendMailData {
-    const { mail } = this.configService.get('health') as HealthMailEnvironmentVariables;
+    const { mail } = this.healthConfig;
     return {
       to: mail.mailListNotifyer,
       from: mail.from,

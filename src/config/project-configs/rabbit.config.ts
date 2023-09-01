@@ -1,7 +1,8 @@
 import { RabbitMQConfig } from '@golevelup/nestjs-rabbitmq';
 import { ConfigService } from '@nestjs/config';
+import { ConfigEnvironmentVariables } from '../interfaces/config.interface';
 
-export const getRabbitMQConfig = async (configService: ConfigService): Promise<RabbitMQConfig> => {
+export const getRabbitMQConfig = async (configService: ConfigService<ConfigEnvironmentVariables>): Promise<RabbitMQConfig> => {
   return {
     exchanges: [
       {
@@ -9,7 +10,7 @@ export const getRabbitMQConfig = async (configService: ConfigService): Promise<R
         type: 'topic',
       },
     ],
-    uri: configService.get<string>('rabbitMqUrl'),
+    uri: configService.get('rabbitMqUrl'),
     connectionInitOptions: { wait: false },
     prefetchCount: 1,
   };

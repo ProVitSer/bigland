@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Login } from './login';
 import { By, WebDriver } from 'selenium-webdriver';
 import { SetGeneralSetting, CreateUserResult, CreatePbxUserData } from '../interfaces/freepbx-api.interfaces';
 import { FreepbxSubmitChange } from './submit-change';
 import { LogService } from '@app/log/log.service';
+import { FreepbxEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class FreepbxCreateUser {
   private webDriver: WebDriver;
+  private freepbxConfig = this.configService.get<FreepbxEnvironmentVariables>('freepbx');
+
   constructor(
-    private readonly login: Login,
     private readonly configService: ConfigService,
     private readonly submitChange: FreepbxSubmitChange,
     private readonly log: LogService,
@@ -28,9 +29,7 @@ export class FreepbxCreateUser {
   private async create(data: CreatePbxUserData): Promise<CreateUserResult> {
     try {
       this.webDriver = data.webDriver;
-      await this.webDriver.get(
-        `https://${this.configService.get('freepbx.domain')}/admin/config.php?display=extensions&tech_hardware=pjsip_generic`,
-      );
+      await this.webDriver.get(`https://${this.freepbxConfig.domain}/admin/config.php?display=extensions&tech_hardware=pjsip_generic`);
       await this.webDriver.sleep(5000);
       const userSetting = await this.setGeneralSetting(data);
 

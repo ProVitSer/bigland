@@ -8,9 +8,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { TelegramService } from '@app/telegram/telegram.service';
 import { ITokenData } from 'amocrm-js/dist/interfaces/common';
 import { AmocrmV4RequestService } from '../v4/services/amocrm-v4-request.service';
+import { AmocrmEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AmocrmUpdateTokenSchedule {
+  private amocrmConfig = this.configService.get<AmocrmEnvironmentVariables>('amocrm');
   constructor(
     private readonly configService: ConfigService,
     private readonly log: LogService,
@@ -36,7 +38,7 @@ export class AmocrmUpdateTokenSchedule {
 
   private async saveToken(token: ITokenData): Promise<void> {
     this.log.info(`Новый токен: ${JSON.stringify(token)}`, AmocrmUpdateTokenSchedule.name);
-    await writeFile(path.join(__dirname, this.configService.get('amocrm.tokenPath')), JSON.stringify(token));
+    await writeFile(path.join(__dirname, this.amocrmConfig.tokenPath), JSON.stringify(token));
     this.log.info('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
     this.tg.tgAlert('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
   }
