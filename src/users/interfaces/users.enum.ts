@@ -3,4 +3,5 @@ export enum Role {
   Admin = 'Admin',
   Api = 'Api',
   Tts = 'Tts',
+  Asterisk = 'Asterisk',
 }

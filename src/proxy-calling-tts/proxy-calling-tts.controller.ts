@@ -10,6 +10,8 @@ import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { ProxyCallingTtsUtils } from './proxy-calling-tts.utils';
 
 @Controller('calling')
+@UseGuards(RoleGuard([Role.Admin, Role.Asterisk]))
+@UseGuards(JwtGuard)
 export class ProxyCallingResultController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
