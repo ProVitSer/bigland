@@ -5,6 +5,7 @@ import { HealthService } from './health.service';
 import { ReturnHealthFormatType } from './interfaces/health.enum';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller()
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
@@ -15,6 +16,7 @@ export class HealthController {
 
   @Get('health')
   @HealthCheck()
+  @ApiExcludeEndpoint()
   async healthCheck() {
     return await this.healthService.check<HealthCheckResult>(ReturnHealthFormatType.http);
   }

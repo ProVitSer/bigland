@@ -3,12 +3,14 @@ import { AmocrmDto } from '../dto/amocrm.dto';
 import { Response } from 'express';
 import { AmocrmApiService } from '../services/amocrm-api.service';
 import { LogService } from '@app/log/log.service';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller()
 export class AmocrmApiController {
   constructor(private readonly amocrmApiService: AmocrmApiService, private readonly log: LogService) {}
 
   @Get('amocrm*')
+  @ApiExcludeEndpoint()
   async amocrmGet(@Res() res: Response, @Query() query: AmocrmDto) {
     try {
       const result = await this.amocrmApiService.amocrmWidget(query);

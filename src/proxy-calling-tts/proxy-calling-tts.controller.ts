@@ -8,6 +8,7 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { HttpExceptionFilter } from '@app/http/http-exception.filter';
 import { ProxyCallingTtsUtils } from './proxy-calling-tts.utils';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('calling')
 @UseGuards(RoleGuard([Role.Admin, Role.Asterisk]))
@@ -16,6 +17,7 @@ export class ProxyCallingResultController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
   @Post('result')
+  @ApiExcludeEndpoint()
   async result(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -40,6 +42,7 @@ export class ProxyCallingController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
   @Post('task')
+  @ApiExcludeEndpoint()
   async setCallingTask(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -56,6 +59,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/stop')
+  @ApiExcludeEndpoint()
   async stopTask(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -72,6 +76,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/cancel')
+  @ApiExcludeEndpoint()
   async cancelTask(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -88,6 +93,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/continue')
+  @ApiExcludeEndpoint()
   async continueTask(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -104,6 +110,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/update/voice-file')
+  @ApiExcludeEndpoint()
   async updteFileTask(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -120,6 +127,7 @@ export class ProxyCallingController {
   }
 
   @Get('task/result/:applicationId')
+  @ApiExcludeEndpoint()
   async getTaskResult(@Req() req: Request, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -144,6 +152,7 @@ export class ProxyTtsController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
   @Post('convert/file')
+  @ApiExcludeEndpoint()
   async convertFile(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -160,6 +169,7 @@ export class ProxyTtsController {
   }
 
   @Post('voices')
+  @ApiExcludeEndpoint()
   async getVoicesList(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -176,6 +186,7 @@ export class ProxyTtsController {
   }
 
   @Post('convert/online')
+  @ApiExcludeEndpoint()
   async convertOnline(@Req() req: Request, @Body() requestData: any, @Res() res: Response) {
     try {
       const result = await firstValueFrom(
@@ -196,6 +207,7 @@ export class ProxyTtsController {
   }
 
   @Get('file/:fileId')
+  @ApiExcludeEndpoint()
   async getTTSFile(@Req() req: Request, @Res() res: Response) {
     try {
       const result = await firstValueFrom(

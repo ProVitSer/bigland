@@ -9,6 +9,7 @@ import { PbxCallRoutingService } from '../services/pbx-call-routing.service';
 import { ExtensionRouteDTO } from '../dto/extension-route.dto';
 import { UpdateGroupRouteDTO } from '../dto/update-group-route.dto';
 import { AddExtensionRouteDTO } from '../dto/add-extension-route.dto';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('pbx-call-routing')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
@@ -28,6 +29,7 @@ export class PbxCallRoutingController {
   }
 
   @Post('update/group')
+  @ApiExcludeEndpoint()
   async updateGroupRoute(@Req() req: Request, @Body() body: UpdateGroupRouteDTO, @Res() res: Response) {
     try {
       const result = await this.pbxCallRoutingService.updateGroupRoute(body);
@@ -38,6 +40,7 @@ export class PbxCallRoutingController {
   }
 
   @Post('add')
+  @ApiExcludeEndpoint()
   async addExtensionsRoute(@Req() req: Request, @Body() body: AddExtensionRouteDTO, @Res() res: Response) {
     try {
       const result = await this.pbxCallRoutingService.addExtensionsRoute(body.extensionRoutes);

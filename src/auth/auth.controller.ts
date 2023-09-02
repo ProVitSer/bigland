@@ -10,6 +10,7 @@ import { AuthTokenService } from './services/auth-token.service';
 import { JwtGuard } from './guard/jwt.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { RoleGuard } from './guard/role.guard';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('auth')
 @UseGuards(RoleGuard([Role.Admin]))
@@ -23,6 +24,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @ApiExcludeEndpoint()
   async register(@Req() req: Request, @Res() res: Response, @Body() registrationData: RegisterDto) {
     try {
       const user = await this.authUserService.register(registrationData);
@@ -35,6 +37,7 @@ export class AuthController {
   @Post('apiToken')
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
+  @ApiExcludeEndpoint()
   async getApiToken(@Req() req: RequestWithUser, @Res() res: Response) {
     try {
       const { user } = req;

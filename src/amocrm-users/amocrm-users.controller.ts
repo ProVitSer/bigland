@@ -6,6 +6,7 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { AmocrmUsersService } from './amocrm-users.service';
 import { Request, Response } from 'express';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 @Controller('amocrm-users')
 @UseGuards(RoleGuard([Role.Admin]))
@@ -15,6 +16,7 @@ export class AmocrmUsersController {
   constructor(private readonly http: HttpResponseService, private readonly amocrmUsersService: AmocrmUsersService) {}
 
   @Post('update')
+  @ApiExcludeEndpoint()
   async updateLdsInfo(@Req() req: Request, @Res() res: Response) {
     try {
       await this.amocrmUsersService.updateAmocrmUsers();
