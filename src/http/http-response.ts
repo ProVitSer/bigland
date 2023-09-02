@@ -12,37 +12,18 @@ export class HttpResponseService {
 
   public response(req: Request, res: Response, status: HttpStatus, data?: any): Response {
     this.path = req.url;
-    const response = this.getResponseStruct(status, true, data);
-    this.logData(LogEventType.api_success, response);
-    return res.status(response.statusCode).json(response);
+    this.logData(LogEventType.api_success, { data });
+    return res.status(status).json({ data });
   }
 
   public exeption(req: Request, res: Response, exception: HttpException): Response {
     this.path = req.url;
     const errorBody = exception.getResponse() as DataObject;
-    const response = this.getResponseStruct(exception.getStatus(), false, '', errorBody?.message);
-    this.logData(LogEventType.api_error, response);
-    return res.status(response.statusCode).json(response);
+    this.logData(LogEventType.api_error, { error: errorBody?.message });
+    return res.status(exception.getStatus()).json({ error: errorBody?.message });
   }
 
-  private getResponseStruct(status: number, result: boolean, data?: string | DataObject, error?: object): HttpResponse {
-    const dataResponse = !!data ? { data } : {};
-    const errorResponse = !!error ? { error } : {};
-
-    const jsonResponse: HttpResponse = {
-      statusCode: status,
-      result,
-      ...dataResponse,
-      ...errorResponse,
-      path: this.path,
-      timestamp: new Date().toISOString(),
-      createdBy: 'VPNP',
-    };
-
-    return jsonResponse;
-  }
-
-  private logData(logEventType: LogEventType, jsonResponse: HttpResponse): HttpResponse {
+  private logData(logEventType: LogEventType, jsonResponse: DataObject): HttpResponse {
     this.log.info(jsonResponse, HttpResponseService.name);
     this.log.saveLog(logEventType, jsonResponse);
     return jsonResponse;
