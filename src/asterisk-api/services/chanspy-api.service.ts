@@ -26,7 +26,7 @@ export class ChanspyApiService {
     }
   }
 
-  public async generatePassword(): Promise<ChanspyPasswordResult> {
+  public async renewPassword(): Promise<ChanspyPasswordResult> {
     try {
       const newPassword = UtilsService.generateRandomNumber(4);
       const currentConfig = await this.system.getConfig();

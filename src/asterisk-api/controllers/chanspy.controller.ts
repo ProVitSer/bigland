@@ -35,10 +35,10 @@ export class ChanspyApiController {
     }
   }
 
-  @Get('generate-password')
+  @Get('renew-password')
   async generateChanspyPassword(@Req() req: Request, @Res() res: Response) {
     try {
-      const password = await this.chanspyService.generatePassword();
+      const password = await this.chanspyService.renewPassword();
       return this.http.response(req, res, HttpStatus.OK, password);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
