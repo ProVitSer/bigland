@@ -32,7 +32,7 @@ export class PbxCallRoutingModule {
     consumer
       .apply(LoggerMiddleware, AllowedIpMiddleware)
       .forRoutes(PbxCallRoutingController)
-      .apply(LoggerMiddleware)
+      .apply(LoggerMiddleware, AllowedIpMiddleware)
       .forRoutes(RouteInfoController);
   }
 }
