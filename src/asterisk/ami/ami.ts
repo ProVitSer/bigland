@@ -48,22 +48,22 @@ export class AsteriskAmi implements OnApplicationBootstrap {
   }
 
   public async onApplicationBootstrap() {
-    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      try {
-        this.client = await this.ami;
-        this.client.logLevel = this.amiConfig.logLevel;
-        this.client.open();
-        this.client.on('namiConnected', () => this.log.info(AMI_CONNECT_SUCCESS, AsteriskAmi.name));
-        this.client.on('namiConnectionClose', () => this.connectionClose());
-        this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
-        this.client.on('namiInvalidPeer', () => this.invalidPeer());
+    try {
+      this.client = await this.ami;
+      this.client.logLevel = this.amiConfig.logLevel;
+      this.client.open();
+      this.client.on('namiConnected', () => this.log.info(AMI_CONNECT_SUCCESS, AsteriskAmi.name));
+      this.client.on('namiConnectionClose', () => this.connectionClose());
+      this.client.on('namiLoginIncorrect', () => this.loginIncorrect());
+      this.client.on('namiInvalidPeer', () => this.invalidPeer());
+      if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
         this.client.on(
           'namiEventDialBegin',
           async (event: AsteriskDialBeginEvent) => await this.namiEvent(event, AsteriskEventType.DialBeginEvent),
         );
-      } catch (e) {
-        this.log.error(`${ERROR_AMI}: ${e}`, AsteriskAmi.name);
       }
+    } catch (e) {
+      this.log.error(`${ERROR_AMI}: ${e}`, AsteriskAmi.name);
     }
   }
 
@@ -81,12 +81,17 @@ export class AsteriskAmi implements OnApplicationBootstrap {
   }
 
   public async amiClientSend<T>(action: any): Promise<T> {
-    return await new Promise((resolve) => {
-      this.client.send(action, (event: any) => {
-        this.log.info(event, AsteriskAmi.name);
-        resolve(event);
+    try {
+      return await new Promise((resolve) => {
+        this.client.send(action, (event: any) => {
+          this.log.info(event, AsteriskAmi.name);
+          resolve(event);
+        });
       });
-    });
+    } catch (e) {
+      this.log.error(e, AsteriskAmi.name);
+      throw e;
+    }
   }
 
   private connectionClose(): void {
