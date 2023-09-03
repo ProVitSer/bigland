@@ -1,4 +1,4 @@
-import { DNDApiStatus, DNDStatus, HintStatus } from './interfaces/ami.enum';
+import { DNDtatus, DNDStatus, HintStatus } from './interfaces/ami.enum';
 
 export const DEFAULT_REOPEN_AMI_CLIENT = 5000;
 export const AMI_RECONECT = 'Переподключение к AMI ...';
@@ -12,12 +12,12 @@ export const DEFAULT_HANGUP_CDR_TIMEOUT = 1000;
 export const MIN_EXTERNAL_NUMBER_LENGTH = 10;
 export const DEFAULT_TIMEOUT_HANDLER = 2000;
 
-export const DND_API_TO_DND_STATUS: { [code in DNDApiStatus]: DNDStatus } = {
-  [DNDApiStatus.on]: DNDStatus.on,
-  [DNDApiStatus.off]: DNDStatus.off,
+export const DND_API_TO_DND_STATUS: { [code in DNDtatus]: DNDStatus } = {
+  [DNDtatus.on]: DNDStatus.on,
+  [DNDtatus.off]: DNDStatus.off,
 };
 
-export const DND_API_TO_HINT_STATUS: { [code in DNDApiStatus]: HintStatus } = {
-  [DNDApiStatus.on]: HintStatus.on,
-  [DNDApiStatus.off]: HintStatus.off,
+export const DND_API_TO_HINT_STATUS: { [code in DNDtatus]: HintStatus } = {
+  [DNDtatus.on]: HintStatus.on,
+  [DNDtatus.off]: HintStatus.off,
 };
