@@ -4,6 +4,7 @@ import { CheckSpamStatus, SpamType } from './spam-api.enum';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { SpamCheckNumbersInfo, SpamCheckResult } from '../spam.schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 export interface CheckOperatorSpamData {
   applicationId: string;
@@ -41,17 +42,55 @@ export interface SpamCheckInfo {
   status: CheckSpamStatus;
 }
 
-export interface SpamReportsResponseStruct {
-  applicationId: string;
-  status: ApplicationApiActionStatus;
-  resultSpamCheck: SpamCheckReportsResult[];
-  checkDate: Date;
+export class SpamCheckReportsResult {
+  @ApiProperty({
+    enum: OperatorsName,
+    enumName: 'OperatorsName',
+    description: 'Название оператора',
+    example: 'mango',
+  })
+  operator: OperatorsName;
+
+  @ApiProperty({
+    enum: CheckSpamStatus,
+    enumName: 'CheckSpamStatus',
+    description: 'Результат проврки номера',
+    example: 'normal',
+  })
+  status: CheckSpamStatus;
+
+  @ApiProperty({
+    type: String,
+    description: 'Номер проверки',
+    example: '71234567890',
+  })
+  number: string;
 }
 
-export interface SpamCheckReportsResult {
-  operator: OperatorsName;
-  status: CheckSpamStatus;
-  number: string;
+export class SpamReportsResponseStruct {
+  @ApiProperty({ type: String, description: 'Уникальный идентификатор проверки', example: '90859260-dd5c-4232-bc59-8964963a061c' })
+  applicationId: string;
+
+  @ApiProperty({
+    enum: ApplicationApiActionStatus,
+    enumName: 'ApplicationApiActionStatus',
+    description: 'Статус запуска проверки',
+    example: 'inProgress',
+    default: 'inProgress',
+  })
+  status: ApplicationApiActionStatus;
+
+  @ApiProperty({
+    type: [SpamCheckReportsResult],
+    description: 'Результат проверки',
+  })
+  resultSpamCheck: SpamCheckReportsResult[];
+
+  @ApiProperty({
+    type: Date,
+    description: 'Дата проверки',
+  })
+  checkDate: Date;
 }
 
 export interface SaveCheckNumberData {
@@ -64,4 +103,12 @@ export interface SaveCheckNumberData {
 export interface FormatSpamUpdateData {
   resultSpamCheck: SpamCheckResult[];
   status?: ApplicationApiActionStatus;
+}
+
+export class StopCheckResult {
+  @ApiProperty({
+    type: Boolean,
+    description: 'Результат остановки проверки на спам',
+  })
+  result: boolean;
 }

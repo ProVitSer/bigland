@@ -7,15 +7,25 @@ import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ChanspyPasswordResult, UpdateChanspyPasswordResult } from '../interfaces/asterisk-api.interfaces';
 
+@ApiTags('asterisk-api')
 @Controller('chanspy')
-@UseGuards(RoleGuard([Role.Admin]))
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
 export class ChanspyApiController {
   constructor(private readonly chanspyService: ChanspyApiService, private readonly http: HttpResponseService) {}
 
   @Get('password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Получить актуальный пароль для прослушки chanSpy' })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Актуальный пароль chanSpy',
+    type: ChanspyPasswordResult,
+  })
   async getChanspyPassword(@Req() req: Request, @Res() res: Response) {
     try {
       const password = await this.chanspyService.getPassword();
@@ -26,16 +36,31 @@ export class ChanspyApiController {
   }
 
   @Post('update-password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Изменить пароль для прослушки chanSpy' })
+  @ApiBody({ type: ChanspyDto })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Обновленный пароль прослушки chanSpy',
+    type: UpdateChanspyPasswordResult,
+  })
   async updateChanspyPassword(@Req() req: Request, @Body() body: ChanspyDto, @Res() res: Response) {
     try {
-      await this.chanspyService.updatePassword(body);
-      return this.http.response(req, res, HttpStatus.OK);
+      const password = await this.chanspyService.updatePassword(body);
+      return this.http.response(req, res, HttpStatus.OK, password);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get('renew-password')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Сгенерировать новый пароль для прослушки chanSpy' })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'новый сгенерированный пароль',
+    type: ChanspyPasswordResult,
+  })
   async generateChanspyPassword(@Req() req: Request, @Res() res: Response) {
     try {
       const password = await this.chanspyService.renewPassword();

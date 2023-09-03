@@ -9,8 +9,10 @@ import { PbxCallRoutingService } from '../services/pbx-call-routing.service';
 import { ExtensionRouteDTO } from '../dto/extension-route.dto';
 import { UpdateGroupRouteDTO } from '../dto/update-group-route.dto';
 import { AddExtensionRouteDTO } from '../dto/add-extension-route.dto';
-import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ExtensionRouteInfo } from '../interfaces/pbx-call-routing.interfaces';
 
+@ApiTags('pbx-call-routing')
 @Controller('pbx-call-routing')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
@@ -18,7 +20,20 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 export class PbxCallRoutingController {
   constructor(private readonly http: HttpResponseService, private readonly pbxCallRoutingService: PbxCallRoutingService) {}
 
+  @ApiBearerAuth()
   @Get('extension-route/:extension')
+  @ApiOperation({ summary: 'Получение информации по маршрутизации добавочного номера' })
+  @ApiParam({
+    name: 'extension',
+    required: true,
+    description: 'Внутренний номер',
+    type: String,
+  })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Маршрутная информация',
+    type: ExtensionRouteInfo,
+  })
   async getExtensionRoute(@Req() req: Request, @Param() params: ExtensionRouteDTO, @Res() res: Response) {
     try {
       const result = await this.pbxCallRoutingService.getExtensionRouteInfo(params.extension);
