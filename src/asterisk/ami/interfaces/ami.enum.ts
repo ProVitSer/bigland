@@ -106,7 +106,7 @@ export enum DNDStatus {
   off = '',
 }
 
-export enum DNDApiStatus {
+export enum DNDtatus {
   on = 'on',
   off = 'off',
 }
@@ -119,4 +119,9 @@ export enum HangupHandler {
   outbound = 'outbound-hangup-handler',
   inbound = 'inbound-hangup-handler',
   pozvonim = 'pozvonim-hangup-handler',
+}
+
+export enum DndStatusType {
+  success = 'success',
+  error = 'error',
 }
