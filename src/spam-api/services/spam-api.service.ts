@@ -11,6 +11,7 @@ import {
   FormatSpamUpdateData,
   SaveCheckNumberData,
   SpamReportsResponseStruct,
+  StopCheckResult,
 } from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
@@ -154,12 +155,12 @@ export class SpamApiService {
     }
   }
 
-  public async stopCheck(applicationId: string): Promise<string> {
+  public async stopCheck(applicationId: string): Promise<StopCheckResult> {
     try {
       const reuslt = await this.spamModelService.findByApplicationId(applicationId);
       if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
       await this._stopCheck(applicationId, reuslt);
-      return 'Успешная отмена';
+      return { result: true };
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }

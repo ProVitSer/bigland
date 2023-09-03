@@ -3,7 +3,7 @@ import { MailService } from '@app/mail/mail.service';
 import { Injectable } from '@nestjs/common';
 import { FreePBXCreateUsersDto, Users } from './dto/freepbx-create-users.dto';
 import { FreepbxCreateUser } from './freepbx-selenium/create-user';
-import { CreateUserResult } from './interfaces/freepbx-api.interfaces';
+import { CreateUserResult, CreateUsersResponse, DeleteUsersResponse } from './interfaces/freepbx-api.interfaces';
 import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { ConfigService } from '@nestjs/config';
@@ -30,23 +30,23 @@ export class FreepbxUsersApiService {
     private readonly tg: TelegramService,
   ) {}
 
-  public async createUsers(users: FreePBXCreateUsersDto): Promise<boolean> {
+  public async createUsers(users: FreePBXCreateUsersDto): Promise<CreateUsersResponse> {
     try {
       this.createFreepbxUser(users);
-      return true;
+      return { createStart: true };
     } catch (e) {
       throw e;
     }
   }
 
-  public async deleteUsers(data: FreePBXDeleteUsersDto): Promise<boolean> {
+  public async deleteUsers(data: FreePBXDeleteUsersDto): Promise<DeleteUsersResponse> {
     try {
       for (const ext of data.extensions) {
         await this.pbxCallRoutingService.deleteExtensionRoute(ext);
         await this.systemService.addAvailableExtension(ext);
       }
       await this.tg.tgAlert(`Номера на удаление ${data.extensions.join(',')}`, FreepbxUsersApiService.name);
-      return true;
+      return { delete: true };
     } catch (e) {
       throw e;
     }

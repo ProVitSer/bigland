@@ -2,7 +2,7 @@ import { SystemService } from '@app/system/system.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { ChanspyDto } from '../dto/chanspy.dto';
-import { ChanspyPasswordResult } from '../interfaces/asterisk-api.interfaces';
+import { ChanspyPasswordResult, UpdateChanspyPasswordResult } from '../interfaces/asterisk-api.interfaces';
 
 @Injectable()
 export class ChanspyApiService {
@@ -17,10 +17,11 @@ export class ChanspyApiService {
     }
   }
 
-  public async updatePassword(data: ChanspyDto): Promise<void> {
+  public async updatePassword(data: ChanspyDto): Promise<UpdateChanspyPasswordResult> {
     try {
       const currentConfig = await this.system.getConfig();
-      return await this.system.updateChanSpyPassword(currentConfig._id, data.password);
+      await this.system.updateChanSpyPassword(currentConfig._id, data.password);
+      return { updatePassword: data.password };
     } catch (e) {
       throw e;
     }

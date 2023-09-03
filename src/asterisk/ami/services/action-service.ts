@@ -1,13 +1,19 @@
-import { IDnd } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
+import { DndData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Injectable } from '@nestjs/common';
 import * as namiLib from 'nami';
 import { AsteriskAmi } from '../ami';
 import { LogService } from '@app/log/log.service';
 import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
-import { AsteriskDNDStatusResponse, AsteriskStatusResponse, EventsStatus, SetDNDStatusResult } from '../interfaces/ami.interfaces';
+import {
+  AsteriskDNDStatusResponse,
+  AsteriskStatusResponse,
+  DndStatus,
+  EventsStatus,
+  SetDNDStatusResult,
+} from '../interfaces/ami.interfaces';
 import { DND_API_TO_DND_STATUS, DND_API_TO_HINT_STATUS } from '../ami.constants';
 import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
-import { DbFamilyType, HintStatus } from '../interfaces/ami.enum';
+import { DbFamilyType, DndStatusType, HintStatus } from '../interfaces/ami.enum';
 
 @Injectable()
 export class AmiActionService {
@@ -44,32 +50,32 @@ export class AmiActionService {
     }
   }
 
-  public async setDNDStatus(data: IDnd): Promise<SetDNDStatusResult> {
+  public async setDNDStatus(data: DndData): Promise<SetDNDStatusResult> {
     try {
-      const extensionStatusList = {};
+      const sip_ids: DndStatus[] = [];
 
       await Promise.all(
         data.sip_id.map(async (sip_id: string) => {
           const checkExtension = await this.getDNDStatus(sip_id);
           if (checkExtension.response === 'Error') {
-            extensionStatusList[sip_id] = { status: 'error' };
+            sip_ids.push({ sip_id, status: DndStatusType.error });
             return;
           }
           const resultSend: AsteriskStatusResponse = await this.dndPut(sip_id, data.dnd_status);
           this.log.info(resultSend, AmiActionService.name);
+
           const hint = DND_API_TO_HINT_STATUS[data.dnd_status];
 
           if (resultSend.response == 'Success') {
-            extensionStatusList[sip_id] = { status: 'success' };
-
-            return this.setHintStatus(sip_id, hint);
+            sip_ids.push({ sip_id, status: DndStatusType.success });
+            this.setHintStatus(sip_id, hint);
           } else {
             return;
           }
         }),
       );
 
-      return extensionStatusList;
+      return { sip_ids };
     } catch (e) {
       throw e;
     }
