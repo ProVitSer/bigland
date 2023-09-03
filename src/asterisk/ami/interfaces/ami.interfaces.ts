@@ -1,9 +1,11 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   AsteriskCause,
   AsteriskChannelStateDesc,
   AsteriskEvent,
   AsteriskEventType,
   BridgeVideoSourceMode,
+  DndStatusType,
   ExtensionCallStatus,
   HangupHandler,
   IsExternal,
@@ -208,10 +210,16 @@ export interface AsteriskBlindTransferEvent {
   extension: string;
 }
 
+export class DndStatus {
+  @ApiProperty({ enum: DndStatusType, description: 'Статус изменения', example: 'success' })
+  status: DndStatusType;
+  @ApiProperty({ type: String, description: 'внутренний номер', example: '102' })
+  sip_id: string;
+}
+
 export class SetDNDStatusResult {
-  [key: string]: {
-    status: string;
-  };
+  @ApiProperty({ type: [DndStatus], description: 'Массив статусов изменения статусаов dnd внутенних номеров' })
+  sip_ids: DndStatus[];
 }
 
 export type AsteriskUnionEvent = AsteriskHungupEvent | AsteriskBlindTransferEvent | AsteriskDialBeginEvent;
