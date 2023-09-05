@@ -31,6 +31,8 @@ import { PbxCallRoutingModule } from './pbx-call-routing/pbx-call-routing.module
 import { ProxyCallingTtsModule } from './proxy-calling-tts/proxy-calling-tts.module';
 import { AriModule } from './asterisk/ari/ari.module';
 import { AmiModule } from './asterisk/ami/ami.module';
+import { AllExceptionsFilter } from './http/http-exception.filter';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -70,7 +72,12 @@ import { AmiModule } from './asterisk/ami/ami.module';
     ProxyCallingTtsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+  ],
   exports: [ConfigModule],
 })
 export class AppModule {}

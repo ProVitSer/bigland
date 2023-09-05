@@ -18,7 +18,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new GlobalValidationPipe());
   app.setGlobalPrefix(config.get('apiPrefix'));
-
   const docConfig = new DocumentBuilder()
     .setTitle('VPNP VoIP API')
     .setDescription('API for VoIP integration')
