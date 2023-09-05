@@ -9,7 +9,7 @@ import { Request, Response } from 'express';
 import { Role } from '@app/users/interfaces/users.enum';
 import { FreePBXDeleteUsersDto } from './dto/freepbx-delete-users.dto';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateUsersResponse, DeleteUsersResponse } from './interfaces/freepbx-api.interfaces';
+import { CreateUsersData, DeleteUsersResponse } from './interfaces/freepbx-api.interfaces';
 
 @ApiTags('freepbx-api')
 @Controller('freepbx-api')
@@ -26,11 +26,11 @@ export class FreepbxApiController {
   @ApiOkResponse({
     status: HttpStatus.OK,
     description: 'Результат изменения статуса dnd внутренних номеров',
-    type: CreateUsersResponse,
+    type: CreateUsersData,
   })
   async createUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXCreateUsersDto) {
     try {
-      const result = this.freepbxUsersApi.createUsers(body);
+      const result = await this.freepbxUsersApi.createUsers(body);
       return this.http.response(req, res, HttpStatus.OK, result);
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);

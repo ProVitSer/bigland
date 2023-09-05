@@ -3,7 +3,7 @@ import { MailService } from '@app/mail/mail.service';
 import { Injectable } from '@nestjs/common';
 import { FreePBXCreateUsersDto, Users } from './dto/freepbx-create-users.dto';
 import { FreepbxCreateUser } from './freepbx-selenium/create-user';
-import { CreateUserResult, CreateUsersResponse, DeleteUsersResponse } from './interfaces/freepbx-api.interfaces';
+import { CreateUserResult, CreateUsersData, DeleteUsersResponse, UsersData } from './interfaces/freepbx-api.interfaces';
 import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { ConfigService } from '@nestjs/config';
@@ -30,10 +30,16 @@ export class FreepbxUsersApiService {
     private readonly tg: TelegramService,
   ) {}
 
-  public async createUsers(users: FreePBXCreateUsersDto): Promise<CreateUsersResponse> {
+  public async createUsers(data: FreePBXCreateUsersDto): Promise<CreateUsersData> {
     try {
+      const usersData: UsersData[] = [];
+      for (const user of data.users) {
+        const extension = await this.getNewExtension();
+        usersData.push({ ...user, extension });
+      }
+      const users = { users: usersData };
       this.createFreepbxUser(users);
-      return { createStart: true };
+      return users;
     } catch (e) {
       throw e;
     }
@@ -46,24 +52,23 @@ export class FreepbxUsersApiService {
         await this.systemService.addAvailableExtension(ext);
       }
       await this.tg.tgAlert(`Номера на удаление ${data.extensions.join(',')}`, FreepbxUsersApiService.name);
-      return { delete: true };
+      return { delete: true, extensions: data.extensions };
     } catch (e) {
       throw e;
     }
   }
 
-  private async createFreepbxUser(data: FreePBXCreateUsersDto): Promise<void> {
+  private async createFreepbxUser(data: CreateUsersData): Promise<void> {
     try {
       for (const user of data.users) {
         const webDriver = await this.freePBXLogin.loginOnPbx();
-        const extension = await this.getNewExtension();
         const createUserData = await this.freepbxCreateser.createPbxUser({
           firstName: user.firstName,
           lastName: user.lastName,
-          extension,
+          extension: user.extension,
           webDriver,
         });
-        await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: extension, operatorName: OperatorsName.mango }]);
+        await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: user.extension, operatorName: OperatorsName.mango }]);
         await this.sendDataToUser(user, createUserData);
       }
     } catch (e) {
