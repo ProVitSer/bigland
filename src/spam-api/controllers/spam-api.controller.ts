@@ -27,7 +27,7 @@ import { ReportDateDto } from '../dto/report-date.dto';
 import * as moment from 'moment';
 import { DATE_FROMAT } from '../spam-api.constants';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
-import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
 import { SpamReportsResponseStruct, StopCheckResult } from '../interfaces/spam-api.interfaces';
 
@@ -163,7 +163,6 @@ export class SpamApiController {
   @Get('report')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка определенного номера на спам' })
-  // @ApiQuery({ name: 'data', type: ReportDateDto })
   @ApiOkResponse({
     status: HttpStatus.OK,
     description: 'Результат запуска проверки',
