@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@n
 import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces';
 
 @ApiTags('asterisk-api')
-@Controller('service')
+@Controller('asterisk-api/service')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)

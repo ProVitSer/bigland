@@ -12,7 +12,7 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@n
 import { MonitoringCallResult, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 
 @ApiTags('asterisk-api')
-@Controller('call')
+@Controller('asterisk-api/call')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(HttpExceptionFilter)
