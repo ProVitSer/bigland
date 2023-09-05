@@ -23,10 +23,6 @@ export class DeleteUsersResponse {
   extensions: string[];
 }
 
-export class CreateUsersData {
-  users: UsersData[];
-}
-
 export class UsersData {
   @ApiProperty({ type: String, description: 'Имя', example: 'Сергей' })
   firstName: string;
@@ -39,4 +35,12 @@ export class UsersData {
 
   @ApiProperty({ type: String, description: 'Созданный для данного пользователя добавочный номер', example: '102' })
   extension: string;
+}
+
+export class CreateUsersData {
+  @ApiProperty({
+    isArray: true,
+    type: UsersData,
+  })
+  users: UsersData[];
 }
