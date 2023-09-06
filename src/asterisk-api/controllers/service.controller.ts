@@ -1,4 +1,4 @@
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { Body, Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { DNDDto } from '../dto/dnd.dto';
 import { Request, Response } from 'express';
@@ -14,7 +14,7 @@ import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces'
 @Controller('asterisk-api/service')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class ServiceCodeApiController {
   constructor(private readonly serviceCode: ServiceCodeApiService, private readonly http: HttpResponseService) {}
 

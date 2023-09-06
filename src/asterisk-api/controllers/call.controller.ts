@@ -2,7 +2,7 @@ import { Body, Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters
 import { Request, Response } from 'express';
 import { CallApiService } from '../services/call-api.service';
 import { MonitoringCallDTO } from '../dto/monitoring-call.dto';
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { PozvonimCallDTO } from '../dto/pozvomin.dto';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
@@ -15,7 +15,7 @@ import { MonitoringCallResult, PozvonimCallResult } from '../interfaces/asterisk
 @Controller('asterisk-api/call')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class CallApiController {
   constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 

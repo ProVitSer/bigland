@@ -50,9 +50,8 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
   }
 
   private async routingActions(event: StasisStart): Promise<void> {
-    const callData = this.getCallData(event);
-    const contact = await this.getAmocrmContact(callData);
-    await this.actionsInAmocrm(callData, contact);
+    const contact = await this.getAmocrmContact(this.getCallData(event));
+    await this.actionsInAmocrm(this.getCallData(event), contact);
     const routingInfo = await this.getRoutingInfo(contact);
     return await this.continueDialplan(event.channel.id, routingInfo);
   }

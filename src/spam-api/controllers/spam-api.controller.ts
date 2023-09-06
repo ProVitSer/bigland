@@ -14,7 +14,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
@@ -35,7 +35,7 @@ import { SpamReportsResponseStruct, StopCheckResult } from '../interfaces/spam-a
 @Controller('spam-api')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class SpamApiController {
   constructor(
     private readonly http: HttpResponseService,

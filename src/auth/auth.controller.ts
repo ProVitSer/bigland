@@ -1,4 +1,4 @@
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
@@ -15,7 +15,7 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @Controller('auth')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class AuthController {
   constructor(
     private readonly authUserService: AuthUserService,

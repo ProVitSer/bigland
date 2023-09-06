@@ -6,7 +6,7 @@ import { AxiosError } from 'axios';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { ProxyCallingTtsUtils } from './proxy-calling-tts.utils';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
@@ -37,7 +37,7 @@ export class ProxyCallingResultController {
 @Controller('calling')
 @UseGuards(RoleGuard([Role.Admin, Role.Tts]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class ProxyCallingController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
@@ -147,7 +147,7 @@ export class ProxyCallingController {
 @Controller('tts')
 @UseGuards(RoleGuard([Role.Admin, Role.Tts]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class ProxyTtsController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 

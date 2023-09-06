@@ -6,7 +6,7 @@ import { LogService } from '@app/log/log.service';
 
 @Injectable()
 @Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
+export class ApiHttpExceptionFilter implements ExceptionFilter {
   constructor(private readonly http: HttpResponseService) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {

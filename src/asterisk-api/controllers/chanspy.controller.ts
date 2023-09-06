@@ -1,4 +1,4 @@
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { ChanspyApiService } from '../services/chanspy-api.service';
 import { Request, Response } from 'express';
@@ -14,7 +14,7 @@ import { ChanspyPasswordResult, UpdateChanspyPasswordResult } from '../interface
 @Controller('asterisk-api/service/chanspy')
 @UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@UseFilters(ApiHttpExceptionFilter)
 export class ChanspyApiController {
   constructor(private readonly chanspyService: ChanspyApiService, private readonly http: HttpResponseService) {}
 
