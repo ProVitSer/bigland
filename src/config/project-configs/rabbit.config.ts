@@ -11,7 +11,16 @@ export const getRabbitMQConfig = async (configService: ConfigService<ConfigEnvir
       },
     ],
     uri: configService.get('rabbitMqUrl'),
-    connectionInitOptions: { wait: false },
-    prefetchCount: 1,
+    connectionInitOptions: {
+      wait: false,
+    },
+    channels: {
+      cdr: {
+        prefetchCount: 1,
+      },
+      'freepbx-api': {
+        prefetchCount: 1,
+      },
+    },
   };
 };
