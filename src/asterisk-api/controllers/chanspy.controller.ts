@@ -58,7 +58,7 @@ export class ChanspyApiController {
   @ApiOperation({ summary: 'Сгенерировать новый пароль для прослушки chanSpy' })
   @ApiOkResponse({
     status: HttpStatus.OK,
-    description: 'новый сгенерированный пароль',
+    description: 'Новый сгенерированный пароль',
     type: ChanspyPasswordResult,
   })
   async generateChanspyPassword(@Req() req: Request, @Res() res: Response) {
