@@ -20,6 +20,13 @@ async function bootstrap() {
   app.setGlobalPrefix(config.get('apiPrefix'));
   const docConfig = new DocumentBuilder()
     .setTitle('VPNP VoIP API')
+    .addTag('calling', 'Автоматический обзвон по списку номеров с проигрываением голосового сообщения')
+    .addTag('freepbx-api', 'Взаимодействие с web интерфейсом FreePBX')
+    .addTag('pbx-call-routing', 'Получение маршрутной информации')
+    .addTag('asterisk-api', 'Взаимодействие с Asterisk')
+    .addTag('tts', 'Конвертация текста в голос')
+    .addTag('spam-api', 'Проверки номеров на спам')
+    .addTag('operators', 'Управление номерами операторов связи')
     .setDescription('API for VoIP integration')
     .setVersion('2.1')
     .addBearerAuth({ in: 'header', type: 'http' })
