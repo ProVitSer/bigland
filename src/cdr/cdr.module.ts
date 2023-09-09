@@ -8,7 +8,6 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
 import { AmocrmUsersModule } from '@app/amocrm-users/amocrm-users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CdrSchedule } from './schedule/cdr.schedule';
-import { Amocrm, AmocrmSchema } from '@app/amocrm/amocrm.schema';
 import { CdrMessagingSubService } from './cdr-mq/cdr-messaging-sub.service';
 import { RabbitModule } from '@app/rabbit/rabbit.module';
 
@@ -19,10 +18,7 @@ import { RabbitModule } from '@app/rabbit/rabbit.module';
     AsteriskCdrModule,
     AmocrmModule,
     AmocrmUsersModule,
-    MongooseModule.forFeature([
-      { name: Cdr.name, schema: CdrSchema },
-      { name: Amocrm.name, schema: AmocrmSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Cdr.name, schema: CdrSchema }]),
     RabbitModule,
   ],
   providers: [CdrService, CdrMessagingSubService, CdrSchedule],
