@@ -14,6 +14,7 @@ import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { FreePBXDeleteUsersDto } from './dto/freepbx-delete-users.dto';
 import { TelegramService } from '@app/telegram/telegram.service';
 import { MailEnvironmentVariables } from '@app/config/interfaces/config.interface';
+import { FreepbxPubService } from './freepbx-api-mq/freepbx-api-pub.service';
 
 @Injectable()
 export class FreepbxUsersApiService {
@@ -28,6 +29,7 @@ export class FreepbxUsersApiService {
     private readonly freePBXLogin: Login,
     private readonly pbxCallRoutingService: PbxCallRoutingService,
     private readonly tg: TelegramService,
+    private readonly freepbxPubService: FreepbxPubService,
   ) {}
 
   public async createUsers(data: FreePBXCreateUsersDto): Promise<CreateUsersData> {
@@ -38,7 +40,7 @@ export class FreepbxUsersApiService {
         usersData.push({ ...user, extension });
       }
       const users = { users: usersData };
-      this.createFreepbxUser(users);
+      await this.freepbxPubService.publishCreateUsersToQueue(usersData);
       return users;
     } catch (e) {
       throw e;
@@ -58,19 +60,17 @@ export class FreepbxUsersApiService {
     }
   }
 
-  private async createFreepbxUser(data: CreateUsersData): Promise<void> {
+  public async createFreepbxUser(data: UsersData): Promise<void> {
     try {
-      for (const user of data.users) {
-        const webDriver = await this.freePBXLogin.loginOnPbx();
-        const createUserData = await this.freepbxCreateser.createPbxUser({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          extension: user.extension,
-          webDriver,
-        });
-        await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: user.extension, operatorName: OperatorsName.mango }]);
-        await this.sendDataToUser(user, createUserData);
-      }
+      const webDriver = await this.freePBXLogin.loginOnPbx();
+      const createUserData = await this.freepbxCreateser.createPbxUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        extension: data.extension,
+        webDriver,
+      });
+      await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: data.extension, operatorName: OperatorsName.mango }]);
+      await this.sendDataToUser(data, createUserData);
     } catch (e) {
       this.log.error(e, FreepbxUsersApiService.name);
     }

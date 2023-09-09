@@ -14,10 +14,23 @@ import { LogModule } from '@app/log/log.module';
 import { SystemModule } from '@app/system/system.module';
 import { PbxCallRoutingModule } from '@app/pbx-call-routing/pbx-call-routing.module';
 import { TelegramModule } from '@app/telegram/telegram.module';
+import { FreepbxPubService } from './freepbx-api-mq/freepbx-api-pub.service';
+import { RabbitModule } from '@app/rabbit/rabbit.module';
+import { FreepbxSubService } from './freepbx-api-mq/freepbx-api-sub.service';
 
 @Module({
-  imports: [ConfigModule, LogModule, HttpResponseModule, SeleniumModule, MailModule, SystemModule, PbxCallRoutingModule, TelegramModule],
-  providers: [FreepbxUsersApiService, Login, FreepbxCreateUser, FreepbxSubmitChange],
+  imports: [
+    ConfigModule,
+    LogModule,
+    HttpResponseModule,
+    SeleniumModule,
+    MailModule,
+    SystemModule,
+    PbxCallRoutingModule,
+    TelegramModule,
+    RabbitModule,
+  ],
+  providers: [FreepbxUsersApiService, Login, FreepbxCreateUser, FreepbxSubmitChange, FreepbxPubService, FreepbxSubService],
   controllers: [FreepbxApiController],
 })
 export class FreepbxApiModule {
