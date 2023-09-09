@@ -33,6 +33,7 @@ import { AriModule } from './asterisk/ari/ari.module';
 import { AmiModule } from './asterisk/ami/ami.module';
 import { AllExceptionsFilter } from './http/http-exception.filter';
 import { APP_FILTER } from '@nestjs/core';
+import { RabbitModule } from './rabbit/rabbit.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { APP_FILTER } from '@nestjs/core';
     BiglandModule,
     PbxCallRoutingModule,
     ProxyCallingTtsModule,
+    RabbitModule,
   ],
   controllers: [],
   providers: [
