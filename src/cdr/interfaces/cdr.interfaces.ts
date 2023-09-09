@@ -1,6 +1,6 @@
 import { Cdr } from '../cdr.schema';
 
-export interface CdrPubSubInfo {
+export interface CdrInfo {
   pattern: 'cdr';
   data: Cdr;
 }
