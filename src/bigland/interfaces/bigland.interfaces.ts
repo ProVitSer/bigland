@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ApplicationApiActionStatus } from './bigland.enum';
 
-export class DefaultApplicationApiStruct {
-  @ApiProperty({ type: String, description: 'Уникальный идентификатор проверки', example: '90859260-dd5c-4232-bc59-8964963a061c' })
+export class ApplicationId {
+  @ApiProperty({ type: String, description: 'Уникальный идентификатор задачи', example: '19760f74-a50a-4248-8fc1-44a6aa879b60' })
   applicationId: string;
+}
 
+export class DefaultApplicationApiStruct extends ApplicationId {
   @ApiProperty({
     enum: ApplicationApiActionStatus,
     enumName: 'ApplicationApiActionStatus',

@@ -3,4 +3,5 @@ export enum ApplicationApiActionStatus {
   apiFail = 'apiFail',
   completed = 'completed',
   cancel = 'cancel',
+  stop = 'stop',
 }
