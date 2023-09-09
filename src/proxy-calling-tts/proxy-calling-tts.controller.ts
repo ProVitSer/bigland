@@ -9,6 +9,7 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { ProxyCallingTtsUtils } from './proxy-calling-tts.utils';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiExcludeEndpoint,
   ApiNotFoundResponse,
@@ -54,8 +55,8 @@ export class ProxyCallingResultController {
   }
 }
 
-@ApiTags('calling')
 @Controller('calling')
+@ApiTags('calling')
 @UseGuards(RoleGuard([Role.Admin, Role.Tts]))
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
@@ -63,6 +64,7 @@ export class ProxyCallingController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
   @Post('task')
+  @ApiBearerAuth()
   @ApiBody({ type: CallingTTSTask })
   @ApiOperation({ summary: 'Создание задачи на обзвон по списку и озвучкой переданного текста' })
   @ApiResponse({
@@ -86,6 +88,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/stop')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Остановить выполнение ранее запущенной задачи на обзвон' })
   @ApiBody({ type: ApplicationId })
   @ApiOkResponse({
@@ -113,6 +116,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/cancel')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Отменить выполнение ранее запущенной задачи на обзвон' })
   @ApiBody({ type: ApplicationId })
   @ApiOkResponse({
@@ -140,6 +144,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/continue')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Продолжить выполнение ранее остановленной задачи на обзвон' })
   @ApiBody({ type: ApplicationId })
   @ApiOkResponse({
@@ -167,6 +172,7 @@ export class ProxyCallingController {
   }
 
   @Post('task/update/voice-file')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Обновить голосовой файл по остановленной задаче' })
   @ApiBody({ type: CallingTaskUpdateVoiceFile })
   @ApiOkResponse({
@@ -194,6 +200,7 @@ export class ProxyCallingController {
   }
 
   @Get('task/result/:applicationId')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Получение результата обзвона по задаче' })
   @ApiParam({
     name: 'applicationId',
@@ -235,6 +242,7 @@ export class ProxyTtsController {
   constructor(private readonly httpService: HttpService, private readonly utils: ProxyCallingTtsUtils) {}
 
   @Post('convert/file')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Преобразовать текст в голосовой файл' })
   @ApiBody({ type: TTS })
   @ApiResponse({
@@ -258,6 +266,7 @@ export class ProxyTtsController {
   }
 
   @Post('voices')
+  @ApiBearerAuth()
   @ApiBody({ type: TTSVoices })
   @ApiOperation({ summary: 'Получение списка возможных голосов и эмоций' })
   @ApiResponse({
@@ -281,6 +290,7 @@ export class ProxyTtsController {
   }
 
   @Post('convert/online')
+  @ApiBearerAuth()
   @ApiBody({ type: TTS })
   @ApiOperation({ summary: 'Озвучка заданного переданного текста' })
   @ApiResponse({
@@ -310,6 +320,7 @@ export class ProxyTtsController {
   }
 
   @Get('file/:fileId')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Получение ранее преобразованного через tts звукового файла по fileId' })
   @ApiParam({
     name: 'fileId',
