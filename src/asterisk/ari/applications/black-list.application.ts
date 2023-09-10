@@ -5,9 +5,10 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../../asterisk.utils';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_IN_BLACK_LIST } from '../ari.constants';
 import { HangupReason } from '../interfaces/ari.enum';
 import { AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
@@ -45,7 +46,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
 
   private async checkInBlackList(event: StasisStart): Promise<boolean> {
     try {
-      const incomingNumber = event.channel.caller.number;
+      const incomingNumber = UtilsService.normalizePhoneNumber(event.channel.caller.number);
       const config = await this.system.getConfig();
       return this.check(config.blackListNumbers, incomingNumber);
     } catch (e) {
@@ -53,8 +54,8 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private check(arr: string[], val: string): boolean {
-    return arr.some((arrVal) => val.substring(val.length - NUMBER_FORMAT) === arrVal.substring(val.length - NUMBER_FORMAT));
+  private check(blackListNumbers: string[], incomingNumber: string): boolean {
+    return blackListNumbers.some((blackListNumber: string) => incomingNumber === blackListNumber);
   }
 
   private async continueDialplan(channelId: string): Promise<void> {

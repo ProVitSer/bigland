@@ -55,3 +55,12 @@ export class UpdateChanspyPasswordResult {
 }
 
 export type AsteriskCallApiUnion = { number: string } | PozvominCall | CheckNumberSpamData | CheckSpamData;
+
+export class ModifyBlackListNumbersResult {
+  @ApiProperty({
+    type: [String],
+    description: 'Массив внешних номеров которые были добавлены в черный список',
+    example: '["71234567890","71234567890"]',
+  })
+  numbers: string[];
+}
