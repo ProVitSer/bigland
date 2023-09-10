@@ -28,7 +28,7 @@ async function bootstrap() {
     .addTag('spam-api', 'Проверки номеров на спам')
     .addTag('operators', 'Управление номерами операторов связи')
     .setDescription('API for VoIP integration')
-    .setVersion('2.1')
+    .setVersion('2.2.3')
     .addBearerAuth({ in: 'header', type: 'http' })
     .build();
   const document = SwaggerModule.createDocument(app, docConfig);
