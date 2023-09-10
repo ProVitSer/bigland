@@ -4,6 +4,9 @@ import { OperatorFormatNumber, OperatorsName } from './interfaces/operators.enum
 
 @Schema({ collection: 'operators', versionKey: false })
 export class Operators {
+  @Prop({ unique: true })
+  operatorId: string;
+
   @Prop({ enum: OperatorsName })
   name: OperatorsName;
 
@@ -12,9 +15,6 @@ export class Operators {
 
   @Prop()
   numbers: NumbersInfo[];
-
-  @Prop({ type: Date, default: Date.now })
-  stamp?: Date;
 
   @Prop({ type: Date, default: Date.now })
   changed?: Date;
@@ -34,8 +34,11 @@ export class NumbersInfo {
   @Prop()
   authUsername?: string;
 
-  @Prop()
-  isActive: boolean;
+  @Prop({ default: 0 })
+  callCount?: number;
+
+  @Prop({ type: Date, default: Date.now })
+  createAt?: Date;
 }
 
 const OperatorsSchema = SchemaFactory.createForClass(Operators);

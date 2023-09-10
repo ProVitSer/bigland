@@ -10,7 +10,6 @@ import { MailModule } from '@app/mail/mail.module';
 import { HttpResponseModule } from '@app/http/http.module';
 import { HealthScheduledService } from './schedule/health-service.schedule';
 import { ScheduleModule } from '@nestjs/schedule';
-import { AsteriskModule } from '@app/asterisk/asterisk.module';
 import { RedisModule } from '@app/redis/redis.module';
 import {
   DockerImgServiceHealthIndicator,
@@ -18,11 +17,11 @@ import {
   RedisHealthIndicator,
   AsteriskAriApplicationHealthIndicator,
   AsteriskHealthIndicator,
-  GsmGatewayHealthIndicator,
   AmocrmHealthIndicator,
 } from './health-indicators';
-import { GsmGatewayApiModule } from '@app/gsm-gateway-api/gsm-gateway-api.module';
 import { AmocrmModule } from '@app/amocrm/amocrm.module';
+import { AmiModule } from '@app/asterisk/ami/ami.module';
+import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
   imports: [
@@ -33,9 +32,9 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     DockerModule,
     MailModule,
     HttpResponseModule,
-    AsteriskModule,
+    AmiModule,
+    AriModule,
     RedisModule,
-    GsmGatewayApiModule,
     AmocrmModule,
   ],
   providers: [
@@ -46,7 +45,6 @@ import { AmocrmModule } from '@app/amocrm/amocrm.module';
     AsteriskHealthIndicator,
     AsteriskAriApplicationHealthIndicator,
     RedisHealthIndicator,
-    GsmGatewayHealthIndicator,
     AmocrmHealthIndicator,
   ],
   controllers: [HealthController],

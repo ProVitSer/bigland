@@ -3,8 +3,11 @@ import { DataObject } from '@app/platform-types/common/interfaces';
 import { ObjectId } from 'mongoose';
 import { AmocrmCallStatus, ContactsOrder, DirectionType, TaskTypeId } from './amocrm.enum';
 import { Cdr } from '@app/cdr/cdr.schema';
+import { IAPIResponse } from 'amocrm-js/dist/interfaces/common';
+import { NumberInfo } from '@app/system/system.schema';
+import { CallData } from '@app/asterisk/ari/interfaces/ari.interfaces';
 
-export interface AmocrmGetContactsRequest {
+export interface AmocrmGetRequest {
   with?: string;
   page?: number;
   limit?: number;
@@ -259,4 +262,28 @@ export interface AmocrmSaveData {
   amocrmRequestData: AmocrmRequestData;
   cdrData?: AsteriskCdr;
   cdrId?: ObjectId | undefined;
+}
+
+export interface AmocrmAPIV2AuthBody {
+  USER_LOGIN: string;
+  USER_HASH: string;
+}
+
+export interface AmocrmV4ApiMethod {
+  createTask<T>(amocrmRequestData: AmocrmAddTasks): Promise<IAPIResponse<T>>;
+  sendCallInfo<T>(amocrmRequestData: AmocrmAddCallInfo): Promise<IAPIResponse<T>>;
+  searchContact<T>(data: AmocrmGetRequest): Promise<IAPIResponse<T>>;
+  createContact<T>(amocrmRequestData: AmocrmCreateContact): Promise<IAPIResponse<T>>;
+  createLeads<T>(amocrmRequestData: AmocrmCreateLead): Promise<IAPIResponse<T>>;
+}
+
+export interface AmocrmCreateContactData {
+  callData: CallData;
+  numberConfig: NumberInfo | undefined;
+}
+
+export interface AmocrmCreateLeadData {
+  callData: CallData;
+  numberConfig: NumberInfo | undefined;
+  createContactData: AmocrmCreateContactResponse;
 }

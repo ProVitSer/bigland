@@ -6,8 +6,8 @@ import { CallType } from './interfaces/cdr.enum';
 import { LogService } from '@app/log/log.service';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
-import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { UtilsService } from '@app/utils/utils.service';
+import { AmocrmV4Service } from '@app/amocrm/v4/services';
 
 @Injectable()
 export class CdrService {
@@ -18,7 +18,7 @@ export class CdrService {
     private readonly log: LogService,
   ) {}
 
-  public async sendCdrInfo(msg: Cdr) {
+  public async sendCdrInfo(msg: Cdr): Promise<void> {
     try {
       this.log.info(msg, CdrService.name);
       let asteriskCdrInfo: AsteriskCdr[] = [];
@@ -46,7 +46,7 @@ export class CdrService {
     }
   }
 
-  private async sendInfoToAmo(cdr: AsteriskCdr[], msg: Cdr) {
+  private async sendInfoToAmo(cdr: AsteriskCdr[], msg: Cdr): Promise<void> {
     this.log.info(cdr, CdrService.name);
     if (cdr.length == 0) return;
     for (const c of cdr) {
@@ -59,7 +59,7 @@ export class CdrService {
     }
   }
 
-  private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr) {
+  private async cdrCallComplite(cdrId: ObjectId, cdrData: AsteriskCdr): Promise<void> {
     this.log.info(cdrData, CdrService.name);
     return await this.cdrModel.findOneAndUpdate({ _id: cdrId }, { $set: { complete: true } });
   }

@@ -1,5 +1,5 @@
 import { NumberInfo } from '@app/system/system.schema';
-import { AmocrmCreateContactResponse, AmocrmCreateLead } from '../interfaces/amocrm.interfaces';
+import { AmocrmCreateLead, AmocrmCreateLeadData } from '../interfaces/amocrm.interfaces';
 import { ApplicationStage, CreatedById, CustomFieldsValuesId, ResponsibleUserId } from '../interfaces/amocrm.enum';
 
 export class AmocrmCreateLeadDataAdapter {
@@ -7,14 +7,14 @@ export class AmocrmCreateLeadDataAdapter {
   public incomingNumber: string;
   public incomingTrunk: string | undefined;
   public contactsId: number;
-  constructor(incomingNumber: string, numberConfig: NumberInfo, createContactData: AmocrmCreateContactResponse) {
-    this.contactsId = createContactData._embedded.contacts[0].id;
-    this.incomingNumber = incomingNumber;
-    this.incomingTrunk = numberConfig?.trunkNumber;
+  constructor(data: AmocrmCreateLeadData) {
+    this.contactsId = data.createContactData._embedded.contacts[0].id;
+    this.incomingNumber = data.callData.incomingNumber;
+    this.incomingTrunk = data.numberConfig?.trunkNumber;
     this.amocrmRequestData = {
       responsible_user_id: ResponsibleUserId.AdminCC,
       created_by: CreatedById.AdminCC,
-      ...this.createLeadStruct(numberConfig),
+      ...this.createLeadStruct(data.numberConfig),
       _embedded: {
         contacts: [
           {

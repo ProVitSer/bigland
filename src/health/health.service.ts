@@ -18,8 +18,6 @@ import {
   AsteriskHealthIndicator,
   AsteriskAriApplicationHealthIndicator,
   RedisHealthIndicator,
-  GsmGatewayHealthIndicator,
-  AmocrmHealthIndicator,
 } from './health-indicators';
 
 @Injectable()
@@ -35,8 +33,6 @@ export class HealthService {
     private asteriskConnection: AsteriskHealthIndicator,
     private asteriskAri: AsteriskAriApplicationHealthIndicator,
     private redis: RedisHealthIndicator,
-    private gsm: GsmGatewayHealthIndicator,
-    private amocrm: AmocrmHealthIndicator,
   ) {
     this.config = configuration() as ConfigEnvironmentVariables;
   }
@@ -63,9 +59,7 @@ export class HealthService {
 
   private customCheck() {
     return [
-      //async () => this.amocrm.ping('Amocrm'),
       async () => this.redis.ping('Redis'),
-      //async () => this.gsm.ping('Gsmgateway'),
       async () => this.asteriskAri.ping('Asterisk_Ari_Application'),
       async () => this.asteriskConnection.ping('Asterisk_Connect'),
       async () => this.dockerService.isHealthy('Docker_Service'),
@@ -87,7 +81,7 @@ export class HealthFormatResult {
     return this[this.getMethodByFormatType()]();
   }
 
-  private getMethodByFormatType(): any {
+  private getMethodByFormatType(): string {
     switch (this.formatType) {
       case ReturnHealthFormatType.http:
         return 'httpFormat';

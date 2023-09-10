@@ -6,7 +6,7 @@ import { DOCKER_NOT_RUNNING } from './docker.constants';
 export class DockerService {
   constructor(@Inject('DOCKER_SERVICE') private docker: Docker) {}
 
-  public async checkImgUp(img: string): Promise<any> {
+  public async checkImgUp(img: string): Promise<void> {
     try {
       await this.checkDocker();
       const isImgUp = await this.checkImgRunning(img);
@@ -37,7 +37,7 @@ export class DockerService {
     }
   }
 
-  private async startImg(img: string) {
+  private async startImg(img: string): Promise<void> {
     try {
       const containers = await this.getAllContainers();
       const needContImg = containers.filter((container: Docker.ContainerInfo) => {
@@ -66,15 +66,15 @@ export class DockerService {
     }
   }
 
-  private async getImagesList() {
+  private async getImagesList(): Promise<Docker.ImageInfo[]> {
     return await this.docker.listImages();
   }
 
-  private async getAllContainers() {
+  private async getAllContainers(): Promise<Docker.ContainerInfo[]> {
     return await this.docker.listContainers({ all: true });
   }
 
-  private getContainer(id: string) {
+  private getContainer(id: string): Docker.Container {
     return this.docker.getContainer(id);
   }
 }

@@ -8,9 +8,12 @@ import { promises } from 'fs';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FilesEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class FilesCreateService {
+  private filesConfig = this.configService.get<FilesEnvironmentVariables>('files');
+
   constructor(private readonly configService: ConfigService, @InjectModel(Files.name) private filesModel: Model<FilesDocument>) {}
 
   public async createFileFromBuffer(data: Buffer, type: FileFormatType, fileName?: string): Promise<Files> {
@@ -52,7 +55,7 @@ export class FilesCreateService {
     return {
       id: uuid.v4(),
       fileName: fileName || generateFilename,
-      generatedFilePath: !!isTemp ? this.configService.get('files.path.tmp') : FileUtilsService.getFilePath(generateFilename),
+      generatedFilePath: !!isTemp ? this.filesConfig.path.tmp : FileUtilsService.getFilePath(generateFilename),
       generatedFileName: `${generateFilename}.${fileType}`,
       contentType: FileUtilsService.getContentType(fileType),
       length: data.length,
@@ -61,7 +64,7 @@ export class FilesCreateService {
   }
 
   private getFullPath(basePath: string, isTemp?: boolean): string {
-    return path.join(isTemp ? `` : this.configService.get('files.path.files'), basePath);
+    return path.join(isTemp ? `` : this.filesConfig.path.files, basePath);
   }
 
   private generateFilename(): string {

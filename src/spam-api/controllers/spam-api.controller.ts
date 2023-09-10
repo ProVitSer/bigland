@@ -14,7 +14,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
@@ -27,11 +27,15 @@ import { ReportDateDto } from '../dto/report-date.dto';
 import * as moment from 'moment';
 import { DATE_FROMAT } from '../spam-api.constants';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
+import { SpamReportsResponseStruct, StopCheckResult } from '../interfaces/spam-api.interfaces';
 
-@UseGuards(RoleGuard([Role.User, Role.Admin]))
-@UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
+@ApiTags('spam-api')
 @Controller('spam-api')
+@UseGuards(RoleGuard([Role.Admin, Role.Api]))
+@UseGuards(JwtGuard)
+@UseFilters(ApiHttpExceptionFilter)
 export class SpamApiController {
   constructor(
     private readonly http: HttpResponseService,
@@ -40,6 +44,14 @@ export class SpamApiController {
   ) {}
 
   @Post('check-operator-numbers')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Проверка всех номеров оператора на спам' })
+  @ApiBody({ type: CheckOperatorNumbersDTO })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: DefaultApplicationApiStruct,
+  })
   async checkOperatorNumbers(@Req() req: Request, @Body() body: CheckOperatorNumbersDTO, @Res() res: Response) {
     try {
       const result = await this.spamApiService.checkOperatorNumbers(body, SpamType.checkOperatorNumbers);
@@ -50,6 +62,14 @@ export class SpamApiController {
   }
 
   @Post('check-batch')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Проверка определенных номеров через оператора' })
+  @ApiBody({ type: CheckBatchDTO })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: DefaultApplicationApiStruct,
+  })
   async checkBatch(@Req() req: Request, @Body() body: CheckBatchDTO, @Res() res: Response) {
     try {
       const result = await this.spamApiService.checkBatch(body);
@@ -60,6 +80,13 @@ export class SpamApiController {
   }
 
   @Get('check-all')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Проверка всех номеров всех операторов на спам' })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: DefaultApplicationApiStruct,
+  })
   async checkAll(@Req() req: Request, @Res() res: Response) {
     try {
       const result = await this.allOperatorsSpamService.checkAllOperators();
@@ -70,6 +97,14 @@ export class SpamApiController {
   }
 
   @Post('check-number')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Проверка определенного номера на спам' })
+  @ApiBody({ type: CheckNumberDTO })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: DefaultApplicationApiStruct,
+  })
   async checkNumber(@Req() req: Request, @Body() body: CheckNumberDTO, @Res() res: Response) {
     try {
       const result = await this.spamApiService.checkNumber(body, SpamType.checkNumber);
@@ -80,6 +115,19 @@ export class SpamApiController {
   }
 
   @Get('status/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Получение данных спам проверки' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'id спам проверки',
+    type: String,
+  })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: SpamReportsResponseStruct,
+  })
   async getSpamStatusResult(@Req() req: Request, @Param('id') applicationId: string, @Res() res: Response) {
     try {
       const result = await this.spamApiService.getSpamResultById(applicationId);
@@ -90,6 +138,19 @@ export class SpamApiController {
   }
 
   @Post('stop/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Остановка ранеезапущенной проверки' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'id спам проверки',
+    type: String,
+  })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат отмены ранее запущенной проверки на спам',
+    type: StopCheckResult,
+  })
   async stopCheck(@Req() req: Request, @Param('id') applicationId: string, @Res() res: Response) {
     try {
       const result = await this.spamApiService.stopCheck(applicationId);
@@ -100,6 +161,13 @@ export class SpamApiController {
   }
 
   @Get('report')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Проверка определенного номера на спам' })
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'Результат запуска проверки',
+    type: [SpamReportsResponseStruct],
+  })
   async getReport(@Req() req: Request, @Res() res: Response, @Query(ValidationPipe) data?: ReportDateDto) {
     try {
       const result = await this.spamApiService.getSpamReport(data.date || moment().format(DATE_FROMAT));

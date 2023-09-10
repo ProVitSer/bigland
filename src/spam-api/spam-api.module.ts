@@ -3,7 +3,6 @@ import { SpamApiController } from './controllers/spam-api.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LogModule } from '@app/log/log.module';
-import { AsteriskModule } from '@app/asterisk/asterisk.module';
 import { AuthModule } from '@app/auth/auth.module';
 import { HttpResponseModule } from '@app/http/http.module';
 import { SystemModule } from '@app/system/system.module';
@@ -20,6 +19,8 @@ import { ReportsModule } from '@app/reports/reports.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AllOperatorsSpamReportSchedule, SpamReportByOperatorSchedule } from './schedule';
 import { SpamApiService, SpamModelService, SpamReportService, AllOperatorsSpamService } from './services';
+import { AmiModule } from '@app/asterisk/ami/ami.module';
+import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { SpamApiService, SpamModelService, SpamReportService, AllOperatorsSpamSe
     MongooseModule.forFeature([{ name: Spam.name, schema: SpamSchema }]),
     ScheduleModule.forRoot(),
     LogModule,
-    AsteriskModule,
+    AmiModule,
+    AriModule,
     AuthModule,
     HttpResponseModule,
     SystemModule,

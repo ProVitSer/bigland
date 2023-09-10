@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
@@ -5,50 +6,16 @@ import { AmocrmUsersService } from '@app/amocrm-users/amocrm-users.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmocrmUsers } from '@app/amocrm-users/amocrm-users.schema';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
-import { AmocrmV4Service } from '@app/amocrm/v4/amocrm-v4.service';
 import { DirectionType } from '@app/amocrm/interfaces/amocrm.enum';
-import { AsteriskAmiEventProviderInterface, AsteriskHangupHandlerProviderInterface, AsteriskNewExten } from '../interfaces/ami.interfaces';
-import { HangupHandler } from '@app/asterisk/interfaces/asterisk.enum';
-import { DEFAULT_TIMEOUT_HANDLER } from '@app/asterisk/asterisk.config';
-
-@Injectable()
-export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
-  constructor(private readonly log: LogService) {}
-
-  get providers(): any {
-    return {
-      [HangupHandler.outbound]: OutboundHangupHandler,
-      [HangupHandler.inbound]: InboundHangupHandler,
-      [HangupHandler.pozvonim]: PozvonimHangupHandler,
-    };
-  }
-
-  async parseEvent(event: AsteriskNewExten): Promise<void> {
-    try {
-      return await this.parseNewExtenEvent(event);
-    } catch (e) {
-      this.log.error(String(event), NewExtenEventParser.name);
-    }
-  }
-
-  private async parseNewExtenEvent(event: AsteriskNewExten) {
-    try {
-      if (
-        [HangupHandler.outbound, HangupHandler.inbound, HangupHandler.pozvonim].includes(event.context as HangupHandler) &&
-        event.application === 'NoOp'
-      ) {
-        await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
-        await this.getProvider(event.context as HangupHandler).handler(event);
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  private getProvider(context: HangupHandler): AsteriskHangupHandlerProviderInterface {
-    return this.providers[context];
-  }
-}
+import {
+  AsteriskAmiEventProviderInterface,
+  AsteriskHangupHandlerProviderInterface,
+  AsteriskHangupHandlerProviders,
+  AsteriskNewExten,
+} from '../interfaces/ami.interfaces';
+import { AmocrmV4Service } from '@app/amocrm/v4/services';
+import { DEFAULT_TIMEOUT_HANDLER } from '../ami.constants';
+import { HangupHandler } from '../interfaces/ami.enum';
 
 @Injectable()
 export class BaseHangupHandlerService {
@@ -59,7 +26,7 @@ export class BaseHangupHandlerService {
     protected readonly amocrmUsers: AmocrmUsersService,
   ) {}
 
-  async sendCallInfoEvent(asteriskCdr: AsteriskCdr, channel: string, callType: DirectionType) {
+  async sendCallInfoEvent(asteriskCdr: AsteriskCdr, channel: string, callType: DirectionType): Promise<void> {
     try {
       const amocrmUsers = await this.getUserId(channel);
       return await this.sendCallInfoToCRM(asteriskCdr, amocrmUsers.amocrmId, callType);
@@ -73,9 +40,10 @@ export class BaseHangupHandlerService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType) {}
+  private async sendCallInfoToCRM(asteriskCdr: AsteriskCdr, amocrmId: number, callType: DirectionType): Promise<void> {}
 }
 
+@Injectable()
 export class OutboundHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
@@ -88,6 +56,7 @@ export class OutboundHangupHandler extends BaseHangupHandlerService implements A
   }
 }
 
+@Injectable()
 export class InboundHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
@@ -104,6 +73,7 @@ export class InboundHangupHandler extends BaseHangupHandlerService implements As
   }
 }
 
+@Injectable()
 export class PozvonimHangupHandler extends BaseHangupHandlerService implements AsteriskHangupHandlerProviderInterface {
   async handler(event: AsteriskNewExten): Promise<void> {
     try {
@@ -113,5 +83,49 @@ export class PozvonimHangupHandler extends BaseHangupHandlerService implements A
     } catch (e) {
       this.log.error(e, PozvonimHangupHandler.name);
     }
+  }
+}
+
+@Injectable()
+export class NewExtenEventParser implements AsteriskAmiEventProviderInterface {
+  constructor(
+    private readonly log: LogService,
+    private readonly outboundHangupHandler: OutboundHangupHandler,
+    private readonly inboundHangupHandler: InboundHangupHandler,
+    private readonly pozvonimHangupHandler: PozvonimHangupHandler,
+  ) {}
+
+  private get providers(): AsteriskHangupHandlerProviders {
+    return {
+      [HangupHandler.outbound]: this.outboundHangupHandler,
+      [HangupHandler.inbound]: this.inboundHangupHandler,
+      [HangupHandler.pozvonim]: this.pozvonimHangupHandler,
+    };
+  }
+
+  async parseEvent(event: AsteriskNewExten): Promise<void> {
+    try {
+      return await this.parseNewExtenEvent(event);
+    } catch (e) {
+      this.log.error(String(event), NewExtenEventParser.name);
+    }
+  }
+
+  private async parseNewExtenEvent(event: AsteriskNewExten): Promise<void> {
+    try {
+      if (
+        [HangupHandler.outbound, HangupHandler.inbound, HangupHandler.pozvonim].includes(event.context as HangupHandler) &&
+        event.application === 'NoOp'
+      ) {
+        await UtilsService.sleep(DEFAULT_TIMEOUT_HANDLER);
+        await this.getProvider(event.context as HangupHandler).handler(event);
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private getProvider(context: HangupHandler): AsteriskHangupHandlerProviderInterface {
+    return this.providers[context];
   }
 }

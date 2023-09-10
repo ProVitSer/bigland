@@ -10,9 +10,6 @@ export class System {
   chanSpyPassword: string;
 
   @Prop()
-  gsmGateway: GsmGateway[];
-
-  @Prop()
   numbersInfo: NumberInfo[];
 
   @Prop()
@@ -20,18 +17,6 @@ export class System {
 
   @Prop()
   freepbxAvailableExtension: string[];
-}
-
-@Schema()
-export class GsmGateway {
-  @Prop()
-  port: string;
-
-  @Prop()
-  number: string;
-
-  @Prop()
-  balance: string;
 }
 
 @Schema()

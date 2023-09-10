@@ -79,3 +79,7 @@ export enum PipelineId {
 export enum TaskTypeId {
   NewLead = 343570,
 }
+
+export enum AmocrmV2EventType {
+  phoneCall = 'phone_call',
+}

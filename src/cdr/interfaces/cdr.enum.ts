@@ -4,10 +4,6 @@ export enum CallType {
   pozvonim = 'pozvonim',
 }
 
-export enum QueueTypes {
-  cdr = 'cdr',
-}
-
 export enum Disposition {
   failed = 'FAILED',
   answered = 'ANSWERED',

@@ -1,20 +1,22 @@
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
-import { HttpExceptionFilter } from '@app/http/http-exception.filter';
+import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { HttpResponseService } from '@app/http/http-response';
 import { Role } from '@app/users/interfaces/users.enum';
 import { Controller, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { LdsService } from './lds.service';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
+@Controller('lds')
 @UseGuards(RoleGuard([Role.Admin]))
 @UseGuards(JwtGuard)
-@UseFilters(HttpExceptionFilter)
-@Controller('lds')
+@UseFilters(ApiHttpExceptionFilter)
 export class LdsController {
   constructor(private readonly http: HttpResponseService, private readonly ldsService: LdsService) {}
 
   @Post('update')
+  @ApiExcludeEndpoint()
   async updateLdsInfo(@Req() req: Request, @Res() res: Response) {
     try {
       await this.ldsService.updateLds();

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { MonitoringCall, MonitoringCallResult, PozvominCall, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
-import { AriACallService } from '@app/asterisk/ari/ari-call.service';
+import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 
 @Injectable()
 export class CallApiService {
-  constructor(private readonly ari: AriACallService) {}
+  constructor(private readonly ari: AriCallService) {}
 
   public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
     try {

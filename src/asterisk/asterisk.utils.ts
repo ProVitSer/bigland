@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AsteriskUtilsService {
-  static getStasis(ariConf: AriAsteriskEnvironmentVariables[], provider: AsteriskAriProvider) {
+  static getStasis(ariConf: AriAsteriskEnvironmentVariables[], provider: AsteriskAriProvider): AriAsteriskEnvironmentVariables {
     return ariConf.filter((conf: AriAsteriskEnvironmentVariables) => {
       return conf.providerName === provider;
     })[0];

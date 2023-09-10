@@ -1,15 +1,13 @@
-import { NumberInfo } from '@app/system/system.schema';
 import { CreatedById, CustomFieldsValuesEnumId, CustomFieldsValuesId, ResponsibleUserId } from '../interfaces/amocrm.enum';
-import { AmocrmCreateContact } from '../interfaces/amocrm.interfaces';
-import { DEFAULT_NUMBER } from '../amocrm.constants';
+import { AmocrmCreateContact, AmocrmCreateContactData } from '../interfaces/amocrm.interfaces';
 
 export class AmocrmCreateContactDataAdapter {
   public amocrmRequestData: AmocrmCreateContact;
   public incomingNumber: string;
-  constructor(incomingNumber: string, numberConfig: NumberInfo | undefined) {
-    this.incomingNumber = incomingNumber;
+  constructor(data: AmocrmCreateContactData) {
+    this.incomingNumber = data.callData.incomingNumber;
     this.amocrmRequestData = {
-      name: `Новый клиент ${incomingNumber}`,
+      name: `Новый клиент ${data.callData.incomingNumber}`,
       responsible_user_id: ResponsibleUserId.AdminCC,
       created_by: CreatedById.AdminCC,
       custom_fields_values: [
@@ -19,7 +17,7 @@ export class AmocrmCreateContactDataAdapter {
           field_code: 'PHONE',
           values: [
             {
-              value: incomingNumber,
+              value: data.callData.incomingNumber,
               enum_id: CustomFieldsValuesEnumId.Number,
               enum_code: 'MOB',
             },
@@ -31,7 +29,7 @@ export class AmocrmCreateContactDataAdapter {
           field_code: null,
           values: [
             {
-              value: numberConfig?.originNumber || DEFAULT_NUMBER,
+              value: data.numberConfig?.originNumber || data.callData.exten,
             },
           ],
         },

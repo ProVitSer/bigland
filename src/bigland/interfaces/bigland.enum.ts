@@ -1,6 +1,7 @@
 export enum ApplicationApiActionStatus {
-  apiFail = 'apiFail',
   inProgress = 'inProgress',
+  apiFail = 'apiFail',
   completed = 'completed',
   cancel = 'cancel',
+  stop = 'stop',
 }
