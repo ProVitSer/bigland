@@ -40,9 +40,11 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     );
 
     response.status(status).json({
-      timestamp: new Date().toISOString(),
-      path: request.url,
+      status,
       error: message,
+      path: request.url,
+      timestamp: new Date().toISOString(),
+      createdBy: 'VPNP',
     });
   }
 }
