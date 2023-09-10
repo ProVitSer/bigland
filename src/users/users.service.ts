@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Users, UsersDocument } from './users.schema';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from './dto/create-user.dto';
 import { v1 as uuid } from 'uuid';
+import { CreateUser } from './interfaces/users.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +31,7 @@ export class UsersService {
     return user.isActive;
   }
 
-  public async create(userData: CreateUserDto): Promise<Users> {
+  public async create(userData: CreateUser): Promise<Users> {
     try {
       const user = new this.usersModel({
         userId: uuid(),
@@ -43,20 +43,20 @@ export class UsersService {
     }
   }
 
-  public async setCurrentRefreshToken(refreshToken: string, userId: string) {
+  public async setCurrentRefreshToken(refreshToken: string, userId: string): Promise<Users> {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     const user = await this.usersModel.findByIdAndUpdate(userId, currentHashedRefreshToken);
     return user;
   }
 
-  public async removeRefreshToken(userId: string) {
+  public async removeRefreshToken(userId: string): Promise<Users> {
     const user = await this.usersModel.findByIdAndUpdate(userId, {
       currentHashedRefreshToken: null,
     });
     return user;
   }
 
-  public async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
+  public async getUserIfRefreshTokenMatches(refreshToken: string, userId: string): Promise<Users> {
     const user = await this.getActiveUserById(userId);
 
     const isRefreshTokenMatching = await bcrypt.compare(refreshToken, user.currentHashedRefreshToken);

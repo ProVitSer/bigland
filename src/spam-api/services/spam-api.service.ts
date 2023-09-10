@@ -2,16 +2,22 @@ import { BiglandService } from '@app/bigland/bigland.service';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CheckNumberDTO, CheckOperatorNumbersDTO } from '../dto/check-spam.dto';
 import { CheckSpamCallResultDTO } from '../dto/amd-spam-call-result.dto';
-import { Spam, SpamCheckNumbersInfo } from '../spam.schema';
-import { AriACallService } from '@app/asterisk/ari/ari-call.service';
+import { Spam } from '../spam.schema';
+import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 import { OperatorsService } from '@app/operators/operators.service';
-import { CheckNumberSpamData, CheckOperatorSpamData, SpamReportsResponseStruct } from '../interfaces/spam-api.interfaces';
+import {
+  CheckNumberSpamData,
+  CheckOperatorSpamData,
+  FormatSpamUpdateData,
+  SaveCheckNumberData,
+  SpamReportsResponseStruct,
+  StopCheckResult,
+} from '../interfaces/spam-api.interfaces';
 import { ApplicationApiActionStatus } from '@app/bigland/interfaces/bigland.enum';
 import { UtilsService } from '@app/utils/utils.service';
 import { SEND_CALL_CHECK_SPAM } from '@app/asterisk-api/asterisk-api.constants';
-import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { AriCallType, AsteriskDialStatus } from '@app/asterisk/ari/interfaces/ari.enum';
 import { DefaultApplicationApiStruct } from '@app/bigland/interfaces/bigland.interfaces';
-import { AsteriskDialStatus } from '@app/asterisk/interfaces/asterisk.enum';
 import { AMD_STATUS_TO_SPAM_MAP } from '../spam-api.constants';
 import { CheckSpamStatus, SpamType } from '../interfaces/spam-api.enum';
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
@@ -21,12 +27,15 @@ import { SpamDataAdapter } from '../adapters/spam-data.adapter';
 import { ConfigService } from '@nestjs/config';
 import { CheckBatchDTO } from '../dto/check-batch.dto';
 import { CheckBatchOperatorAdapter } from '../adapters/chack-batch-operator.adapter';
+import { ReportsEnviromentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class SpamApiService {
+  private reportsConfig = this.configService.get<ReportsEnviromentVariables>('reports');
+
   constructor(
     private readonly biglandService: BiglandService,
-    private readonly ari: AriACallService,
+    private readonly ari: AriCallService,
     private readonly operatorsService: OperatorsService,
     private readonly spamModelService: SpamModelService,
     private readonly configService: ConfigService,
@@ -40,7 +49,7 @@ export class SpamApiService {
     try {
       const checkCriteria: CheckOperatorNumbersDTO = {
         operator: operatorsName,
-        dstNumber: verificationNumber || this.configService.get('reports.spam.verificationNumber'),
+        dstNumber: verificationNumber || this.reportsConfig.spam.verificationNumber,
       };
       return await this.checkOperatorNumbers(checkCriteria, spamType);
     } catch (e) {
@@ -55,15 +64,14 @@ export class SpamApiService {
 
       const defaultApiStruct = this.biglandService.getDefaultApiStruct();
       const fakeOperator = await this.getFakeOperatorInfo(data);
-      console.log(JSON.stringify(fakeOperator));
-      await this.saveCheckNumberInfo(
+      await this.saveCheckNumberInfo({
         defaultApiStruct,
-        data.operator,
-        fakeOperator.numbers.map((number) => {
+        operator: data.operator,
+        numbers: fakeOperator.numbers.map((number) => {
           return { number: number.callerId };
         }),
-        SpamType.checkBatch,
-      );
+        spamType: SpamType.checkBatch,
+      });
       this._checkBatch(fakeOperator, defaultApiStruct);
       return defaultApiStruct;
     } catch (e) {
@@ -74,7 +82,7 @@ export class SpamApiService {
   private async _checkBatch(operatorInfo: Operators, defaultApiStruct: DefaultApplicationApiStruct): Promise<void> {
     this._checkOperatorNumbers(
       {
-        dstNumber: this.configService.get('reports.spam.verificationNumber'),
+        dstNumber: this.reportsConfig.spam.verificationNumber,
         operator: operatorInfo.name,
         applicationId: defaultApiStruct.applicationId,
       },
@@ -96,14 +104,14 @@ export class SpamApiService {
 
     const operatorInfo = await this.operatorsService.getOperator(data.operator);
 
-    await this.saveCheckNumberInfo(
+    await this.saveCheckNumberInfo({
       defaultApiStruct,
-      data.operator,
-      operatorInfo.numbers.map((number) => {
+      operator: data.operator,
+      numbers: operatorInfo.numbers.map((number) => {
         return { number: number.callerId };
       }),
       spamType,
-    );
+    });
 
     this._checkOperatorNumbers({ ...data, applicationId: defaultApiStruct.applicationId }, operatorInfo);
     return defaultApiStruct;
@@ -111,7 +119,7 @@ export class SpamApiService {
 
   public async checkNumber(data: CheckNumberDTO, spamType: SpamType): Promise<DefaultApplicationApiStruct> {
     const defaultApiStruct = this.biglandService.getDefaultApiStruct();
-    await this.saveCheckNumberInfo(defaultApiStruct, data.operator, [{ number: data.callerId }], spamType);
+    await this.saveCheckNumberInfo({ defaultApiStruct, operator: data.operator, numbers: [{ number: data.callerId }], spamType });
     this._checkNumber({ ...data, applicationId: defaultApiStruct.applicationId });
     return defaultApiStruct;
   }
@@ -147,12 +155,12 @@ export class SpamApiService {
     }
   }
 
-  public async stopCheck(applicationId: string): Promise<string> {
+  public async stopCheck(applicationId: string): Promise<StopCheckResult> {
     try {
       const reuslt = await this.spamModelService.findByApplicationId(applicationId);
       if (reuslt == null) throw new HttpException({ message: `По данному ID ${applicationId} нет проверок` }, HttpStatus.NOT_FOUND);
       await this._stopCheck(applicationId, reuslt);
-      return 'Успешная отмена';
+      return { result: true };
     } catch (e) {
       throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -171,7 +179,7 @@ export class SpamApiService {
     return await this.spamModelService.getActualCheck(spamType);
   }
 
-  private formatUpdateData(data: CheckSpamCallResultDTO, result: Spam) {
+  private formatUpdateData(data: CheckSpamCallResultDTO, result: Spam): FormatSpamUpdateData {
     const callerId = UtilsService.normalizePhoneNumber(data.callerId);
     return {
       ...(!!!Number(data.amountOfNmber) ? { status: ApplicationApiActionStatus.completed } : {}),
@@ -195,14 +203,14 @@ export class SpamApiService {
     };
   }
 
-  private async _stopCheck(applicationId: string, reuslt: Spam) {
+  private async _stopCheck(applicationId: string, reuslt: Spam): Promise<void> {
     await this.spamModelService.update(applicationId, { status: ApplicationApiActionStatus.cancel });
     if (reuslt.applicationIds.length !== 0) {
       await this.stopAllSpamCheck(reuslt.applicationIds);
     }
   }
 
-  private async stopAllSpamCheck(applicationIds: string[]) {
+  private async stopAllSpamCheck(applicationIds: string[]): Promise<void> {
     for (const id of applicationIds) {
       await this.spamModelService.update(id, { status: ApplicationApiActionStatus.cancel });
     }
@@ -220,7 +228,7 @@ export class SpamApiService {
     }
   }
 
-  private async _checkOperatorNumbers(data: CheckOperatorSpamData, operatorInfo: Operators) {
+  private async _checkOperatorNumbers(data: CheckOperatorSpamData, operatorInfo: Operators): Promise<void> {
     try {
       const numbers = [...operatorInfo.numbers];
 
@@ -248,20 +256,15 @@ export class SpamApiService {
     }
   }
 
-  private async saveCheckNumberInfo(
-    defaultApiStruct: DefaultApplicationApiStruct,
-    operator: OperatorsName,
-    numbers: SpamCheckNumbersInfo[],
-    spamType: SpamType,
-  ) {
+  private async saveCheckNumberInfo(data: SaveCheckNumberData): Promise<void> {
     await this.spamModelService.create({
-      ...defaultApiStruct,
-      spamType,
+      ...data.defaultApiStruct,
+      spamType: data.spamType,
       checkDate: new Date(),
       resultSpamCheck: [
         {
-          operator,
-          numbers,
+          operator: data.operator,
+          numbers: data.numbers,
         },
       ],
     });

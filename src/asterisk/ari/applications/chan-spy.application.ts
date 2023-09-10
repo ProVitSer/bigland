@@ -6,12 +6,13 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { Channel, ChannelDtmfReceived, Playback, PlaybackStarted, StasisStart } from 'ari-client';
 import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_CHANSPY_ERROR, PLAYBACK_ERROR } from '../ari.constants';
-import { PlaybackSounds } from '@app/asterisk/interfaces/asterisk.enum';
+import { PlaybackSounds } from '../interfaces/ari.enum';
+import { AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AriChanSpyApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
-
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
   constructor(
     @Inject(AsteriskAriProvider.chanspy) private readonly ari: { ariClient: Ari.Client },
     private readonly configService: ConfigService,
@@ -21,7 +22,8 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
 
   public async onApplicationBootstrap() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      const chanspyConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.chanspy);
+      const chanspyConf = AsteriskUtilsService.getStasis(this.asteriskConfig.ari, AsteriskAriProvider.chanspy);
+
       this.client = this.ari;
       this.client.ariClient.on('StasisStart', async (event: StasisStart, incoming: Channel) => {
         try {
@@ -80,7 +82,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
     }
   }
 
-  private async playSound(incomingChannel: Channel, sound: string): Promise<any> {
+  private async playSound(incomingChannel: Channel, sound: string): Promise<void> {
     try {
       await new Promise(async (resolve: any) => {
         const playback = this.client.ariClient.Playback();
@@ -91,6 +93,7 @@ export class AriChanSpyApplication implements OnApplicationBootstrap {
           playback,
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         play.once('PlaybackFinished', async (event: PlaybackStarted, _: Playback) => {
           resolve(event);
         });

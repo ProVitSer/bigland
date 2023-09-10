@@ -3,7 +3,7 @@ import { MailService } from '@app/mail/mail.service';
 import { Injectable } from '@nestjs/common';
 import { FreePBXCreateUsersDto, Users } from './dto/freepbx-create-users.dto';
 import { FreepbxCreateUser } from './freepbx-selenium/create-user';
-import { CreateUserResult } from './interfaces/freepbx-api.interfaces';
+import { CreateUserResult, CreateUsersData, DeleteUsersResponse, UsersData } from './interfaces/freepbx-api.interfaces';
 import { TemplateTypes } from '@app/mail/interfaces/mail.enum';
 import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 import { ConfigService } from '@nestjs/config';
@@ -13,9 +13,13 @@ import { PbxCallRoutingService } from '@app/pbx-call-routing/services/pbx-call-r
 import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { FreePBXDeleteUsersDto } from './dto/freepbx-delete-users.dto';
 import { TelegramService } from '@app/telegram/telegram.service';
+import { MailEnvironmentVariables } from '@app/config/interfaces/config.interface';
+import { FreepbxPubService } from './freepbx-api-mq/freepbx-api-pub.service';
 
 @Injectable()
 export class FreepbxUsersApiService {
+  private mailConfig = this.configService.get<MailEnvironmentVariables>('mail');
+
   constructor(
     private readonly configService: ConfigService,
     private readonly log: LogService,
@@ -25,50 +29,54 @@ export class FreepbxUsersApiService {
     private readonly freePBXLogin: Login,
     private readonly pbxCallRoutingService: PbxCallRoutingService,
     private readonly tg: TelegramService,
+    private readonly freepbxPubService: FreepbxPubService,
   ) {}
 
-  public async createUsers(users: FreePBXCreateUsersDto): Promise<boolean> {
+  public async createUsers(data: FreePBXCreateUsersDto): Promise<CreateUsersData> {
     try {
-      this.createFreepbxUser(users);
-      return true;
+      const usersData: UsersData[] = [];
+      for (const user of data.users) {
+        const extension = await this.getNewExtension();
+        usersData.push({ ...user, extension });
+      }
+      const users = { users: usersData };
+      await this.freepbxPubService.publishCreateUsersToQueue(usersData);
+      return users;
     } catch (e) {
       throw e;
     }
   }
 
-  public async deleteUsers(data: FreePBXDeleteUsersDto): Promise<boolean> {
+  public async deleteUsers(data: FreePBXDeleteUsersDto): Promise<DeleteUsersResponse> {
     try {
       for (const ext of data.extensions) {
         await this.pbxCallRoutingService.deleteExtensionRoute(ext);
         await this.systemService.addAvailableExtension(ext);
       }
       await this.tg.tgAlert(`Номера на удаление ${data.extensions.join(',')}`, FreepbxUsersApiService.name);
-      return true;
+      return { delete: true, extensions: data.extensions };
     } catch (e) {
       throw e;
     }
   }
 
-  private async createFreepbxUser(data: FreePBXCreateUsersDto) {
+  public async createFreepbxUser(data: UsersData): Promise<void> {
     try {
-      for (const user of data.users) {
-        const webDriver = await this.freePBXLogin.loginOnPbx();
-        const extension = await this.getNewExtension();
-        const createUserData = await this.freepbxCreateser.createPbxUser({
-          firstName: user.firstName,
-          lastName: user.lastName,
-          extension,
-          webDriver,
-        });
-        await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: extension, operatorName: OperatorsName.mango }]);
-        await this.sendDataToUser(user, createUserData);
-      }
+      const webDriver = await this.freePBXLogin.loginOnPbx();
+      const createUserData = await this.freepbxCreateser.createPbxUser({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        extension: data.extension,
+        webDriver,
+      });
+      await this.pbxCallRoutingService.addExtensionsRoute([{ localExtension: data.extension, operatorName: OperatorsName.mango }]);
+      await this.sendDataToUser(data, createUserData);
     } catch (e) {
       this.log.error(e, FreepbxUsersApiService.name);
     }
   }
 
-  private async sendDataToUser(user: Users, data: CreateUserResult) {
+  private async sendDataToUser(user: Users, data: CreateUserResult): Promise<void> {
     try {
       const mailData: SendMailData = {
         to: user.email,
@@ -78,7 +86,7 @@ export class FreepbxUsersApiService {
           password: data.password,
         },
         template: TemplateTypes.userCreate,
-        from: this.configService.get('mail.from'),
+        from: this.mailConfig.from,
         subject: `Авторизационные данные для добавочного ${data.extension}`,
       };
       await this.mailService.sendMail(mailData);

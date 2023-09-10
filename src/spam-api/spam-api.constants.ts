@@ -1,4 +1,4 @@
-import { AsteriskAmdCallStatus } from '@app/asterisk/interfaces/asterisk.enum';
+import { AsteriskAmdCallStatus } from '@app/asterisk/ari/interfaces/ari.enum';
 import { CheckSpamStatus } from './interfaces/spam-api.enum';
 
 export const AMD_STATUS_TO_SPAM_MAP: { [key in AsteriskAmdCallStatus]: CheckSpamStatus } = {

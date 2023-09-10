@@ -1,18 +1,19 @@
-import { IDnd } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
+import { DndData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 import { Injectable } from '@nestjs/common';
 import * as namiLib from 'nami';
-import { AsteriskAmi } from '../asterisk-ami';
+import { AsteriskAmi } from '../ami';
+import { LogService } from '@app/log/log.service';
+import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 import {
   AsteriskDNDStatusResponse,
   AsteriskStatusResponse,
-  dndStatusMap,
+  DndStatus,
   EventsStatus,
-  hintStatusMap,
   SetDNDStatusResult,
-} from '../../interfaces/asterisk.interfaces';
-import { ChannelType, DbFamilyType, statusHint } from '../../interfaces/asterisk.enum';
-import { LogService } from '@app/log/log.service';
-import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
+} from '../interfaces/ami.interfaces';
+import { DND_API_TO_DND_STATUS, DND_API_TO_HINT_STATUS } from '../ami.constants';
+import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { DbFamilyType, DndStatusType, HintStatus } from '../interfaces/ami.enum';
 
 @Injectable()
 export class AmiActionService {
@@ -33,52 +34,58 @@ export class AmiActionService {
       action.exten = outgoingNumber;
       action.async = AMI_OUTBOUND_CALL.async;
       const resultInitCall: any = await this.ami.amiClientSend(action);
-      this.log.info(`Результат инициации вызова ${resultInitCall}`, AmiActionService.name);
-    } catch (e) {}
+      this.log.info(`Результат инициации вызова ` + resultInitCall, AmiActionService.name);
+    } catch (e) {
+      throw e;
+    }
   }
 
-  private async setHintStatus(extension: string, hint: statusHint): Promise<void> {
+  private async setHintStatus(extension: string, hint: HintStatus): Promise<void> {
     try {
       const action = new namiLib.Actions.Command();
       action.Command = `devstate change Custom:DND${extension} ${hint}`;
       return await this.ami.amiClientSend(action);
-    } catch (e) {}
+    } catch (e) {
+      throw e;
+    }
   }
 
-  public async setDNDStatus(data: IDnd): Promise<SetDNDStatusResult> {
+  public async setDNDStatus(data: DndData): Promise<SetDNDStatusResult> {
     try {
-      const extensionStatusList = {};
+      const sip_ids: DndStatus[] = [];
 
       await Promise.all(
         data.sip_id.map(async (sip_id: string) => {
           const checkExtension = await this.getDNDStatus(sip_id);
           if (checkExtension.response === 'Error') {
-            extensionStatusList[sip_id] = { status: 'error' };
+            sip_ids.push({ sip_id, status: DndStatusType.error });
             return;
           }
           const resultSend: AsteriskStatusResponse = await this.dndPut(sip_id, data.dnd_status);
           this.log.info(resultSend, AmiActionService.name);
-          const hint = hintStatusMap[data.dnd_status];
+
+          const hint = DND_API_TO_HINT_STATUS[data.dnd_status];
 
           if (resultSend.response == 'Success') {
-            extensionStatusList[sip_id] = { status: 'success' };
-
-            return this.setHintStatus(sip_id, hint);
+            sip_ids.push({ sip_id, status: DndStatusType.success });
+            this.setHintStatus(sip_id, hint);
           } else {
             return;
           }
         }),
       );
 
-      return extensionStatusList;
-    } catch (e) {}
+      return { sip_ids };
+    } catch (e) {
+      throw e;
+    }
   }
 
   private async dndPut(sipId: string, dndStatus: string): Promise<AsteriskStatusResponse> {
     const action = new namiLib.Actions.DbPut();
     action.Family = DbFamilyType.DND;
     action.Key = sipId;
-    action.Val = dndStatusMap[dndStatus];
+    action.Val = DND_API_TO_DND_STATUS[dndStatus];
     return await this.ami.amiClientSend(action);
   }
 
@@ -89,23 +96,18 @@ export class AmiActionService {
     return await this.ami.amiClientSend(action);
   }
 
-  public async getCallStatus(): Promise<AsteriskStatusResponse> {
+  public async getCallStatus(): Promise<EventsStatus[]> {
     const action = new namiLib.Actions.Status();
-    const callInfo: AsteriskStatusResponse = await this.ami.amiClientSend(action);
-    return this.deleteNoUserProp(callInfo) as AsteriskStatusResponse;
+    const callInfo = await this.ami.amiClientSend<AsteriskStatusResponse>(action);
+    return this.deleteNoUserProp(callInfo);
   }
 
-  private deleteNoUserProp(callInfo: AsteriskStatusResponse): any {
-    try {
-      return callInfo.events.map((event: EventsStatus) => {
-        delete event.lines;
-        delete event.EOL;
-        delete event.variables;
-        return event;
-      });
-    } catch (e) {
-      this.log.error(e, AmiActionService.name);
-      return callInfo;
-    }
+  private deleteNoUserProp(callInfo: AsteriskStatusResponse): EventsStatus[] {
+    return callInfo.events.map((event: EventsStatus) => {
+      delete event.lines;
+      delete event.EOL;
+      delete event.variables;
+      return event;
+    });
   }
 }

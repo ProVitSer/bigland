@@ -23,6 +23,14 @@ export class AmocrmUsersService {
     }
   }
 
+  public async getUserByAmocrmId(amocrmId: number): Promise<AmocrmUsers | null> {
+    try {
+      return await this.amocrmUsersModel.findOne({ amocrmId });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   public async getAmocrmUsers(): Promise<AmocrmUsers[]> {
     try {
       return await this.amocrmUsersModel.find();

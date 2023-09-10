@@ -20,10 +20,7 @@ export class Log {
   @Prop()
   description?: string;
 
-  // @Prop()
-  // source?: CollectionType;
-
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   stamp?: Date;
 }
 

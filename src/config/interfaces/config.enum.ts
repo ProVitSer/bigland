@@ -33,3 +33,8 @@ export enum DatabaseType {
   mongo = 'mongo',
   mariadb = 'mariadb',
 }
+
+export enum JwtTokenConfType {
+  access = 'auth.jwtAccess',
+  refresh = 'auth.jwtRefresh',
+}

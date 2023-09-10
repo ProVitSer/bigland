@@ -7,7 +7,6 @@ interface TemplateVariables {
 }
 
 export type Contexts = TemplateVariables | ChanSpyContext | CreatePbxUserContext | HealthCheckServiceInfo | SpamReportContext;
-// | Record<string, never>;
 
 export interface SendMailData {
   to: string | string[];

@@ -5,12 +5,15 @@ import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Ari, { StasisStart } from 'ari-client';
 import { AsteriskUtilsService } from '../../asterisk.utils';
-import { HangupReason } from '../../interfaces/asterisk.enum';
-import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_FORMAT, NUMBER_IN_BLACK_LIST } from '../ari.constants';
+import { CONTINUE_DIALPLAN, CONTINUE_DIALPLAN_BLACKLIST_ERROR, NUMBER_IN_BLACK_LIST } from '../ari.constants';
+import { HangupReason } from '../interfaces/ari.enum';
+import { AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
+import { UtilsService } from '@app/utils/utils.service';
 
 @Injectable()
 export class AriBlackListApplication implements OnApplicationBootstrap {
   private client: { ariClient: Ari.Client };
+  private asteriskConfig = this.configService.get<AsteriskEnvironmentVariables>('asterisk');
 
   constructor(
     @Inject(AsteriskAriProvider.blacklist) private readonly ari: { ariClient: Ari.Client },
@@ -21,7 +24,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
 
   public async onApplicationBootstrap() {
     if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      const blacklistConf = AsteriskUtilsService.getStasis(this.configService.get('asterisk.ari'), AsteriskAriProvider.blacklist);
+      const blacklistConf = AsteriskUtilsService.getStasis(this.asteriskConfig.ari, AsteriskAriProvider.blacklist);
 
       this.client = this.ari;
 
@@ -43,7 +46,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
 
   private async checkInBlackList(event: StasisStart): Promise<boolean> {
     try {
-      const incomingNumber = event.channel.caller.number;
+      const incomingNumber = UtilsService.normalizePhoneNumber(event.channel.caller.number);
       const config = await this.system.getConfig();
       return this.check(config.blackListNumbers, incomingNumber);
     } catch (e) {
@@ -51,8 +54,8 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private check(arr: string[], val: string) {
-    return arr.some((arrVal) => val.substring(val.length - NUMBER_FORMAT) === arrVal.substring(val.length - NUMBER_FORMAT));
+  private check(blackListNumbers: string[], incomingNumber: string): boolean {
+    return blackListNumbers.some((blackListNumber: string) => incomingNumber === blackListNumber);
   }
 
   private async continueDialplan(channelId: string): Promise<void> {
@@ -68,7 +71,7 @@ export class AriBlackListApplication implements OnApplicationBootstrap {
     }
   }
 
-  private hangupChannel(event: StasisStart) {
+  private hangupChannel(event: StasisStart): Promise<void> {
     this.log.info(`${NUMBER_IN_BLACK_LIST}:  ${JSON.stringify(event)}`, AriBlackListApplication.name);
     return this.client.ariClient.channels.hangup({ channelId: event.channel.id, reason: HangupReason.busy });
   }

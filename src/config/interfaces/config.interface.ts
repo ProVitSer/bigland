@@ -4,8 +4,12 @@ export interface ConfigEnvironmentVariables {
   appProtocol: AppProtocol;
   appUrl: string;
   appPort: number;
+  apiPrefix: string;
   userAgent: string;
+  ttsUrl: string;
   security: SecurityEnvironmentVariables;
+  cors: CorsEnvironmentVariables;
+  serveStatic: string;
   auth: AuthEnvironmentVariables;
   log: LogEnvironmentVariables;
   telegram: TelegramEnvironmentVariables;
@@ -14,14 +18,9 @@ export interface ConfigEnvironmentVariables {
     mongo: DatabaseEnvironmentVariables;
     mariadb: DatabaseEnvironmentVariables;
   };
-  lds: {
-    url: string;
-    bearer: string;
-    cookie: string;
-  };
+  lds: LDSEnviromentVariables;
   docker: DockerEnvironmentVariables[];
   selenium: SeleniumEnvironmentVariables;
-  gsmGateway: GsmGatewayEnvironmentVariables[];
   mail: MailEnvironmentVariables;
   freepbx: FreepbxEnvironmentVariables;
   redis: RedisEnvironmentVariables;
@@ -30,6 +29,30 @@ export interface ConfigEnvironmentVariables {
   cdrMicroservice: string;
   heath: HealthMailEnvironmentVariables;
   files: FilesEnvironmentVariables;
+  reports: ReportsEnviromentVariables;
+}
+
+export interface LDSEnviromentVariables {
+  url: string;
+  bearer: string;
+  cookie: string;
+}
+
+export interface ReportsEnviromentVariables {
+  spam: {
+    from: string;
+    to: string[];
+    subject: string;
+    verificationNumber: string;
+  };
+}
+
+export interface CorsEnvironmentVariables {
+  allowedHeaders: string;
+  origin: string[];
+  methods: string;
+  credentials: boolean;
+  maxAge: number;
 }
 
 export interface FilesEnvironmentVariables {
@@ -42,6 +65,7 @@ export interface FilesEnvironmentVariables {
 export interface SecurityEnvironmentVariables {
   key: string;
   cert: string;
+  ca: string;
   ipWhiteList: string[];
 }
 
@@ -52,7 +76,8 @@ export interface AuthEnvironmentVariables {
 
 export interface JwtEnvironmentVariables {
   tokenSecretKey: string;
-  algorithm: string;
+  tokenExpireMin?: string;
+  algorithm: Algorithm;
   expiresIn: string;
 }
 
@@ -104,9 +129,13 @@ export interface GsmGatewayEnvironmentVariables extends DefaultConnectEnvironmen
   };
 }
 
-export interface MailEnvironmentVariables extends DefaultConnectEnvironmentVariables {
+export interface MailEnvironmentVariables extends Omit<DefaultConnectEnvironmentVariables, 'username' | 'password'> {
   secure: boolean;
   from: string;
+  auth: {
+    user: string;
+    pass: string;
+  };
 }
 
 export interface FreepbxEnvironmentVariables {

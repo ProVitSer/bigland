@@ -1,4 +1,3 @@
-import { AsteriskModule } from '@app/asterisk/asterisk.module';
 import { AuthModule } from '@app/auth/auth.module';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -8,13 +7,21 @@ import { AllowedIpMiddleware } from '@app/middleware/allowedIp.middleware';
 import { LogModule } from '@app/log/log.module';
 import { SystemModule } from '@app/system/system.module';
 import { OperatorsModule } from '@app/operators/operators.module';
-import { AmocrmApiController, CallApiController, ChanspyApiController, ServiceCodeApiController } from './controllers';
-import { AmocrmApiService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
+import {
+  AmocrmApiController,
+  BlackListyApiController,
+  CallApiController,
+  ChanspyApiController,
+  ServiceCodeApiController,
+} from './controllers';
+import { AmocrmApiService, BlackListNumbersService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
+import { AmiModule } from '@app/asterisk/ami/ami.module';
+import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
-  imports: [ConfigModule, LogModule, AsteriskModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
-  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController],
-  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService],
+  imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
+  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
+  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService],
   exports: [],
 })
 export class AsteriskApiModule {
@@ -27,6 +34,8 @@ export class AsteriskApiModule {
       .apply(LoggerMiddleware, AllowedIpMiddleware)
       .forRoutes(ServiceCodeApiController)
       .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ChanspyApiController);
+      .forRoutes(ChanspyApiController)
+      .apply(LoggerMiddleware, AllowedIpMiddleware)
+      .forRoutes(BlackListyApiController);
   }
 }

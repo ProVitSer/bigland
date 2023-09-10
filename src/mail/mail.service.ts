@@ -2,7 +2,6 @@ import { LogService } from '@app/log/log.service';
 import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SentMessageInfo } from 'nodemailer';
 import { DEFAULT_SUBJECT } from './mail.constants';
 import { AttachmentsData, SendMailData } from './interfaces/mail.interfaces';
 import { Attachment } from 'nodemailer/lib/mailer';
@@ -12,7 +11,7 @@ import { FileUtilsService } from '@app/files-api/file-utils/file-utils.service';
 export class MailService {
   constructor(private mailerService: MailerService, private readonly configService: ConfigService, private readonly log: LogService) {}
 
-  public async sendMail(data: SendMailData): Promise<SentMessageInfo> {
+  public async sendMail(data: SendMailData): Promise<void> {
     try {
       const mailData = this.formatMailData(data);
       const result = await this.mailerService.sendMail(mailData);

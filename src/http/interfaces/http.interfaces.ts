@@ -2,10 +2,10 @@ import { LogEventType } from '@app/log/interfaces/log.interfaces';
 import { DataObject } from '@app/platform-types/common/interfaces';
 import { HttpStatus } from '@nestjs/common';
 
-export class IHttpResponse {
+export class HttpResponse {
   statusCode: HttpStatus;
   message?: string | string[] | any;
-  result: boolean;
+  result?: boolean;
   errors?: string | DataObject;
   data?: string | DataObject;
   path: string;
@@ -18,38 +18,3 @@ export interface HttpExeptionInfo {
   message?: string;
   error?: DataObject;
 }
-
-export enum SwaggerTypes {
-  object = 'object',
-  string = 'string',
-}
-
-export enum SwaggerApiBadResponse {
-  ApiBadRequestResponse = 'ApiBadRequestResponse',
-  ApiInternalServerErrorResponse = 'ApiInternalServerErrorResponse',
-}
-
-export const SwaggerHttpErrorResponseMap: {
-  [key in SwaggerApiBadResponse]: DataObject;
-} = {
-  [SwaggerApiBadResponse.ApiBadRequestResponse]: {
-    schema: {
-      properties: {
-        error: {
-          type: SwaggerTypes.object,
-          properties: {
-            error: { type: SwaggerTypes.object },
-            message: { type: SwaggerTypes.object },
-          },
-        },
-      },
-    },
-  },
-  [SwaggerApiBadResponse.ApiInternalServerErrorResponse]: {
-    schema: {
-      properties: {
-        error: { type: 'string' },
-      },
-    },
-  },
-};
