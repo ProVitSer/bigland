@@ -54,4 +54,13 @@ export class SystemService {
       throw e;
     }
   }
+
+  public async updateBlackListNumbers(numbers: string[]): Promise<void> {
+    try {
+      const system = await this.getConfig();
+      await this.systemModel.updateOne({ _id: system._id }, { $set: { blackListNumbers: numbers } });
+    } catch (e) {
+      throw e;
+    }
+  }
 }
