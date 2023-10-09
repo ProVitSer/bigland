@@ -33,7 +33,6 @@ import { SpamReportsResponseStruct, StopCheckResult } from '../interfaces/spam-a
 
 @ApiTags('spam-api')
 @Controller('spam-api')
-@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class SpamApiController {
@@ -44,6 +43,7 @@ export class SpamApiController {
   ) {}
 
   @Post('check-operator-numbers')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Sasha]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка всех номеров оператора на спам' })
   @ApiBody({ type: CheckOperatorNumbersDTO })
@@ -62,6 +62,7 @@ export class SpamApiController {
   }
 
   @Post('check-batch')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка определенных номеров через оператора' })
   @ApiBody({ type: CheckBatchDTO })
@@ -80,6 +81,7 @@ export class SpamApiController {
   }
 
   @Get('check-all')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Sasha]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка всех номеров всех операторов на спам' })
   @ApiOkResponse({
@@ -97,6 +99,7 @@ export class SpamApiController {
   }
 
   @Post('check-number')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Sasha]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка определенного номера на спам' })
   @ApiBody({ type: CheckNumberDTO })
@@ -115,6 +118,7 @@ export class SpamApiController {
   }
 
   @Get('status/:id')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Sasha]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Получение данных спам проверки' })
   @ApiParam({
@@ -138,6 +142,7 @@ export class SpamApiController {
   }
 
   @Post('stop/:id')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Остановка ранеезапущенной проверки' })
   @ApiParam({
@@ -161,6 +166,7 @@ export class SpamApiController {
   }
 
   @Get('report')
+  @UseGuards(RoleGuard([Role.Admin, Role.Api]))
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Проверка определенного номера на спам' })
   @ApiOkResponse({
