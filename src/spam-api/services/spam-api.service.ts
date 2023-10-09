@@ -271,7 +271,7 @@ export class SpamApiService {
   }
 
   private getStatus(data: CheckSpamCallResultDTO): CheckSpamStatus {
-    if (!!data.dialStatus && data.dialStatus === AsteriskDialStatus.CHANUNAVAIL) {
+    if (!!data.dialStatus && [AsteriskDialStatus.CHANUNAVAIL, AsteriskDialStatus.CONGESTION].includes(data.dialStatus)) {
       return CheckSpamStatus.failed;
     }
     return AMD_STATUS_TO_SPAM_MAP[data.amdStatus];
