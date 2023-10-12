@@ -23,9 +23,9 @@ export class AmocrmCallDataAdapter {
       phone: this.getPhone(data),
       call_result: '',
       call_status: CALL_STATUS_MAP[cdr.disposition],
-      responsible_user_id: this.amocrmUserId,
-      created_by: this.amocrmUserId,
-      updated_by: this.amocrmUserId,
+      responsible_user_id: this.amocrmUserId || ResponsibleUserId.AdminCC,
+      created_by: this.amocrmUserId || ResponsibleUserId.AdminCC,
+      updated_by: this.amocrmUserId || ResponsibleUserId.AdminCC,
       created_at: this.callDate,
       updated_at: this.callDate,
     };

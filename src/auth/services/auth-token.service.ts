@@ -40,7 +40,7 @@ export class AuthTokenService {
     return token;
   }
 
-  public async getApiToken(userId: string, expiresIn = '5m'): Promise<GetApiTokenReponse> {
+  public async getApiToken(userId: string, expiresIn = '1y'): Promise<GetApiTokenReponse> {
     return {
       accessToken: await this.getToken(userId, JwtTokenConfType.access, expiresIn),
     };

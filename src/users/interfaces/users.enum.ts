@@ -4,4 +4,5 @@ export enum Role {
   Api = 'Api',
   Tts = 'Tts',
   Asterisk = 'Asterisk',
+  Sasha = 'Sasha',
 }
