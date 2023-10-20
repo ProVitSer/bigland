@@ -17,11 +17,12 @@ import {
 import { AmocrmApiService, BlackListNumbersService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
 import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
+import { ExtensionsStateService } from './controllers/extensions-state.service';
 
 @Module({
   imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
   controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
-  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService],
+  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService, ExtensionsStateService],
   exports: [],
 })
 export class AsteriskApiModule {

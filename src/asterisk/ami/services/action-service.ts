@@ -5,7 +5,9 @@ import { AsteriskAmi } from '../ami';
 import { LogService } from '@app/log/log.service';
 import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 import {
+  AsteriskBaseStatusResponse,
   AsteriskDNDStatusResponse,
+  AsteriskExtensionStatusEvent,
   AsteriskStatusResponse,
   DndStatus,
   EventsStatus,
@@ -45,6 +47,15 @@ export class AmiActionService {
       const action = new namiLib.Actions.Command();
       action.Command = `devstate change Custom:DND${extension} ${hint}`;
       return await this.ami.amiClientSend(action);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async showHints(): Promise<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>> {
+    try {
+      const action = new namiLib.Actions.ExtensionStateList();
+      return await this.ami.amiClientSend<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>>(action);
     } catch (e) {
       throw e;
     }
