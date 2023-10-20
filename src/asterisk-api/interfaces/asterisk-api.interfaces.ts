@@ -1,6 +1,7 @@
 import { DNDtatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 import { ApiProperty } from '@nestjs/swagger';
+import { SipBusynessStateId } from './asterisk-api.enum';
 
 export interface DndData {
   sip_id: string[];
@@ -63,4 +64,21 @@ export class ModifyBlackListNumbersResult {
     example: '["71234567890","71234567890"]',
   })
   numbers: string[];
+}
+
+export class ExtensionState {
+  @ApiProperty({ type: String, description: 'Внтуренний номер', example: '102' })
+  sip_id: string;
+
+  @ApiProperty({
+    enum: SipBusynessStateId,
+    enumName: 'SipBusynessStateId',
+    description: 'Статус внутреннего номера',
+  })
+  sip_busyness_state_id: SipBusynessStateId;
+}
+
+export class ActualExtensionsState {
+  @ApiProperty({ type: [ExtensionState], description: 'Массив данных внутренних номеров и их актуального статуса' })
+  items: ExtensionState[];
 }
