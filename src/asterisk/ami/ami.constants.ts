@@ -13,11 +13,11 @@ export const MIN_EXTERNAL_NUMBER_LENGTH = 10;
 export const DEFAULT_TIMEOUT_HANDLER = 2000;
 
 export const DND_API_TO_DND_STATUS: { [code in DNDtatus]: DNDStatus } = {
-  [DNDtatus.on]: DNDStatus.on,
-  [DNDtatus.off]: DNDStatus.off,
+    [DNDtatus.on]: DNDStatus.on,
+    [DNDtatus.off]: DNDStatus.off,
 };
 
 export const DND_API_TO_HINT_STATUS: { [code in DNDtatus]: HintStatus } = {
-  [DNDtatus.on]: HintStatus.on,
-  [DNDtatus.off]: HintStatus.off,
+    [DNDtatus.on]: HintStatus.on,
+    [DNDtatus.off]: HintStatus.off,
 };

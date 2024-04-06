@@ -11,16 +11,21 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @UseGuards(RoleGuard([Role.Admin, Role.Asterisk]))
 @UseGuards(JwtGuard)
 export class RouteInfoController {
-  constructor(private readonly routingInfoService: RoutingInfoService) {}
+    constructor(private readonly routingInfoService: RoutingInfoService) {}
 
-  @Get('route-info')
-  @ApiExcludeEndpoint()
-  async getRouteInfo(@Query() pbxCallData: PbxCallData, @Res() res: Response) {
-    try {
-      const result = await this.routingInfoService.getRoutingInfo(pbxCallData);
-      return res.json(result);
-    } catch (e) {
-      return res.sendStatus(HttpStatus.FORBIDDEN);
+    @Get('route-info')
+    @ApiExcludeEndpoint()
+    async getRouteInfo(@Query() pbxCallData: PbxCallData, @Res() res: Response) {
+        try {
+
+            const result = await this.routingInfoService.getRoutingInfo(pbxCallData);
+
+            return res.json(result);
+
+        } catch (e) {
+
+            return res.sendStatus(HttpStatus.FORBIDDEN);
+            
+        }
     }
-  }
 }

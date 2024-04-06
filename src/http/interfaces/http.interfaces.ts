@@ -1,20 +1,20 @@
-import { LogEventType } from '@app/log/interfaces/log.interfaces';
+import { LogEventType } from '@app/log/interfaces/log.enum';
 import { DataObject } from '@app/platform-types/common/interfaces';
 import { HttpStatus } from '@nestjs/common';
 
 export class HttpResponse {
-  statusCode: HttpStatus;
-  message?: string | string[] | any;
-  result?: boolean;
-  errors?: string | DataObject;
-  data?: string | DataObject;
-  path: string;
-  timestamp: string;
-  createdBy: string;
+    statusCode: HttpStatus;
+    message?: string | string[] | any;
+    result?: boolean;
+    errors?: string | DataObject;
+    data?: string | DataObject;
+    path: string;
+    timestamp: string;
+    createdBy: string;
 }
 
 export interface HttpExeptionInfo {
-  logEventType: LogEventType;
-  message?: string;
-  error?: DataObject;
+    logEventType: LogEventType;
+    message?: string;
+    error?: DataObject;
 }

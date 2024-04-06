@@ -1,40 +1,40 @@
 export enum AppProtocol {
-  http = 'http',
-  https = 'https',
+    http = 'http',
+    https = 'https',
 }
 
 export enum GsmGatewayProvider {
-  gsm = 'GSM',
+    gsm = 'GSM',
 }
 
 export enum AsteriskAriProvider {
-  chanspy = 'CHANSPY',
-  amocrm = 'AMOCRM',
-  blacklist = 'BLACKLIST',
-  aricall = 'ARICALL',
+    chanspy = 'CHANSPY',
+    amocrm = 'AMOCRM',
+    blacklist = 'BLACKLIST',
+    aricall = 'ARICALL',
 }
 
 export enum AsteriskAmiProvider {
-  ami = 'AMI',
+    ami = 'AMI',
 }
 
 export enum LogLevel {
-  console = 'console',
-  error = 'error',
-  warn = 'warn',
-  info = 'info',
-  http = 'http',
-  verbose = 'verbose',
-  debug = 'debug',
-  silly = 'silly',
+    console = 'console',
+    error = 'error',
+    warn = 'warn',
+    info = 'info',
+    http = 'http',
+    verbose = 'verbose',
+    debug = 'debug',
+    silly = 'silly',
 }
 
 export enum DatabaseType {
-  mongo = 'mongo',
-  mariadb = 'mariadb',
+    mongo = 'mongo',
+    mariadb = 'mariadb',
 }
 
 export enum JwtTokenConfType {
-  access = 'auth.jwtAccess',
-  refresh = 'auth.jwtRefresh',
+    access = 'auth.jwtAccess',
+    refresh = 'auth.jwtRefresh',
 }

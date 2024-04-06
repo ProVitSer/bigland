@@ -6,22 +6,28 @@ import { LogService } from '@app/log/log.service';
 
 @Injectable()
 export class CheckOperatorSpamAriCall implements AsteriskAriCall {
-  constructor(private readonly log: LogService) {}
+    constructor(private readonly log: LogService) {}
 
-  async getOriginateInfo(data: CheckSpamData): Promise<AsteriskAriOriginate> {
-    try {
-      const spamDataAdapter = new AmdSpamDataAdapter({
-        spamData: data.data,
-        numberInfo: data.number,
-        operatorInfo: {
-          amountOfNmber: data.operatorInfo.numbers.length,
-          formatNumber: data.operatorInfo.formatNumber,
-        },
-      });
-      return spamDataAdapter.originateInfo;
-    } catch (e) {
-      this.log.error(e, CheckOperatorSpamAriCall.name);
-      throw e;
+    async getOriginateInfo(data: CheckSpamData): Promise<AsteriskAriOriginate> {
+        try {
+
+            const spamDataAdapter = new AmdSpamDataAdapter({
+                spamData: data.data,
+                numberInfo: data.number,
+                operatorInfo: {
+                    amountOfNmber: data.operatorInfo.numbers.length,
+                    formatNumber: data.operatorInfo.formatNumber,
+                },
+            });
+
+            return spamDataAdapter.originateInfo;
+
+        } catch (e) {
+
+            this.log.error(e, CheckOperatorSpamAriCall.name);
+
+            throw e;
+            
+        }
     }
-  }
 }

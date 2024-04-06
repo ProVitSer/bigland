@@ -10,6 +10,6 @@ export const SERVICE_UP = 'All of Service in UP';
 export const SERVICE_DOWN = 'Some of Service is DOWN';
 
 export const HEALTH_CHECK_STATUS_MAP: { [status in HealthCheckStatusType]: string } = {
-  [HealthCheckStatusType.ok]: SERVICE_UP,
-  [HealthCheckStatusType.error]: SERVICE_DOWN,
+    [HealthCheckStatusType.ok]: SERVICE_UP,
+    [HealthCheckStatusType.error]: SERVICE_DOWN,
 };

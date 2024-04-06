@@ -8,28 +8,38 @@ import { SeleniumEnvironmentVariables } from '@app/config/interfaces/config.inte
 
 @Injectable()
 export class SeleniumWebdriver implements OnApplicationBootstrap {
-  private capabilities: Capabilities;
-  private readonly seleniumDockerImg: string;
-  private seleniumConfig = this.configService.get<SeleniumEnvironmentVariables>('selenium');
+    private capabilities: Capabilities;
+    private readonly seleniumDockerImg: string;
+    private seleniumConfig = this.configService.get<SeleniumEnvironmentVariables>('selenium');
 
-  constructor(private readonly configService: ConfigService, private readonly log: LogService, private readonly docker: DockerService) {
-    this.capabilities = this.seleniumConfig.capabilities;
-    this.seleniumDockerImg = this.seleniumConfig.selenoidDockerImg;
-  }
+    constructor(private readonly configService: ConfigService, private readonly log: LogService, private readonly docker: DockerService) {
 
-  async onApplicationBootstrap() {
-    try {
-      await this.docker.checkImgUp(this.seleniumDockerImg);
-    } catch (e) {
-      this.log.error(e, SeleniumWebdriver.name);
+        this.capabilities = this.seleniumConfig.capabilities;
+        this.seleniumDockerImg = this.seleniumConfig.selenoidDockerImg;
+
     }
-  }
 
-  public async getWebDriver(): Promise<WebDriver> {
-    try {
-      return await new Builder().usingServer(this.seleniumConfig.host).withCapabilities(this.capabilities).build();
-    } catch (e) {
-      throw e;
+    async onApplicationBootstrap() {
+        try {
+
+            await this.docker.checkImgUp(this.seleniumDockerImg);
+
+        } catch (e) {
+
+            this.log.error(e, SeleniumWebdriver.name);
+
+        }
     }
-  }
+
+    public async getWebDriver(): Promise<WebDriver> {
+        try {
+
+            return await new Builder().usingServer(this.seleniumConfig.host).withCapabilities(this.capabilities).build();
+
+        } catch (e) {
+
+            throw e;
+            
+        }
+    }
 }

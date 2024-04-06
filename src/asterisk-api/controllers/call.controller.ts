@@ -17,41 +17,63 @@ import { MonitoringCallResult, PozvonimCallResult } from '../interfaces/asterisk
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class CallApiController {
-  constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
+    constructor(private readonly apiService: CallApiService, private readonly http: HttpResponseService) {}
 
-  @Post('monitoringCall')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Звонок на номера и озвучивание "Проверка работоспособности номера"' })
-  @ApiBody({ type: MonitoringCallDTO })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Обновленный пароль прослушки chanSpy',
-    type: [MonitoringCallResult],
-  })
-  async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
-    try {
-      const callResult = await this.apiService.sendMonitoringCall(body);
-      return this.http.response(req, res, HttpStatus.OK, callResult);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+    @Post('monitoringCall')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Звонок на номера и озвучивание "Проверка работоспособности номера"'
+    })
+    @ApiBody({
+        type: MonitoringCallDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Обновленный пароль прослушки chanSpy',
+        type: [MonitoringCallResult],
+    })
+    async monitoringCall(@Req() req: Request, @Body() body: MonitoringCallDTO, @Res() res: Response) {
+        try {
 
-  @Post('pozvonim')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Инициация двустороннего обратного вызова' })
-  @ApiBody({ type: PozvonimCallDTO })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Обновленный пароль прослушки chanSpy',
-    type: PozvonimCallResult,
-  })
-  async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
-    try {
-      const callResult = await this.apiService.pozvonimOutCall(body);
-      return this.http.response(req, res, HttpStatus.OK, callResult);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+            const callResult = await this.apiService.sendMonitoringCall(body);
+
+            return this.http.response(req, res, HttpStatus.OK, callResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
     }
-  }
+
+    @Post('pozvonim')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Инициация двустороннего обратного вызова'
+    })
+    @ApiBody({
+        type: PozvonimCallDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Обновленный пароль прослушки chanSpy',
+        type: PozvonimCallResult,
+    })
+    async pozvonimCall(@Req() req: Request, @Body() body: PozvonimCallDTO, @Res() res: Response) {
+        try {
+
+            const callResult = await this.apiService.pozvonimOutCall(body);
+
+            return this.http.response(req, res, HttpStatus.OK, callResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
 }

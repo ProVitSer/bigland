@@ -15,36 +15,38 @@ import { AmocrmV2ApiService, AmocrmV2AuthService } from './v2/services';
 import { AmocrmV4ApiService, AmocrmV4AuthService, AmocrmV4RequestService, AmocrmV4Service } from './v4/services';
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    ConfigModule,
-    LogModule,
-    SystemModule,
-    AsteriskCdrModule,
-    MongooseModule.forFeature([{ name: Amocrm.name, schema: AmocrmSchema }]),
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: getAmocrmV2Config,
-      inject: [ConfigService],
-    }),
-    TelegramModule,
-    AmocrmUsersModule,
-  ],
-  providers: [
-    {
-      provide: 'AMOCRM',
-      useFactory: getAmocrmV4Config,
-      inject: [ConfigService],
-    },
+    imports: [
+        ScheduleModule.forRoot(),
+        ConfigModule,
+        LogModule,
+        SystemModule,
+        AsteriskCdrModule,
+        MongooseModule.forFeature([{
+            name: Amocrm.name,
+            schema: AmocrmSchema
+        }]),
+        HttpModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: getAmocrmV2Config,
+            inject: [ConfigService],
+        }),
+        TelegramModule,
+        AmocrmUsersModule,
+    ],
+    providers: [{
+            provide: 'AMOCRM',
+            useFactory: getAmocrmV4Config,
+            inject: [ConfigService],
+        },
 
-    AmocrmV4AuthService,
-    AmocrmV2AuthService,
-    AmocrmV2ApiService,
-    AmocrmUpdateTokenSchedule,
-    AmocrmV4ApiService,
-    AmocrmV4Service,
-    AmocrmV4RequestService,
-  ],
-  exports: [AmocrmV4Service, AmocrmV2AuthService, AmocrmV2ApiService],
+        AmocrmV4AuthService,
+        AmocrmV2AuthService,
+        AmocrmV2ApiService,
+        AmocrmUpdateTokenSchedule,
+        AmocrmV4ApiService,
+        AmocrmV4Service,
+        AmocrmV4RequestService,
+    ],
+    exports: [AmocrmV4Service, AmocrmV2AuthService, AmocrmV2ApiService],
 })
 export class AmocrmModule {}

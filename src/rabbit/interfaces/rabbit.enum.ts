@@ -1,14 +1,14 @@
 export enum QueueTypes {
-  calling = 'calling',
-  cdr = 'cdr',
-  freepbxApi = 'freepbx-api',
+    calling = 'calling',
+    cdr = 'cdr',
+    freepbxApi = 'freepbx-api',
 }
 
 export enum RabbitMqExchange {
-  presence = 'presence',
+    presence = 'presence',
 }
 
 export enum RoutingKey {
-  tts = 'tts',
-  createFreePbxUser = 'create.user',
+    tts = 'tts',
+    createFreePbxUser = 'create.user',
 }

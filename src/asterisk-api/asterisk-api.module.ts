@@ -19,23 +19,23 @@ import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
-  imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
-  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
-  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService],
-  exports: [],
+    imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
+    controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
+    providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService],
+    exports: [],
 })
 export class AsteriskApiModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes(AmocrmApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(CallApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ServiceCodeApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ChanspyApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(BlackListyApiController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(LoggerMiddleware)
+            .forRoutes(AmocrmApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(CallApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(ServiceCodeApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(ChanspyApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(BlackListyApiController)
+    }
 }

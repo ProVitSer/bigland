@@ -1,5 +1,5 @@
 export enum AmocrmActionStatus {
-  status = 'status',
-  call = 'call',
-  cdr = 'cdr',
+    status = 'status',
+    call = 'call',
+    cdr = 'cdr',
 }

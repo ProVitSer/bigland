@@ -10,64 +10,84 @@ import {
 import configuration from '../config.provider';
 
 const asteriskAriFactory = async (ari: AriAsteriskEnvironmentVariables): Promise<any> => {
-  return {
-    ariClient: await ARI.connect(ari.url, ari.user, ari.password),
-  };
+
+    return {
+        ariClient: await ARI.connect(ari.url, ari.user, ari.password),
+    };
+
 };
 
 const createAsteriskAriProvider = (ari: AriAsteriskEnvironmentVariables): FactoryProvider<any> => {
-  return {
-    provide: ari.providerName,
-    useFactory: async () => {
-      return asteriskAriFactory(ari);
-    },
-    inject: [ConfigService],
-  };
+
+    return {
+        provide: ari.providerName,
+        useFactory: async () => {
+            return asteriskAriFactory(ari);
+        },
+        inject: [ConfigService],
+    };
+
 };
 
-export const createAsteriskAri = (): Provider<any>[] => {
-  const { asterisk } = configuration() as ConfigEnvironmentVariables;
-  return asterisk.ari.map((ariApplicationConf: AriAsteriskEnvironmentVariables) => {
-    return createAsteriskAriProvider(ariApplicationConf);
-  });
+export const createAsteriskAri = (): Provider<any> [] => {
+
+    const { asterisk } = configuration() as ConfigEnvironmentVariables;
+
+    return asterisk.ari.map((ariApplicationConf: AriAsteriskEnvironmentVariables) => {
+        return createAsteriskAriProvider(ariApplicationConf);
+    });
+
 };
 
 export const getAsteriskAriProvidesName = () => {
-  const { asterisk } = configuration() as ConfigEnvironmentVariables;
-  return asterisk.ari.map((ariApplicationConf: AriAsteriskEnvironmentVariables) => {
-    return ariApplicationConf.providerName;
-  });
+
+    const { asterisk } = configuration() as ConfigEnvironmentVariables;
+
+    return asterisk.ari.map((ariApplicationConf: AriAsteriskEnvironmentVariables) => {
+        return ariApplicationConf.providerName;
+    });
+
 };
 
 const asteriskAmiFactory = async (ami: AmiAsteriskEnvironmentVariables): Promise<any> => {
-  return new namiLib.Nami({
-    username: ami.username,
-    secret: ami.password,
-    host: ami.host,
-    port: ami.port,
-  });
+
+    return new namiLib.Nami({
+        username: ami.username,
+        secret: ami.password,
+        host: ami.host,
+        port: ami.port,
+    });
+
 };
 
 const createAsteriskAmiProvider = (ami: AmiAsteriskEnvironmentVariables): FactoryProvider<any> => {
-  return {
-    provide: ami.providerName,
-    useFactory: async () => {
-      return asteriskAmiFactory(ami);
-    },
-    inject: [ConfigService],
-  };
+
+    return {
+        provide: ami.providerName,
+        useFactory: async () => {
+            return asteriskAmiFactory(ami);
+        },
+        inject: [ConfigService],
+    };
+
 };
 
-export const createAsteriskAmi = (): Provider<any>[] => {
-  const { asterisk } = configuration() as ConfigEnvironmentVariables;
-  return asterisk.ami.map((amiApplicationConf: AmiAsteriskEnvironmentVariables) => {
-    return createAsteriskAmiProvider(amiApplicationConf);
-  });
+export const createAsteriskAmi = (): Provider<any> [] => {
+
+    const { asterisk } = configuration() as ConfigEnvironmentVariables;
+
+    return asterisk.ami.map((amiApplicationConf: AmiAsteriskEnvironmentVariables) => {
+        return createAsteriskAmiProvider(amiApplicationConf);
+    });
+
 };
 
 export const getAsteriskAmiProvidesName = () => {
-  const { asterisk } = configuration() as ConfigEnvironmentVariables;
-  return asterisk.ami.map((amiApplicationConf: AmiAsteriskEnvironmentVariables) => {
-    return amiApplicationConf.providerName;
-  });
+    
+    const { asterisk } = configuration() as ConfigEnvironmentVariables;
+
+    return asterisk.ami.map((amiApplicationConf: AmiAsteriskEnvironmentVariables) => {
+        return amiApplicationConf.providerName;
+    });
+    
 };

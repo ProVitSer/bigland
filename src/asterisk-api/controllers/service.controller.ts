@@ -16,23 +16,34 @@ import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces'
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class ServiceCodeApiController {
-  constructor(private readonly serviceCode: ServiceCodeApiService, private readonly http: HttpResponseService) {}
+    constructor(private readonly serviceCode: ServiceCodeApiService, private readonly http: HttpResponseService) {}
 
-  @Post('dnd')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Изменение статуса dnd добавочных номеров' })
-  @ApiBody({ type: DNDDto })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Результат изменения статуса dnd внутренних номеров',
-    type: SetDNDStatusResult,
-  })
-  async setDnd(@Req() req: Request, @Body() body: DNDDto, @Res() res: Response) {
-    try {
-      const resultSet = await this.serviceCode.setDndStatus(body);
-      return this.http.response(req, res, HttpStatus.OK, [resultSet]);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+    @Post('dnd')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Изменение статуса dnd добавочных номеров'
+    })
+    @ApiBody({
+        type: DNDDto
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат изменения статуса dnd внутренних номеров',
+        type: SetDNDStatusResult,
+    })
+    async setDnd(@Req() req: Request, @Body() body: DNDDto, @Res() res: Response) {
+        try {
+
+            const resultSet = await this.serviceCode.setDndStatus(body);
+
+            return this.http.response(req, res, HttpStatus.OK, [resultSet]);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
     }
-  }
 }

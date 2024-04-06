@@ -13,16 +13,23 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class AmocrmUsersController {
-  constructor(private readonly http: HttpResponseService, private readonly amocrmUsersService: AmocrmUsersService) {}
+    constructor(private readonly http: HttpResponseService, private readonly amocrmUsersService: AmocrmUsersService) {}
 
-  @Post('update')
-  @ApiExcludeEndpoint()
-  async updateLdsInfo(@Req() req: Request, @Res() res: Response) {
-    try {
-      await this.amocrmUsersService.updateAmocrmUsers();
-      return this.http.response(req, res, HttpStatus.OK);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+    @Post('update')
+    @ApiExcludeEndpoint()
+    async updateLdsInfo(@Req() req: Request, @Res() res: Response) {
+        try {
+
+            await this.amocrmUsersService.updateAmocrmUsers();
+
+            return this.http.response(req, res, HttpStatus.OK);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
     }
-  }
 }

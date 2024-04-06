@@ -5,15 +5,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getTelegramConfig } from '@app/config/project-configs/telegram.config';
 
 @Module({
-  imports: [
-    ConfigModule,
-    TgModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: getTelegramConfig,
-      inject: [ConfigService],
-    }),
-  ],
-  providers: [TelegramService],
-  exports: [TelegramService],
+    imports: [
+        ConfigModule,
+        TgModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: getTelegramConfig,
+            inject: [ConfigService],
+        }),
+    ],
+    providers: [TelegramService],
+    exports: [TelegramService],
 })
 export class TelegramModule {}

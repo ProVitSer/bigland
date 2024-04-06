@@ -4,9 +4,11 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProxyCallingTtsUtils {
-  constructor(private readonly configService: ConfigService<ConfigEnvironmentVariables>) {}
+    constructor(private readonly configService: ConfigService < ConfigEnvironmentVariables > ) {}
 
-  public getCallingTtsUrl(path: string) {
-    return `${this.configService.get('ttsUrl')}${path.replace(`/${this.configService.get('apiPrefix')}`, '')}`;
-  }
+    public getCallingTtsUrl(path: string): string {
+
+        return `${this.configService.get('ttsUrl')}${path.replace(`/${this.configService.get('apiPrefix')}`, '')}`;
+
+    }
 }
