@@ -9,7 +9,7 @@ import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces';
-import { ExtensionsStateService } from './extensions-state.service';
+import { ExtensionsStateService } from '../services/extensions-state.service';
 import { ActualExtensionsState } from '../interfaces/asterisk-api.interfaces';
 
 @ApiTags('asterisk-api')
