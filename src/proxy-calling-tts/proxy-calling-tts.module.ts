@@ -10,18 +10,14 @@ import { HttpModule } from '@nestjs/axios';
 import { ProxyCallingTtsUtils } from './proxy-calling-tts.utils';
 
 @Module({
-  imports: [ConfigModule, LogModule, HttpResponseModule, SystemModule, HttpModule],
-  controllers: [ProxyCallingController, ProxyTtsController, ProxyCallingResultController],
-  providers: [ProxyCallingTtsUtils],
+    imports: [ConfigModule, LogModule, HttpResponseModule, SystemModule, HttpModule],
+    controllers: [ProxyCallingController, ProxyTtsController, ProxyCallingResultController],
+    providers: [ProxyCallingTtsUtils],
 })
 export class ProxyCallingTtsModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ProxyCallingResultController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ProxyCallingController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ProxyTtsController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(ProxyCallingResultController, ProxyCallingController, ProxyTtsController)
+    }
 }

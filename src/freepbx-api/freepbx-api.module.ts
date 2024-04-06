@@ -19,22 +19,22 @@ import { RabbitModule } from '@app/rabbit/rabbit.module';
 import { FreepbxSubService } from './freepbx-api-mq/freepbx-api-sub.service';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    HttpResponseModule,
-    SeleniumModule,
-    MailModule,
-    SystemModule,
-    PbxCallRoutingModule,
-    TelegramModule,
-    RabbitModule,
-  ],
-  providers: [FreepbxUsersApiService, Login, FreepbxCreateUser, FreepbxSubmitChange, FreepbxPubService, FreepbxSubService],
-  controllers: [FreepbxApiController],
+    imports: [
+        ConfigModule,
+        LogModule,
+        HttpResponseModule,
+        SeleniumModule,
+        MailModule,
+        SystemModule,
+        PbxCallRoutingModule,
+        TelegramModule,
+        RabbitModule,
+    ],
+    providers: [FreepbxUsersApiService, Login, FreepbxCreateUser, FreepbxSubmitChange, FreepbxPubService, FreepbxSubService],
+    controllers: [FreepbxApiController],
 })
 export class FreepbxApiModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(FreepbxApiController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(FreepbxApiController);
+    }
 }

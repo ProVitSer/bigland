@@ -5,15 +5,19 @@ import { UsersData } from '../interfaces/freepbx-api.interfaces';
 
 @Injectable()
 export class FreepbxPubService {
-  constructor(private readonly rabbitPubService: RabbitPubService) {}
+    constructor(private readonly rabbitPubService: RabbitPubService) {}
 
-  public async publishCreateUsersToQueue(data: UsersData[]): Promise<void> {
-    try {
-      for (const user of data) {
-        await this.rabbitPubService.sendMessage(RabbitMqExchange.presence, RoutingKey.createFreePbxUser, user);
-      }
-    } catch (e) {
-      throw e;
+    public async publishCreateUsersToQueue(data: UsersData[]): Promise<void> {
+        try {
+
+            for (const user of data) {
+
+                await this.rabbitPubService.sendMessage(RabbitMqExchange.presence, RoutingKey.createFreePbxUser, user);
+                
+            }
+
+        } catch (e) {
+            throw e;
+        }
     }
-  }
 }

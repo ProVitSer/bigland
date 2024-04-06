@@ -10,35 +10,50 @@ import { LogService } from '@app/log/log.service';
 
 @Injectable()
 export class CheckSpamNumberAriCall implements AsteriskAriCall {
-  constructor(private readonly operatorsService: OperatorsService, private readonly log: LogService) {}
+    constructor(private readonly operatorsService: OperatorsService, private readonly log: LogService) {}
 
-  public async getOriginateInfo(data: CheckNumberSpamData): Promise<AsteriskAriOriginate> {
-    try {
-      const operatorInfo = await this.getOperatorInfo(data);
-      const number = this.getActiveNumber(data, operatorInfo);
-      const spamDataAdapter = new AmdSpamDataAdapter({
-        spamData: data,
-        numberInfo: number,
-        operatorInfo: {
-          amountOfNmber: AMOUNT_NUMBER,
-          formatNumber: operatorInfo.formatNumber,
-        },
-      });
-      return spamDataAdapter.originateInfo;
-    } catch (e) {
-      this.log.error(e, CheckSpamNumberAriCall.name);
-      throw e;
+    public async getOriginateInfo(data: CheckNumberSpamData): Promise<AsteriskAriOriginate> {
+        try {
+
+            const operatorInfo = await this.getOperatorInfo(data);
+
+            const number = this.getActiveNumber(data, operatorInfo);
+
+            const spamDataAdapter = new AmdSpamDataAdapter({
+                spamData: data,
+                numberInfo: number,
+                operatorInfo: {
+                    amountOfNmber: AMOUNT_NUMBER,
+                    formatNumber: operatorInfo.formatNumber,
+                },
+            });
+
+            return spamDataAdapter.originateInfo;
+
+        } catch (e) {
+
+            this.log.error(e, CheckSpamNumberAriCall.name);
+
+            throw e;
+
+        }
     }
-  }
 
-  private getActiveNumber(data: CheckNumberSpamData, operatorInfo: Operators): NumbersInfo {
-    const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
-    return numberInfo[0];
-  }
+    private getActiveNumber(data: CheckNumberSpamData, operatorInfo: Operators): NumbersInfo {
 
-  private async getOperatorInfo(data: CheckNumberSpamData): Promise<Operators> {
-    const operatorInfo = await this.operatorsService.getOperator(data.operator);
-    if (!operatorInfo.numbers.some((number: NumbersInfo) => number.callerId === data.callerId)) throw new Error(NUMBER_NOT_FOUND);
-    return operatorInfo;
-  }
+        const numberInfo = operatorInfo.numbers.filter((number: NumbersInfo) => number.callerId === data.callerId);
+
+        return numberInfo[0];
+
+    }
+
+    private async getOperatorInfo(data: CheckNumberSpamData): Promise<Operators> {
+
+        const operatorInfo = await this.operatorsService.getOperator(data.operator);
+
+        if (!operatorInfo.numbers.some((number: NumbersInfo) => number.callerId === data.callerId)) throw new Error(NUMBER_NOT_FOUND);
+
+        return operatorInfo;
+        
+    }
 }

@@ -5,13 +5,17 @@ import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces'
 
 @Injectable()
 export class ServiceCodeApiService {
-  constructor(private readonly ami: AmiActionService) {}
+    constructor(private readonly ami: AmiActionService) {}
 
-  public async setDndStatus(data: DndData): Promise<SetDNDStatusResult> {
-    try {
-      return await this.ami.setDNDStatus(data);
-    } catch (e) {
-      throw e;
+    public async setDndStatus(data: DndData): Promise<SetDNDStatusResult> {
+        try {
+
+            return await this.ami.setDNDStatus(data);
+
+        } catch (e) {
+
+            throw e;
+            
+        }
     }
-  }
 }

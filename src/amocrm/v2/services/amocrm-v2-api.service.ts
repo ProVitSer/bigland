@@ -9,44 +9,52 @@ import { AxiosError } from 'axios';
 
 @Injectable()
 export class AmocrmV2ApiService {
-  constructor(private readonly amocrm: AmocrmV2AuthService, private readonly log: LogService, private httpService: HttpService) {}
+    constructor(private readonly amocrm: AmocrmV2AuthService, private readonly log: LogService, private httpService: HttpService) {}
 
-  public async sendIncomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
-    try {
-      const result = await firstValueFrom(
-        this.httpService
-          .post(
-            `${this.amocrm.amocrmConfig.v2.apiV2Domain}${AmocrmAPIV2.events}`,
-            this.getEventsData(incomingNumber, eventResponsibleUserId),
-            {
-              headers: { Cookie: await this.amocrm.getAuthCookies() },
-            },
-          )
-          .pipe(
-            catchError((error: AxiosError) => {
-              throw error;
-            }),
-          ),
-      );
+    public async sendIncomingCallEvent(incomingNumber: string, eventResponsibleUserId: number): Promise<boolean> {
+        try {
 
-      return !!result.data;
-    } catch (e) {
-      this.log.error(e, AmocrmV2ApiService.name);
-      throw e;
+            const result = await firstValueFrom(
+                this.httpService
+                .post(
+                    `${this.amocrm.amocrmConfig.v2.apiV2Domain}${AmocrmAPIV2.events}`,
+                    this.getEventsData(incomingNumber, eventResponsibleUserId), {
+                        headers: {
+                            Cookie: await this.amocrm.getAuthCookies()
+                        },
+                    },
+                )
+                .pipe(
+                    catchError((error: AxiosError) => {
+                        throw error;
+                    }),
+                ),
+            );
+
+            return !!result.data;
+
+        } catch (e) {
+
+            this.log.error(e, AmocrmV2ApiService.name);
+
+            throw e;
+
+        }
     }
-  }
 
-  private getEventsData(incomingNumber: string, eventResponsibleUserId: number): string {
-    const eventsData = JSON.stringify({
-      add: [
-        {
-          type: AmocrmV2EventType.phoneCall,
-          phone_number: UtilsService.formatIncomingNumber(incomingNumber),
-          users: [eventResponsibleUserId],
-        },
-      ],
-    });
-    this.log.info(eventsData, AmocrmV2ApiService.name);
-    return eventsData;
-  }
+    private getEventsData(incomingNumber: string, eventResponsibleUserId: number): string {
+
+        const eventsData = JSON.stringify({
+            add: [{
+                type: AmocrmV2EventType.phoneCall,
+                phone_number: UtilsService.formatIncomingNumber(incomingNumber),
+                users: [eventResponsibleUserId],
+            }, ],
+        });
+
+        this.log.info(eventsData, AmocrmV2ApiService.name);
+
+        return eventsData;
+        
+    }
 }

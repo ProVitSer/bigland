@@ -1,84 +1,84 @@
 import { Table, Column, Model } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'cdr',
+    tableName: 'cdr',
 })
 export class AsteriskCdr extends Model {
-  @Column
-  calldate: Date;
+    @Column
+    calldate: Date;
 
-  @Column
-  clid: string;
+    @Column
+    clid: string;
 
-  @Column
-  src: string;
+    @Column
+    src: string;
 
-  @Column
-  dst: string;
+    @Column
+    dst: string;
 
-  @Column
-  dcontext: string;
+    @Column
+    dcontext: string;
 
-  @Column
-  channel: string;
+    @Column
+    channel: string;
 
-  @Column
-  dstchannel: string;
+    @Column
+    dstchannel: string;
 
-  @Column
-  lastapp: string;
+    @Column
+    lastapp: string;
 
-  @Column
-  lastdata: string;
+    @Column
+    lastdata: string;
 
-  @Column
-  duration: number;
+    @Column
+    duration: number;
 
-  @Column
-  billsec: number;
+    @Column
+    billsec: number;
 
-  @Column
-  disposition: string;
+    @Column
+    disposition: string;
 
-  @Column
-  amaflags: number;
+    @Column
+    amaflags: number;
 
-  @Column
-  accountcode: string;
+    @Column
+    accountcode: string;
 
-  @Column
-  uniqueid: string;
+    @Column
+    uniqueid: string;
 
-  @Column
-  userfield: string;
+    @Column
+    userfield: string;
 
-  @Column
-  did: string;
+    @Column
+    did: string;
 
-  @Column
-  recordingfile: string;
+    @Column
+    recordingfile: string;
 
-  @Column
-  cnum: string;
+    @Column
+    cnum: string;
 
-  @Column
-  cnam: string;
+    @Column
+    cnam: string;
 
-  @Column
-  outboundCnum: string;
+    @Column
+    outboundCnum: string;
 
-  @Column
-  outboundCnam: string;
+    @Column
+    outboundCnam: string;
 
-  @Column
-  dstCnam: string;
+    @Column
+    dstCnam: string;
 
-  @Column
-  linkedid: string;
+    @Column
+    linkedid: string;
 
-  @Column
-  peeraccount: string;
+    @Column
+    peeraccount: string;
 
-  @Column
-  sequence: number;
+    @Column
+    sequence: number;
 }

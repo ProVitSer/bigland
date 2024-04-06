@@ -24,34 +24,34 @@ import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
-  imports: [
-    TerminusModule,
-    ScheduleModule.forRoot(),
-    ConfigModule,
-    LogModule,
-    DockerModule,
-    MailModule,
-    HttpResponseModule,
-    AmiModule,
-    AriModule,
-    RedisModule,
-    AmocrmModule,
-  ],
-  providers: [
-    HealthService,
-    HealthScheduledService,
-    DockerServiceHealthIndicator,
-    DockerImgServiceHealthIndicator,
-    AsteriskHealthIndicator,
-    AsteriskAriApplicationHealthIndicator,
-    RedisHealthIndicator,
-    AmocrmHealthIndicator,
-  ],
-  controllers: [HealthController],
-  exports: [HealthService],
+    imports: [
+        TerminusModule,
+        ScheduleModule.forRoot(),
+        ConfigModule,
+        LogModule,
+        DockerModule,
+        MailModule,
+        HttpResponseModule,
+        AmiModule,
+        AriModule,
+        RedisModule,
+        AmocrmModule,
+    ],
+    providers: [
+        HealthService,
+        HealthScheduledService,
+        DockerServiceHealthIndicator,
+        DockerImgServiceHealthIndicator,
+        AsteriskHealthIndicator,
+        AsteriskAriApplicationHealthIndicator,
+        RedisHealthIndicator,
+        AmocrmHealthIndicator,
+    ],
+    controllers: [HealthController],
+    exports: [HealthService],
 })
 export class HealthModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware).forRoutes(HealthController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware).forRoutes(HealthController);
+    }
 }

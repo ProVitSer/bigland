@@ -16,6 +16,7 @@ module.exports = {
     jest: true,
   },
   ignorePatterns: ['.eslintrc.js'],
+  indent: ["error", 2],
   rules: {
     "prettier/prettier": [
       "error",

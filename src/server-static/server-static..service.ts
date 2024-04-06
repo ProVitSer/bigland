@@ -4,11 +4,11 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ServerStaticService {
-  constructor(private readonly configService: ConfigService<ConfigEnvironmentVariables>) {}
+    constructor(private readonly configService: ConfigService < ConfigEnvironmentVariables > ) {}
 
-  public getStaticUrl(): string {
-    return `${this.configService.get('appProtocol')}://${this.configService.get('appUrl')}:${this.configService.get(
-      'appPort',
-    )}${this.configService.get('serveStatic')}`;
-  }
+    public getStaticUrl(): string {
+
+        return `${this.configService.get('appProtocol')}://${this.configService.get('appUrl')}:${this.configService.get('appPort',)}${this.configService.get('serveStatic')}`;
+
+    }
 }

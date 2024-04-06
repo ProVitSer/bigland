@@ -5,8 +5,8 @@ import { LogModule } from '@app/log/log.module';
 import { MailModule } from '@app/mail/mail.module';
 
 @Module({
-  imports: [ConfigModule, MailModule, LogModule],
-  providers: [ReportService],
-  exports: [ReportService],
+    imports: [ConfigModule, MailModule, LogModule],
+    providers: [ReportService],
+    exports: [ReportService],
 })
 export class ReportsModule {}

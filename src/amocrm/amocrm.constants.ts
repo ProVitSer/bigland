@@ -9,18 +9,18 @@ export const INIT_AMO_ERROR = 'Ошибка подключения к Amocrm';
 export const INIT_AMO_SUCCESS = 'Подключение к Amocrm успешно';
 export const INIT_AMO = 'Инициализация взаимодействия с Amocrm';
 export const AMOCRM_ERROR_RESPONSE_CODE: number[] = [
-  HttpStatus.UNAUTHORIZED,
-  HttpStatus.UNPROCESSABLE_ENTITY,
-  HttpStatus.METHOD_NOT_ALLOWED,
-  HttpStatus.PAYMENT_REQUIRED,
-  HttpStatus.FORBIDDEN,
-  HttpStatus.TOO_MANY_REQUESTS,
+    HttpStatus.UNAUTHORIZED,
+    HttpStatus.UNPROCESSABLE_ENTITY,
+    HttpStatus.METHOD_NOT_ALLOWED,
+    HttpStatus.PAYMENT_REQUIRED,
+    HttpStatus.FORBIDDEN,
+    HttpStatus.TOO_MANY_REQUESTS,
 ];
 
 export const CALL_STATUS_MAP: { [code in PbxCallStatus]: AmocrmCallStatus } = {
-  [PbxCallStatus.ANSWERED]: AmocrmCallStatus.Answer,
-  [PbxCallStatus.NOANSWER]: AmocrmCallStatus.NoAnswer,
-  [PbxCallStatus.BUSY]: AmocrmCallStatus.Busy,
+    [PbxCallStatus.ANSWERED]: AmocrmCallStatus.Answer,
+    [PbxCallStatus.NOANSWER]: AmocrmCallStatus.NoAnswer,
+    [PbxCallStatus.BUSY]: AmocrmCallStatus.Busy,
 };
 
 export const DEFAULT_TASKS_TEXT = `
@@ -33,7 +33,7 @@ export const DEFAULT_TASKS_TEXT = `
 `;
 
 export const CALL_DIRECTION_TYPE_MAP: { [key in CallType]: DirectionType } = {
-  [CallType.outgoing]: DirectionType.outbound,
-  [CallType.incoming]: DirectionType.inbound,
-  [CallType.pozvonim]: DirectionType.outbound,
+    [CallType.outgoing]: DirectionType.outbound,
+    [CallType.incoming]: DirectionType.inbound,
+    [CallType.pozvonim]: DirectionType.outbound,
 };

@@ -6,31 +6,42 @@ import { AmocrmV2ApiService } from '@app/amocrm/v2/services/amocrm-v2-api.servic
 
 @Injectable()
 export class BlindTransferEventParser implements AsteriskAmiEventProviderInterface {
-  constructor(
-    private readonly log: LogService,
-    private readonly amocrmV2ApiService: AmocrmV2ApiService,
-    private readonly amocrmUsers: AmocrmUsersService,
-  ) {}
+    constructor(
+        private readonly log: LogService,
+        private readonly amocrmV2ApiService: AmocrmV2ApiService,
+        private readonly amocrmUsers: AmocrmUsersService,
+    ) {}
 
-  async parseEvent(event: AsteriskBlindTransferEvent): Promise<void> {
-    try {
-      return await this.parseBlindTransferEvent(event);
-    } catch (e) {
-      this.log.error(event, BlindTransferEventParser.name);
-      throw e;
-    }
-  }
+    async parseEvent(event: AsteriskBlindTransferEvent): Promise<void> {
+        try {
 
-  private async parseBlindTransferEvent(event: AsteriskBlindTransferEvent): Promise<void> {
-    try {
-      if (!!event.extension && event.extension.toString().length == 3 && event.transfererconnectedlinenum.toString().length >= 10) {
-        const resultSearchId = await this.amocrmUsers.getAmocrmUser(event.extension);
-        !!resultSearchId[0]?.amocrmId
-          ? await this.amocrmV2ApiService.sendIncomingCallEvent(event.transfererconnectedlinenum, Number(resultSearchId[0]?.amocrmId))
-          : '';
-      }
-    } catch (e) {
-      throw e;
+            return await this.parseBlindTransferEvent(event);
+
+        } catch (e) {
+
+            this.log.error(event, BlindTransferEventParser.name);
+
+            throw e;
+
+        }
     }
-  }
+
+    private async parseBlindTransferEvent(event: AsteriskBlindTransferEvent): Promise<void> {
+        try {
+
+            if (!!event.extension && event.extension.toString().length == 3 && event.transfererconnectedlinenum.toString().length >= 10) {
+
+                const resultSearchId = await this.amocrmUsers.getAmocrmUser(event.extension);
+
+                !!resultSearchId[0]?.amocrmId ?
+                    await this.amocrmV2ApiService.sendIncomingCallEvent(event.transfererconnectedlinenum, Number(resultSearchId[0]?.amocrmId)) :
+                    '';
+            };
+
+        } catch (e) {
+
+            throw e;
+            
+        }
+    }
 }

@@ -5,16 +5,22 @@ import { AmocrmUsersService } from '../amocrm-users.service';
 
 @Injectable()
 export class AmocrmSynchUserSchedule {
-  constructor(private readonly amocrmUsers: AmocrmUsersService, private readonly log: LogService) {}
+    constructor(private readonly amocrmUsers: AmocrmUsersService, private readonly log: LogService) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_11PM)
-  async updateAmocrmUsers() {
-    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      try {
-        await this.amocrmUsers.updateAmocrmUsers();
-      } catch (e) {
-        this.log.error(e, AmocrmSynchUserSchedule.name);
-      }
+    @Cron(CronExpression.EVERY_DAY_AT_11PM)
+    async updateAmocrmUsers() {
+
+        if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+
+            try {
+
+                await this.amocrmUsers.updateAmocrmUsers();
+
+            } catch (e) {
+
+                this.log.error(e, AmocrmSynchUserSchedule.name);
+                
+            }
+        }
     }
-  }
 }

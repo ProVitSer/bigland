@@ -9,10 +9,10 @@ export const PLAYBACK_ERROR = 'Ошибка обработки вызова Chan
 export const NUMBER_IN_BLACK_LIST = 'Вызов по входящему вызову попал в black-list';
 export const DEFAULT_LOCAL_EXTENSION = '999';
 export const AMI_OUTBOUND_CALL = {
-  context: AsteriskContext.fromInternal,
-  async: 'yes',
-  priority: '1',
-  timeout: '50000',
+    context: AsteriskContext.fromInternal,
+    async: 'yes',
+    priority: '1',
+    timeout: '50000',
 };
 
 export const POZVONIM_CALL_CC_PREFIX = '125';
@@ -23,8 +23,8 @@ export const POZVONIM_GROUP_TIMEOUT = 60;
 export const AMOUNT_NUMBER = 1;
 
 export const INCOMING_CALL_DEFAULT_ROUTING = {
-  group: PbxGroup.callCenter,
-  localExtension: '900',
+    group: PbxGroup.callCenter,
+    localExtension: '900',
 };
 export const CALL_CENTER_EXTENSIONS: string[] = ['102', '126', '262', '494', '296', '203', '422', '865', '230', '890', '299', '118'];
 export const POZVONIM_PBX_ROUTE_EXTENSION = '2222';

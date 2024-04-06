@@ -14,24 +14,27 @@ import { LoggerMiddleware } from '@app/middleware/logger.middleware';
 import { HttpResponseModule } from '@app/http/http.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    ScheduleModule.forRoot(),
-    MongooseModule.forFeature([{ name: Lds.name, schema: LdsSchema }]),
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: getLdsConfig,
-      inject: [ConfigService],
-    }),
-    HttpResponseModule,
-  ],
-  providers: [Lds, LdsService, LdsSynchUserSchedule],
-  exports: [LdsService],
-  controllers: [LdsController],
+    imports: [
+        ConfigModule,
+        LogModule,
+        ScheduleModule.forRoot(),
+        MongooseModule.forFeature([{
+            name: Lds.name,
+            schema: LdsSchema
+        }]),
+        HttpModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: getLdsConfig,
+            inject: [ConfigService],
+        }),
+        HttpResponseModule,
+    ],
+    providers: [Lds, LdsService, LdsSynchUserSchedule],
+    exports: [LdsService],
+    controllers: [LdsController],
 })
 export class LdsModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(LdsController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(LdsController);
+    }
 }

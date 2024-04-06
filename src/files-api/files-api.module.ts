@@ -7,8 +7,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Files, FilesSchema } from './files.schema';
 
 @Module({
-  imports: [ConfigModule, MongooseModule.forFeature([{ name: Files.name, schema: FilesSchema }])],
-  providers: [FilesCreateService, FileUtilsService, FilesMergeService],
-  exports: [FilesCreateService, FileUtilsService, FilesMergeService],
+    imports: [ConfigModule, MongooseModule.forFeature([{
+        name: Files.name,
+        schema: FilesSchema
+    }])],
+    providers: [FilesCreateService, FileUtilsService, FilesMergeService],
+    exports: [FilesCreateService, FileUtilsService, FilesMergeService],
 })
 export class FilesApiModule {}

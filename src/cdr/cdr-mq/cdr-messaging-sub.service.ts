@@ -11,27 +11,37 @@ import { CdrInfo } from '../interfaces/cdr.interfaces';
 
 @Injectable()
 export class CdrMessagingSubService {
-  constructor(@InjectModel(Cdr.name) private cdrModel: Model<CdrDocument>, private readonly cdrService: CdrService) {}
+    constructor(@InjectModel(Cdr.name) private cdrModel: Model<CdrDocument> , private readonly cdrService: CdrService) {}
 
-  @RabbitSubscribe({
-    exchange: RabbitMqExchange.presence,
-    queue: QueueTypes.cdr,
-    queueOptions: {
-      channel: 'cdr',
-    },
-  })
-  public async pubSubHandler(msg: CdrInfo): Promise<void | Nack> {
-    try {
-      await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);
-      if (await this.checkComplete(msg)) return;
-      await this.cdrService.sendCdrInfo(msg.data as Cdr);
-    } catch (e) {
-      return;
+    @RabbitSubscribe({
+        exchange: RabbitMqExchange.presence,
+        queue: QueueTypes.cdr,
+        queueOptions: {
+            channel: 'cdr',
+        },
+    })
+    public async pubSubHandler(msg: CdrInfo): Promise<void | Nack> {
+        try {
+
+            await UtilsService.sleep(DEFAULT_CDR_TIMEOUT);
+
+            if (await this.checkComplete(msg)) return;
+
+            await this.cdrService.sendCdrInfo(msg.data as Cdr);
+
+        } catch (e) {
+
+            return;
+            
+        }
     }
-  }
 
-  private async checkComplete(msg: CdrInfo): Promise<boolean> {
-    const cdr = await this.cdrModel.find({ uniqueid: msg.data.uniqueid });
-    return cdr[0].complete;
-  }
+    private async checkComplete(msg: CdrInfo): Promise<boolean> {
+
+        const cdr = await this.cdrModel.find({
+            uniqueid: msg.data.uniqueid
+        });
+        
+        return cdr[0].complete;
+    }
 }

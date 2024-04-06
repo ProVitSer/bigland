@@ -5,15 +5,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getRedisConfig } from '@app/config/project-configs/redis.config';
 
 @Module({
-  imports: [
-    ConfigModule,
-    NestRedis.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: getRedisConfig,
-      inject: [ConfigService],
-    }),
-  ],
-  exports: [RedisService],
-  providers: [RedisService],
+    imports: [
+        ConfigModule,
+        NestRedis.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: getRedisConfig,
+            inject: [ConfigService],
+        }),
+    ],
+    exports: [RedisService],
+    providers: [RedisService],
 })
 export class RedisModule {}

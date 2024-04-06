@@ -13,13 +13,13 @@ import { AuthUserService } from './services/auth-user.service';
 import { AuthTokenService } from './services/auth-token.service';
 
 @Module({
-  imports: [ConfigModule, LogModule, PassportModule, HttpResponseModule, JwtModule.register({}), UsersModule],
-  providers: [AuthTokenService, AuthUserService, LocalStrategy, JwtStrategy],
-  exports: [AuthTokenService, AuthUserService],
-  controllers: [AuthController],
+    imports: [ConfigModule, LogModule, PassportModule, HttpResponseModule, JwtModule.register({}), UsersModule],
+    providers: [AuthTokenService, AuthUserService, LocalStrategy, JwtStrategy],
+    exports: [AuthTokenService, AuthUserService],
+    controllers: [AuthController],
 })
 export class AuthModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(AuthController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(AuthController);
+    }
 }
