@@ -26,6 +26,8 @@ export enum StatusTextExtensionStatus {
     InUse = 'InUse',
     Idle = 'Idle',
     Ringing = 'Ringing',
+    Unavailable = 'Unavailable',
+    Busy = 'Busy',
 }
 
 export enum ExtensionCallStatus {

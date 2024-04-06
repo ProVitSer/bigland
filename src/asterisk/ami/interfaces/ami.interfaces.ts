@@ -37,6 +37,16 @@ export interface AsteriskHungupEvent {
     appdata?: string;
     cause?: AsteriskCause;
 }
+export interface AsteriskBaseStatusResponse<T> {
+  lines: string[];
+  EOL: string;
+  variables: object;
+  response: string;
+  actionid: string;
+  eventlist: string;
+  message: string;
+  events: T;
+}
 
 export interface AsteriskExtensionStatusEvent {
     lines: [string];

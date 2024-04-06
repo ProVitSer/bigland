@@ -104,7 +104,6 @@ export class AsteriskAmi implements OnApplicationBootstrap {
 
             return await new Promise((resolve) => {
                 this.client.send(action, (event: any) => {
-                    this.log.info(event, AsteriskAmi.name);
                     resolve(event);
                 });
             });

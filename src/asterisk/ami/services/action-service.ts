@@ -5,7 +5,9 @@ import { AsteriskAmi } from '../ami';
 import { LogService } from '@app/log/log.service';
 import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 import {
+  AsteriskBaseStatusResponse,
   AsteriskDNDStatusResponse,
+  AsteriskExtensionStatusEvent,
   AsteriskStatusResponse,
   DndStatus,
   EventsStatus,
@@ -64,55 +66,6 @@ export class AmiActionService {
         }
     }
 
-    public async setDNDStatus(data: DndData): Promise<SetDNDStatusResult> {
-        try {
-
-            const sip_ids: DndStatus[] = [];
-
-            await Promise.all(
-                data.sip_id.map(async (sip_id: string) => {
-
-                    const checkExtension = await this.getDNDStatus(sip_id);
-
-                    if (checkExtension.response === 'Error') {
-                        sip_ids.push({
-                            sip_id,
-                            status: DndStatusType.error
-                        });
-                        return;
-                    };
-
-                    const resultSend: AsteriskStatusResponse = await this.dndPut(sip_id, data.dnd_status);
-
-                    this.log.info(resultSend, AmiActionService.name);
-
-                    const hint = DND_API_TO_HINT_STATUS[data.dnd_status];
-
-                    if (resultSend.response == 'Success') {
-
-                        sip_ids.push({
-                            sip_id,
-                            status: DndStatusType.success
-                        });
-
-                        this.setHintStatus(sip_id, hint);
-
-                    } else {
-
-                        return;
-
-                    };
-                }),
-            );
-
-            return {
-                sip_ids
-            };
-        } catch (e) {
-            throw e;
-        }
-    }
-
     private async dndPut(sipId: string, dndStatus: string): Promise<AsteriskStatusResponse> {
 
         const action = new namiLib.Actions.DbPut();
@@ -155,5 +108,60 @@ export class AmiActionService {
             return event;
         });
         
+  }
+
+  public async showHints(): Promise<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>> {
+    try {
+      const action = new namiLib.Actions.ExtensionStateList();
+      return await this.ami.amiClientSend<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>>(action);
+    } catch (e) {
+      throw e;
     }
+  }
+
+  public async setDNDStatus(data: DndData): Promise<SetDNDStatusResult> {
+    try {
+        const sip_ids: DndStatus[] = [];
+
+        await Promise.all(
+            data.sip_id.map(async (sip_id: string) => {
+
+                const checkExtension = await this.getDNDStatus(sip_id);
+
+                if (checkExtension.response === 'Error') {
+                    sip_ids.push({
+                        sip_id,
+                        status: DndStatusType.error
+                    });
+                    return;
+                };
+
+                const resultSend: AsteriskStatusResponse = await this.dndPut(sip_id, data.dnd_status);
+
+                this.log.info(resultSend, AmiActionService.name);
+
+                const hint = DND_API_TO_HINT_STATUS[data.dnd_status];
+
+                if (resultSend.response == 'Success') {
+                    sip_ids.push({
+                        sip_id,
+                        status: DndStatusType.success
+                    });
+                    this.setHintStatus(sip_id, hint);
+                } else {
+                    return;
+                }
+            }),
+        );
+
+        return {
+            sip_ids
+        };
+
+    } catch (e) {
+
+        throw e;
+        
+    }
+}
 }
