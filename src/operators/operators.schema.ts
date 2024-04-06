@@ -29,7 +29,7 @@ export class Operators {
         type: Date,
         default: Date.now
     })
-    changed ? : Date;
+    changed?: Date;
 }
 
 @Schema()
@@ -44,18 +44,28 @@ export class NumbersInfo {
     outSuffix: string;
 
     @Prop()
-    authUsername ? : string;
+    authUsername?: string;
 
     @Prop({
         default: 0
     })
-    callCount ? : number;
+    callsPerDay?: number;
+
+    @Prop({
+        default: 0
+    })
+    callsPerHour?: number;
+
+    @Prop({
+        default: 0
+    })
+    totalCalls?: number;
 
     @Prop({
         type: Date,
         default: Date.now
     })
-    createAt ? : Date;
+    createAt?: Date;
 }
 
 const OperatorsSchema = SchemaFactory.createForClass(Operators);

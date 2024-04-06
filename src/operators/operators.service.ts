@@ -74,7 +74,7 @@ export class OperatorsService {
             name: operatorName
         }, {
             $set: {
-                'numbers.$[].callCount': 0
+                'numbers.$[].callsPerDay': 0
             }
         });
 
@@ -86,7 +86,8 @@ export class OperatorsService {
             'numbers.callerId': UtilsService.normalizePhoneNumber(callerId),
         }, {
             $inc: {
-                'numbers.$.callCount': 1,
+                'numbers.$.callsPerDay': 1,
+                'numbers.$.totalCalls': 1,
             },
         }, );
 
