@@ -1,7 +1,7 @@
 import { DNDtatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { SipBusynessStateId } from './asterisk-api.enum';
+import { DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
 
 export interface DndData {
     sip_id: string[];
@@ -100,7 +100,27 @@ export class ExtensionState {
     sip_busyness_state_id: SipBusynessStateId;
 }
 
+export class ExtensionsItemsDndStatus {
+    @ApiProperty({ type: String, description: 'Внтуренний номер', example: '102' })
+    sip_id: string;
+
+    @ApiProperty({
+        enum: DoNotDisturbStatus,
+        enumName: 'DoNotDisturbStatus',
+        description: 'Do Not Disturb (DND) статус',
+    })
+    do_not_disturb_status: DoNotDisturbStatus;
+}
+
+
 export class ActualExtensionsState {
-    @ApiProperty({ type: [ExtensionState], description: 'Массив данных внутренних номеров и их актуального статуса' })
+    @ApiProperty({ type: [ExtensionState], description: 'Массив данных внутренних номеров и их актуального статуса(state)' })
     items: ExtensionState[];
 }
+
+export class DndExtensionsStatus {
+    @ApiProperty({ type: [ExtensionsItemsDndStatus], description: 'Массив данных внутренних номеров и их статус Do Not Disturb (DND)' })
+    items: ExtensionsItemsDndStatus[];
+}
+
+
