@@ -17,7 +17,7 @@ import {
 import { AmocrmApiService, BlackListNumbersService, CallApiService, ChanspyApiService, ServiceCodeApiService } from './services';
 import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
-import { ExtensionsStateService } from './controllers/extensions-state.service';
+import { ExtensionsStateService } from './services/extensions-state.service';
 
 @Module({
   imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],

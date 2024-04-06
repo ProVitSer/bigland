@@ -1,6 +1,6 @@
 import { NumberInfo } from '@app/system/system.schema';
 import { AmocrmCreateLead, AmocrmCreateLeadData } from '../interfaces/amocrm.interfaces';
-import { ApplicationStage, CreatedById, CustomFieldsValuesId, ResponsibleUserId } from '../interfaces/amocrm.enum';
+import { ApplicationStage, CreatedById, CustomFieldsValuesId, PipelineId, ResponsibleUserId } from '../interfaces/amocrm.enum';
 
 export class AmocrmCreateLeadDataAdapter {
   public amocrmRequestData: AmocrmCreateLead;
@@ -41,7 +41,8 @@ export class AmocrmCreateLeadDataAdapter {
   private getDefaultStruct() {
     return {
       name: 'MG_CALL',
-      status_id: ApplicationStage.DozvonCC,
+      status_id: ApplicationStage.NewCC,
+      pipeline_id: PipelineId.NewLoan,
       custom_fields_values: [
         {
           field_id: CustomFieldsValuesId.LeadsLgTel,

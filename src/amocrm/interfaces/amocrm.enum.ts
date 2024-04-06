@@ -69,11 +69,13 @@ export enum CustomFieldsValuesEnumId {
 export enum ApplicationStage {
   DozvonCC = 14222500,
   OstavilZayavku = 14222500,
+  NewCC = 61584861
 }
 
 export enum PipelineId {
   MGSale = 519481,
   Village = 4589241,
+  NewLoan = 7411565
 }
 
 export enum TaskTypeId {
