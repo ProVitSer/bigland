@@ -4,26 +4,34 @@ import { OperatorsName } from '@app/operators/interfaces/operators.enum';
 import { Type } from 'class-transformer';
 
 export class ExtensionRouteItem {
-  @IsNotEmpty({ message: 'Поле extension не может быть пустым' })
-  @IsString({ message: 'Поле extension должно быть строкой' })
-  localExtension: string;
+    @IsNotEmpty({
+        message: 'Поле extension не может быть пустым'
+    })
+    @IsString({
+        message: 'Поле extension должно быть строкой'
+    })
+    localExtension: string;
 
-  @IsEnum(PbxGroup)
-  @IsOptional()
-  groupName?: PbxGroup;
+    @IsEnum(PbxGroup)
+    @IsOptional()
+    groupName ? : PbxGroup;
 
-  @IsEnum(OperatorsName)
-  @IsOptional()
-  operatorName: OperatorsName;
+    @IsEnum(OperatorsName)
+    @IsOptional()
+    operatorName: OperatorsName;
 
-  @IsOptional()
-  @IsString({ message: 'Поле extension должно быть строкой' })
-  staticCID?: string;
+    @IsOptional()
+    @IsString({
+        message: 'Поле extension должно быть строкой'
+    })
+    staticCID ? : string;
 }
 
 export class AddExtensionRouteDTO {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ExtensionRouteItem)
-  extensionRoutes: ExtensionRouteItem[];
+    @IsArray()
+    @ValidateNested({
+        each: true
+    })
+    @Type(() => ExtensionRouteItem)
+    extensionRoutes: ExtensionRouteItem[];
 }

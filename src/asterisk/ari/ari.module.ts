@@ -18,29 +18,29 @@ const asteriskAriProviders = createAsteriskAri();
 const ariProvidersName = getAsteriskAriProvidesName();
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    AsteriskCdrModule,
-    SystemModule,
-    AmocrmUsersModule,
-    AmocrmModule,
-    OperatorsModule,
-    PbxCallRoutingModule,
-  ],
-  providers: [
-    ...asteriskAriProviders,
-    AriIncomingCallApplication,
-    AriBlackListApplication,
-    AriChanSpyApplication,
-    AriCallService,
-    AsteriskUtilsService,
-    PozvonimCallDataAdapter,
-    PozvonimAriCall,
-    MonitoringAriCall,
-    CheckSpamNumberAriCall,
-    CheckOperatorSpamAriCall,
-  ],
-  exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriCallService],
+    imports: [
+        ConfigModule,
+        LogModule,
+        AsteriskCdrModule,
+        SystemModule,
+        AmocrmUsersModule,
+        AmocrmModule,
+        OperatorsModule,
+        PbxCallRoutingModule,
+    ],
+    providers: [
+        ...asteriskAriProviders,
+        AriIncomingCallApplication,
+        AriBlackListApplication,
+        AriChanSpyApplication,
+        AriCallService,
+        AsteriskUtilsService,
+        PozvonimCallDataAdapter,
+        PozvonimAriCall,
+        MonitoringAriCall,
+        CheckSpamNumberAriCall,
+        CheckOperatorSpamAriCall,
+    ],
+    exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriCallService],
 })
 export class AriModule {}

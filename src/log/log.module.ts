@@ -9,18 +9,21 @@ import { createLogger } from '@app/config/project-configs/log.config';
 import { LogLevel } from '@app/config/interfaces/config.enum';
 
 @Module({
-  imports: [
-    TelegramModule,
-    MongooseModule.forFeature([{ name: Log.name, schema: LogSchema }]),
-    WinstonModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: () => {
-        return createLogger([LogLevel.console, LogLevel.info, LogLevel.error]);
-      },
-      inject: [ConfigService],
-    }),
-  ],
-  providers: [LogService],
-  exports: [LogService],
+    imports: [
+        TelegramModule,
+        MongooseModule.forFeature([{
+            name: Log.name,
+            schema: LogSchema
+        }]),
+        WinstonModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: () => {
+                return createLogger([LogLevel.console, LogLevel.info, LogLevel.error]);
+            },
+            inject: [ConfigService],
+        }),
+    ],
+    providers: [LogService],
+    exports: [LogService],
 })
 export class LogModule {}

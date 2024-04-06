@@ -6,8 +6,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { LogModule } from '@app/log/log.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), LogModule, MongooseModule.forFeature([{ name: System.name, schema: SystemSchema }])],
-  providers: [SystemService, System],
-  exports: [System, SystemService],
+    imports: [ScheduleModule.forRoot(), LogModule, MongooseModule.forFeature([{
+        name: System.name,
+        schema: SystemSchema
+    }])],
+    providers: [SystemService, System],
+    exports: [System, SystemService],
 })
 export class SystemModule {}

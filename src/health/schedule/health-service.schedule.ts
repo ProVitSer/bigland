@@ -13,73 +13,102 @@ import { SendMailData } from '@app/mail/interfaces/mail.interfaces';
 
 @Injectable()
 export class HealthScheduledService {
-  private mailSendInfo: MailSendInfo;
-  private serviceContext: string;
-  private healthConfig = this.configService.get<HealthMailEnvironmentVariables>('health');
+    private mailSendInfo: MailSendInfo;
+    private serviceContext: string;
+    private healthConfig = this.configService.get < HealthMailEnvironmentVariables > ('health');
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly log: LogService,
-    private readonly health: HealthService,
-    private readonly mail: MailService,
-  ) {
-    this.serviceContext = HealthScheduledService.name;
-    this.mailSendInfo = {
-      isScheduledSend: false,
-      lastCheckStatus: HealthCheckStatusType.ok,
-    };
-  }
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly log: LogService,
+        private readonly health: HealthService,
+        private readonly mail: MailService,
+    ) {
+        this.serviceContext = HealthScheduledService.name;
+        this.mailSendInfo = {
+            isScheduledSend: false,
+            lastCheckStatus: HealthCheckStatusType.ok,
+        };
+    }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async sendScheduled() {
-    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      try {
-        const result = await this.health.check<HealthCheckMailFormat>(ReturnHealthFormatType.mail);
-        this.log.info(result, this.serviceContext);
-        if (this.checkSendMail(result.status)) {
-          this.mailSendInfo.isScheduledSend = true;
-          this.mailSendInfo.lastCheckStatus = result.status;
-          return await this.sendMailInfo(result);
+    @Cron(CronExpression.EVERY_MINUTE)
+    async sendScheduled() {
+
+        if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+
+            try {
+
+                const result = await this.health.check < HealthCheckMailFormat > (ReturnHealthFormatType.mail);
+
+                this.log.info(result, this.serviceContext);
+
+                if (this.checkSendMail(result.status)) {
+
+                    this.mailSendInfo.isScheduledSend = true;
+
+                    this.mailSendInfo.lastCheckStatus = result.status;
+
+                    return await this.sendMailInfo(result);
+
+                }
+
+            } catch (e) {
+
+                this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
+            }
         }
-      } catch (e) {
-        this.log.error(`${HEALTH_ERROR_SCHEDULE} ${e}`, this.serviceContext);
-      }
     }
-  }
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  enableMailSend() {
-    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      return (this.mailSendInfo.isScheduledSend = false);
+    @Cron(CronExpression.EVERY_5_MINUTES)
+    enableMailSend() {
+
+        if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+
+            return (this.mailSendInfo.isScheduledSend = false);
+
+        }
     }
-  }
 
-  private async sendMailInfo(healthResult: HealthCheckMailFormat): Promise<void> {
-    try {
-      const sendMailInfo = this.getSendMailInfoData(healthResult);
-      return await this.mail.sendMail(sendMailInfo);
-    } catch (e) {
-      this.log.error(`${HEALTH_MAIL_ERROR} ${e}`, this.serviceContext);
+    private async sendMailInfo(healthResult: HealthCheckMailFormat): Promise<void> {
+        try {
+
+            const sendMailInfo = this.getSendMailInfoData(healthResult);
+
+            return await this.mail.sendMail(sendMailInfo);
+
+        } catch (e) {
+
+            this.log.error(`${HEALTH_MAIL_ERROR} ${e}`, this.serviceContext);
+
+        }
     }
-  }
 
-  private checkSendMail(healthStatus: HealthCheckStatusType): boolean {
-    if (this.mailSendInfo.isScheduledSend && this.mailSendInfo.lastCheckStatus !== healthStatus) {
-      return true;
-    } else if (!this.mailSendInfo.isScheduledSend && this.mailSendInfo.lastCheckStatus !== healthStatus) {
-      return true;
+    private checkSendMail(healthStatus: HealthCheckStatusType): boolean {
+
+        if (this.mailSendInfo.isScheduledSend && this.mailSendInfo.lastCheckStatus !== healthStatus) {
+
+            return true;
+
+        } else if (!this.mailSendInfo.isScheduledSend && this.mailSendInfo.lastCheckStatus !== healthStatus) {
+
+            return true;
+
+        }
+
+        return false;
     }
-    return false;
-  }
 
-  private getSendMailInfoData(healthResult: HealthCheckMailFormat): SendMailData {
-    const { mail } = this.healthConfig;
-    return {
-      to: mail.mailListNotifyer,
-      from: mail.from,
-      subject: HealthCheckStatusType[healthResult.status],
-      context: { service: healthResult.service },
-      template: TemplateTypes.heathService,
-    };
-  }
+    private getSendMailInfoData(healthResult: HealthCheckMailFormat): SendMailData {
+
+        const { mail } = this.healthConfig;
+        
+        return {
+            to: mail.mailListNotifyer,
+            from: mail.from,
+            subject: HealthCheckStatusType[healthResult.status],
+            context: {
+                service: healthResult.service
+            },
+            template: TemplateTypes.heathService,
+        };
+    }
 }

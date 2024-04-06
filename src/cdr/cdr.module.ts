@@ -12,15 +12,18 @@ import { CdrMessagingSubService } from './cdr-mq/cdr-messaging-sub.service';
 import { RabbitModule } from '@app/rabbit/rabbit.module';
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    LogModule,
-    AsteriskCdrModule,
-    AmocrmModule,
-    AmocrmUsersModule,
-    MongooseModule.forFeature([{ name: Cdr.name, schema: CdrSchema }]),
-    RabbitModule,
-  ],
-  providers: [CdrService, CdrMessagingSubService, CdrSchedule],
+    imports: [
+        ScheduleModule.forRoot(),
+        LogModule,
+        AsteriskCdrModule,
+        AmocrmModule,
+        AmocrmUsersModule,
+        MongooseModule.forFeature([{
+            name: Cdr.name,
+            schema: CdrSchema
+        }]),
+        RabbitModule,
+    ],
+    providers: [CdrService, CdrMessagingSubService, CdrSchedule],
 })
 export class CdrModule {}

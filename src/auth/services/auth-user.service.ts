@@ -8,56 +8,80 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthUserService {
-  constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService) {}
 
-  public async register(registrationData: RegisterDto): Promise<RegisterResponse> {
-    const { username, email, password } = registrationData;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    try {
-      const checkUser = await this.usersService.getByEmail(email.toLowerCase());
-      if (checkUser)
-        throw {
-          message: `Пользователь с почтой  ${email} уже зарегистрирован`,
-          httpStatus: HttpStatus.BAD_REQUEST,
+    public async register(registrationData: RegisterDto): Promise<RegisterResponse> {
+        const {
+            username,
+            email,
+            password
+        } = registrationData;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        try {
+
+            const checkUser = await this.usersService.getByEmail(email.toLowerCase());
+
+            if (checkUser)
+                throw {
+                    message: `Пользователь с почтой  ${email} уже зарегистрирован`,
+                    httpStatus: HttpStatus.BAD_REQUEST,
+                };
+
+            await this.usersService.create({
+                username,
+                email: email.toLowerCase(),
+                passHash: hashedPassword,
+            });
+
+            return {
+                email,
+                username,
+            };
+
+        } catch (e) {
+
+            throw e;
+
+        }
+    }
+
+    public async getAuthenticatedUser(email: string, plainTextPassword: string): Promise<Users> {
+        try {
+
+            const user = await this.usersService.getByEmail(email);
+
+            if (user == null) {
+                throw USER_NOT_FOUND;
+            }
+
+            await this.verifyPassword(plainTextPassword, user.passHash);
+
+            user.passHash = undefined;
+
+            return user;
+
+        } catch (e) {
+
+            throw e;
+
+        }
+    }
+
+    private async verifyPassword(plainTextPassword: string, hashedPassword: string): Promise<void> {
+
+        const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
+
+        if (!isPasswordMatching) {
+            throw INVALALID_CREDENTIALS;
         };
 
-      await this.usersService.create({
-        username,
-        email: email.toLowerCase(),
-        passHash: hashedPassword,
-      });
-
-      return {
-        email,
-        username,
-      };
-    } catch (e) {
-      throw e;
     }
-  }
 
-  public async getAuthenticatedUser(email: string, plainTextPassword: string): Promise<Users> {
-    try {
-      const user = await this.usersService.getByEmail(email);
-      if (user == null) {
-        throw USER_NOT_FOUND;
-      }
-      await this.verifyPassword(plainTextPassword, user.passHash);
-      user.passHash = undefined;
-      return user;
-    } catch (e) {
-      throw e;
+    public async validateUser(userId: string): Promise<Users> {
+
+        return await this.usersService.getActiveUserById(userId);
+
     }
-  }
-
-  private async verifyPassword(plainTextPassword: string, hashedPassword: string): Promise<void> {
-    const isPasswordMatching = await bcrypt.compare(plainTextPassword, hashedPassword);
-    if (!isPasswordMatching) {
-      throw INVALALID_CREDENTIALS;
-    }
-  }
-
-  public async validateUser(userId: string): Promise<Users> {
-    return await this.usersService.getActiveUserById(userId);
-  }
 }

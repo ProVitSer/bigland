@@ -17,41 +17,63 @@ import { CreateUsersData, DeleteUsersResponse } from './interfaces/freepbx-api.i
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class FreepbxApiController {
-  constructor(private readonly http: HttpResponseService, private readonly freepbxUsersApi: FreepbxUsersApiService) {}
+    constructor(private readonly http: HttpResponseService, private readonly freepbxUsersApi: FreepbxUsersApiService) {}
 
-  @Post('create-users')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Изменение статуса dnd добавочных номеров' })
-  @ApiBody({ type: FreePBXCreateUsersDto })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Результат изменения статуса dnd внутренних номеров',
-    type: CreateUsersData,
-  })
-  async createUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXCreateUsersDto) {
-    try {
-      const result = await this.freepbxUsersApi.createUsers(body);
-      return this.http.response(req, res, HttpStatus.OK, result);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+    @Post('create-users')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Изменение статуса dnd добавочных номеров'
+    })
+    @ApiBody({
+        type: FreePBXCreateUsersDto
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат изменения статуса dnd внутренних номеров',
+        type: CreateUsersData,
+    })
+    async createUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXCreateUsersDto) {
+        try {
 
-  @Post('delete-users')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Изменение статуса dnd добавочных номеров' })
-  @ApiBody({ type: FreePBXDeleteUsersDto })
-  @ApiOkResponse({
-    status: HttpStatus.OK,
-    description: 'Результат изменения статуса dnd внутренних номеров',
-    type: DeleteUsersResponse,
-  })
-  async deleteUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXDeleteUsersDto) {
-    try {
-      const result = await this.freepbxUsersApi.deleteUsers(body);
-      return this.http.response(req, res, HttpStatus.OK, result);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, HttpStatus.INTERNAL_SERVER_ERROR);
+            const result = await this.freepbxUsersApi.createUsers(body);
+
+            return this.http.response(req, res, HttpStatus.OK, result);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
     }
-  }
+
+    @Post('delete-users')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Изменение статуса dnd добавочных номеров'
+    })
+    @ApiBody({
+        type: FreePBXDeleteUsersDto
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат изменения статуса dnd внутренних номеров',
+        type: DeleteUsersResponse,
+    })
+    async deleteUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXDeleteUsersDto) {
+        try {
+
+            const result = await this.freepbxUsersApi.deleteUsers(body);
+
+            return this.http.response(req, res, HttpStatus.OK, result);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
 }

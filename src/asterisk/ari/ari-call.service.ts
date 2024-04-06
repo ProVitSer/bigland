@@ -8,50 +8,67 @@ import { MonitoringAriCall, PozvonimAriCall, CheckSpamNumberAriCall, CheckOperat
 
 @Injectable()
 export class AriCallService implements OnApplicationBootstrap {
-  private client: { ariClient: Ari.Client };
-  constructor(
-    @Inject(AsteriskAriProvider.aricall) private readonly ari: { ariClient: Ari.Client },
-    private readonly monitoring: MonitoringAriCall,
-    private readonly pozvonim: PozvonimAriCall,
-    private readonly checkSpamNumber: CheckSpamNumberAriCall,
-    private readonly checkOperatorSpam: CheckOperatorSpamAriCall,
-  ) {}
-
-  private get providers(): AsteriskAriCallProviders {
-    return {
-      [AriCallType.monitoring]: this.monitoring,
-      [AriCallType.pozvonim]: this.pozvonim,
-      [AriCallType.checkSpamNumber]: this.checkSpamNumber,
-      [AriCallType.checkOperatorSpam]: this.checkOperatorSpam,
+    private client: {
+        ariClient: Ari.Client
     };
-  }
+    constructor(
+        @Inject(AsteriskAriProvider.aricall) private readonly ari: {
+            ariClient: Ari.Client
+        },
+        private readonly monitoring: MonitoringAriCall,
+        private readonly pozvonim: PozvonimAriCall,
+        private readonly checkSpamNumber: CheckSpamNumberAriCall,
+        private readonly checkOperatorSpam: CheckOperatorSpamAriCall,
+    ) {}
 
-  public async onApplicationBootstrap() {
-    this.client = this.ari;
-  }
-
-  public async sendCall(data: AsteriskCallApiUnion, callType: AriCallType): Promise<Ari.Channel> {
-    try {
-      const provider = this.getProvider(callType);
-      const originateInfo = await provider.getOriginateInfo(data, this.client.ariClient);
-      return await this.sendAriCall(originateInfo);
-    } catch (e) {
-      throw e;
+    private get providers(): AsteriskAriCallProviders {
+        return {
+            [AriCallType.monitoring]: this.monitoring,
+            [AriCallType.pozvonim]: this.pozvonim,
+            [AriCallType.checkSpamNumber]: this.checkSpamNumber,
+            [AriCallType.checkOperatorSpam]: this.checkOperatorSpam,
+        };
     }
-  }
 
-  private getProvider(callType: AriCallType): AsteriskAriCall {
-    return this.providers[callType];
-  }
+    public async onApplicationBootstrap() {
+        this.client = this.ari;
+    }
 
-  private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
-    const channel = this.getAriChannel();
-    return await channel.originate({
-      ...originateInfo,
-    });
-  }
+    public async sendCall(data: AsteriskCallApiUnion, callType: AriCallType): Promise<Ari.Channel> {
+        try {
 
-  private getAriChannel(): Ari.Channel {
-    return this.client.ariClient.Channel();
-  }
+            const provider = this.getProvider(callType);
+
+            const originateInfo = await provider.getOriginateInfo(data, this.client.ariClient);
+
+            return await this.sendAriCall(originateInfo);
+
+        } catch (e) {
+
+            throw e;
+
+        }
+    }
+
+    private getProvider(callType: AriCallType): AsteriskAriCall {
+
+        return this.providers[callType];
+
+    }
+
+    private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
+
+        const channel = this.getAriChannel();
+
+        return await channel.originate({
+            ...originateInfo,
+        });
+
+    }
+
+    private getAriChannel(): Ari.Channel {
+
+        return this.client.ariClient.Channel();
+        
+    }
 }

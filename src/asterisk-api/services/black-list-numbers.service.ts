@@ -5,38 +5,67 @@ import { ModifyBlackListNumbersResult } from '../interfaces/asterisk-api.interfa
 
 @Injectable()
 export class BlackListNumbersService {
-  constructor(private readonly system: SystemService) {}
+    constructor(private readonly system: SystemService) {}
 
-  public async getBlackListNumbers(): Promise<string[]> {
-    try {
-      const config = await this.system.getConfig();
-      return config.blackListNumbers;
-    } catch (e) {
-      throw e;
-    }
-  }
+    public async getBlackListNumbers(): Promise<string[]> {
+        try {
 
-  public async addNumbersToBlackList(data: BlackListNumbersDTO): Promise<ModifyBlackListNumbersResult> {
-    try {
-      const config = await this.system.getConfig();
-      const addNumbers = data.numbers.filter((number: string) => !config.blackListNumbers.includes(number));
-      if (addNumbers.length == 0) return { numbers: addNumbers };
-      await this.system.updateBlackListNumbers([...config.blackListNumbers, ...addNumbers]);
-      return { numbers: addNumbers };
-    } catch (e) {
-      throw e;
-    }
-  }
+            const config = await this.system.getConfig();
 
-  public async deleteNumbersToBlackList(data: BlackListNumbersDTO): Promise<ModifyBlackListNumbersResult> {
-    try {
-      const config = await this.system.getConfig();
-      const deleteNumbers = data.numbers.filter((n: string) => config.blackListNumbers.includes(n));
-      if (deleteNumbers.length == 0) return { numbers: deleteNumbers };
-      await this.system.updateBlackListNumbers([...config.blackListNumbers.filter((n: string) => !deleteNumbers.includes(n))]);
-      return { numbers: deleteNumbers };
-    } catch (e) {
-      throw e;
+            return config.blackListNumbers;
+
+        } catch (e) {
+
+            throw e;
+
+        }
     }
-  }
+
+    public async addNumbersToBlackList(data: BlackListNumbersDTO): Promise<ModifyBlackListNumbersResult> {
+        try {
+
+            const config = await this.system.getConfig();
+
+            const addNumbers = data.numbers.filter((number: string) => !config.blackListNumbers.includes(number));
+
+            if (addNumbers.length == 0) return {
+                numbers: addNumbers
+            };
+
+            await this.system.updateBlackListNumbers([...config.blackListNumbers, ...addNumbers]);
+
+            return {
+                numbers: addNumbers
+            };
+
+        } catch (e) {
+
+            throw e;
+
+        }
+    }
+
+    public async deleteNumbersToBlackList(data: BlackListNumbersDTO): Promise<ModifyBlackListNumbersResult> {
+        try {
+
+            const config = await this.system.getConfig();
+
+            const deleteNumbers = data.numbers.filter((n: string) => config.blackListNumbers.includes(n));
+
+            if (deleteNumbers.length == 0) return {
+                numbers: deleteNumbers
+            };
+
+            await this.system.updateBlackListNumbers([...config.blackListNumbers.filter((n: string) => !deleteNumbers.includes(n))]);
+
+            return {
+                numbers: deleteNumbers
+            };
+
+        } catch (e) {
+
+            throw e;
+            
+        }
+    }
 }

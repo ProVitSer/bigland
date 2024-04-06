@@ -9,8 +9,8 @@ const dockerProviders = createDocker();
 const providers = [DockerService, ...dockerProviders];
 
 @Module({
-  providers,
-  imports: [ConfigModule, LogModule],
-  exports: [...providers],
+    providers,
+    imports: [ConfigModule, LogModule],
+    exports: [...providers],
 })
 export class DockerModule {}

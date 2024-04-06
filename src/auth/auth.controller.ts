@@ -17,34 +17,49 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class AuthController {
-  constructor(
-    private readonly authUserService: AuthUserService,
-    private readonly authTokenService: AuthTokenService,
-    private readonly http: HttpResponseService,
-  ) {}
+    constructor(
+        private readonly authUserService: AuthUserService,
+        private readonly authTokenService: AuthTokenService,
+        private readonly http: HttpResponseService,
+    ) {}
 
-  @Post('register')
-  @ApiExcludeEndpoint()
-  async register(@Req() req: Request, @Res() res: Response, @Body() registrationData: RegisterDto) {
-    try {
-      const user = await this.authUserService.register(registrationData);
-      return this.http.response(req, res, HttpStatus.OK, user);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, e?.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+    @Post('register')
+    @ApiExcludeEndpoint()
+    async register(@Req() req: Request, @Res() res: Response, @Body() registrationData: RegisterDto) {
+        try {
 
-  @Post('apiToken')
-  @HttpCode(200)
-  @UseGuards(LocalAuthenticationGuard)
-  @ApiExcludeEndpoint()
-  async getApiToken(@Req() req: RequestWithUser, @Res() res: Response) {
-    try {
-      const { user } = req;
-      const accessToken = await this.authTokenService.getApiToken(user.userId);
-      return this.http.response(req, res, HttpStatus.OK, accessToken);
-    } catch (e) {
-      throw new HttpException({ message: e?.message || e }, e?.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR);
+            const user = await this.authUserService.register(registrationData);
+
+            return this.http.response(req, res, HttpStatus.OK, user);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, e?.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
     }
-  }
+
+    @Post('apiToken')
+    @HttpCode(200)
+    @UseGuards(LocalAuthenticationGuard)
+    @ApiExcludeEndpoint()
+    async getApiToken(@Req() req: RequestWithUser, @Res() res: Response) {
+        try {
+
+            const { user } = req;
+
+            const accessToken = await this.authTokenService.getApiToken(user.userId);
+
+            return this.http.response(req, res, HttpStatus.OK, accessToken);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, e?.httpStatus || HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
 }

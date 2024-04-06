@@ -15,24 +15,25 @@ import { PbxCallRoutingModelService } from './services/pbx-call-routing-model.se
 import { PbxCallRoutingService } from './services/pbx-call-routing.service';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    HttpResponseModule,
-    AuthModule,
-    MongooseModule.forFeature([{ name: PbxCallRouting.name, schema: PbxCallRoutingSchema }]),
-    OperatorsModule,
-  ],
-  providers: [RoutingInfoService, PbxCallRoutingModelService, PbxCallRoutingService],
-  controllers: [PbxCallRoutingController, RouteInfoController],
-  exports: [PbxCallRoutingService],
+    imports: [
+        ConfigModule,
+        LogModule,
+        HttpResponseModule,
+        AuthModule,
+        MongooseModule.forFeature([{
+            name: PbxCallRouting.name,
+            schema: PbxCallRoutingSchema
+        }]),
+        OperatorsModule,
+    ],
+    providers: [RoutingInfoService, PbxCallRoutingModelService, PbxCallRoutingService],
+    controllers: [PbxCallRoutingController, RouteInfoController],
+    exports: [PbxCallRoutingService],
 })
 export class PbxCallRoutingModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(PbxCallRoutingController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(RouteInfoController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(PbxCallRoutingController, RouteInfoController)
+    }
 }

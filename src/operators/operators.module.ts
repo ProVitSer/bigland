@@ -13,20 +13,23 @@ import { TelegramModule } from '@app/telegram/telegram.module';
 import { ResetOperatorsNummbersCountSchedule } from './schedule/reset-operators-number-count.schedule';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LogModule,
-    HttpResponseModule,
-    MongooseModule.forFeature([{ name: Operators.name, schema: OperatorsSchema }]),
-    ScheduleModule.forRoot(),
-    TelegramModule,
-  ],
-  providers: [OperatorsService, ResetOperatorsNummbersCountSchedule],
-  exports: [OperatorsService],
-  controllers: [OperatorsController],
+    imports: [
+        ConfigModule,
+        LogModule,
+        HttpResponseModule,
+        MongooseModule.forFeature([{
+            name: Operators.name,
+            schema: OperatorsSchema
+        }]),
+        ScheduleModule.forRoot(),
+        TelegramModule,
+    ],
+    providers: [OperatorsService, ResetOperatorsNummbersCountSchedule],
+    exports: [OperatorsService],
+    controllers: [OperatorsController],
 })
 export class OperatorsModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(OperatorsController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(OperatorsController);
+    }
 }

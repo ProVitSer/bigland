@@ -23,44 +23,45 @@ import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    MongooseModule.forFeature([{ name: Spam.name, schema: SpamSchema }]),
-    ScheduleModule.forRoot(),
-    LogModule,
-    AmiModule,
-    AriModule,
-    AuthModule,
-    HttpResponseModule,
-    SystemModule,
-    OperatorsModule,
-    BiglandModule,
-    FilesApiModule,
-    ServerStaticModule,
-    ReportsModule,
-  ],
-  providers: [
-    SpamApiService,
-    SpamModelService,
-    SpamReportService,
-    AllOperatorsSpamService,
-    MangoSpamReport,
-    MttSpamReport,
-    BeelineSpamReport,
-    OptimaSpamReport,
-    ZadarmaSpamReport,
-    SpamReportByOperatorSchedule,
-    AllOperatorsSpamReportSchedule,
-  ],
-  controllers: [SpamApiController, SpamResultController],
-  exports: [SpamApiService],
+    imports: [
+        ConfigModule,
+        MongooseModule.forFeature([{
+            name: Spam.name,
+            schema: SpamSchema
+        }]),
+        ScheduleModule.forRoot(),
+        LogModule,
+        AmiModule,
+        AriModule,
+        AuthModule,
+        HttpResponseModule,
+        SystemModule,
+        OperatorsModule,
+        BiglandModule,
+        FilesApiModule,
+        ServerStaticModule,
+        ReportsModule,
+    ],
+    providers: [
+        SpamApiService,
+        SpamModelService,
+        SpamReportService,
+        AllOperatorsSpamService,
+        MangoSpamReport,
+        MttSpamReport,
+        BeelineSpamReport,
+        OptimaSpamReport,
+        ZadarmaSpamReport,
+        SpamReportByOperatorSchedule,
+        AllOperatorsSpamReportSchedule,
+    ],
+    controllers: [SpamApiController, SpamResultController],
+    exports: [SpamApiService],
 })
 export class SpamApiModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(SpamApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(SpamResultController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(SpamResultController, SpamApiController);
+    }
 }

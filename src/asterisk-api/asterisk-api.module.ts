@@ -18,25 +18,41 @@ import { AmocrmApiService, BlackListNumbersService, CallApiService, ChanspyApiSe
 import { AmiModule } from '@app/asterisk/ami/ami.module';
 import { AriModule } from '@app/asterisk/ari/ari.module';
 import { ExtensionsStateService } from './services/extensions-state.service';
+import { RateLimiterModule } from 'nestjs-rate-limiter';
+import { MAX_REMOTE_DURATION, MAX_REMOTE_POINTS, RATELIMIT_REQUEST_ERROR } from '@app/config/project-configs/rate-ilmite.config';
 
 @Module({
-  imports: [ConfigModule, LogModule, AmiModule, AriModule, AuthModule, HttpResponseModule, SystemModule, OperatorsModule],
-  controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
-  providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService, ExtensionsStateService],
-  exports: [],
+    imports: [
+        ConfigModule, 
+        LogModule, 
+        AmiModule, 
+        AriModule, 
+        AuthModule, 
+        HttpResponseModule, 
+        SystemModule, 
+        OperatorsModule,
+        RateLimiterModule.register({
+            duration: MAX_REMOTE_DURATION,
+            points: MAX_REMOTE_POINTS,
+            errorMessage: RATELIMIT_REQUEST_ERROR,
+          }),
+    ],
+    controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
+    providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService, ExtensionsStateService],
+    exports: [],
 })
 export class AsteriskApiModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes(AmocrmApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(CallApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ServiceCodeApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(ChanspyApiController)
-      .apply(LoggerMiddleware, AllowedIpMiddleware)
-      .forRoutes(BlackListyApiController);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer
+            .apply(LoggerMiddleware)
+            .forRoutes(AmocrmApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(CallApiController)
+            .apply(AllowedIpMiddleware)
+            .forRoutes(ServiceCodeApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(ChanspyApiController)
+            .apply(LoggerMiddleware, AllowedIpMiddleware)
+            .forRoutes(BlackListyApiController)
+    }
 }

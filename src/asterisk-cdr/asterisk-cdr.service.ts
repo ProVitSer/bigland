@@ -13,120 +13,158 @@ import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
 
 @Injectable()
 export class AsteriskCdrService {
-  constructor(
-    @InjectModel(AsteriskCdr)
-    private getCallInfo: typeof AsteriskCdr,
-    private readonly log: LogService,
-  ) {}
+    constructor(
+        @InjectModel(AsteriskCdr) private getCallInfo: typeof AsteriskCdr,
+        private readonly log: LogService,
+    ) {}
 
-  public async searchIncomingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
-    try {
-      // Костыль по вычленению переведенных вызовов через Позвоним
-      const pattern = /^.*;\d$/;
-      if (pattern.test(uniqueid)) return this.searchTransferPozvonimIncomingCallInfoInCdr(uniqueid);
+    public async searchIncomingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
 
-      this.log.info(`Входящий вызов ${uniqueid}`, AsteriskCdrService.name);
-      const result = await this.getCallInfo.findAll({
-        raw: true,
-        attributes: CDR_ATTRIBUTES,
-        where: {
-          uniqueid: {
-            [Op.like]: uniqueid,
-          },
-        },
-        order: [['billsec', 'DESC']],
-      });
+            // Костыль по вычленению переведенных вызовов через Позвоним
+            const pattern = /^.*;\d$/;
 
-      this.log.info(result, AsteriskCdrService.name);
-      return result;
-    } catch (e) {
-      this.log.error(`${ASTERISK_CDR_INCOMING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
-      return;
+            if (pattern.test(uniqueid)) return this.searchTransferPozvonimIncomingCallInfoInCdr(uniqueid);
+
+            this.log.info(`Входящий вызов ${uniqueid}`, AsteriskCdrService.name);
+
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: uniqueid,
+                    },
+                },
+                order: [
+                    ['billsec', 'DESC']
+                ],
+            });
+
+            this.log.info(result, AsteriskCdrService.name);
+
+            return result;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_INCOMING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return;
+
+        }
     }
-  }
 
-  public async searchTransferPozvonimIncomingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
-    try {
-      //Костыль по двуканальным вызовам, убираем информацию о них
-      const formatUniqueid = uniqueid.includes(';2') ? uniqueid.replace(';2', '') : uniqueid;
-      const newUniqueid = formatUniqueid.substring(0, formatUniqueid.length - 5);
+    public async searchTransferPozvonimIncomingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
 
-      this.log.info(`Переадресованный вызов с Pozvonim ${uniqueid}`, AsteriskCdrService.name);
-      const result = await this.getCallInfo.findAll({
-        raw: true,
-        attributes: CDR_ATTRIBUTES,
-        where: {
-          uniqueid: {
-            [Op.like]: `${newUniqueid}%`,
-          },
-          dcontext: {
-            [Op.like]: 'ext-local',
-          },
-        },
-        order: [['billsec', 'DESC']],
-      });
+            //Костыль по двуканальным вызовам, убираем информацию о них
+            const formatUniqueid = uniqueid.includes(';2') ? uniqueid.replace(';2', '') : uniqueid;
 
-      this.log.info(result, AsteriskCdrService.name);
-      return result;
-    } catch (e) {
-      this.log.error(`${ASTERISK_CDR_INCOMING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
-      return;
+            const newUniqueid = formatUniqueid.substring(0, formatUniqueid.length - 5);
+
+            this.log.info(`Переадресованный вызов с Pozvonim ${uniqueid}`, AsteriskCdrService.name);
+
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: `${newUniqueid}%`,
+                    },
+                    dcontext: {
+                        [Op.like]: 'ext-local',
+                    },
+                },
+                order: [
+                    ['billsec', 'DESC']
+                ],
+            });
+
+            this.log.info(result, AsteriskCdrService.name);
+
+            return result;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_INCOMING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return;
+
+        }
     }
-  }
 
-  public async searchOutgoingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
-    try {
-      this.log.info(`Исходящий вызов ${uniqueid}`, AsteriskCdrService.name);
+    public async searchOutgoingCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
 
-      const result = await this.getCallInfo.findAll({
-        raw: true,
-        attributes: CDR_ATTRIBUTES,
-        where: {
-          uniqueid: {
-            [Op.like]: uniqueid,
-          },
-          dcontext: {
-            [Op.like]: 'from-internal',
-          },
-        },
-      });
+            this.log.info(`Исходящий вызов ${uniqueid}`, AsteriskCdrService.name);
 
-      this.log.info(result, AsteriskCdrService.name);
-      return result;
-    } catch (e) {
-      this.log.error(`${ASTERISK_CDR_OUTGOING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
-      return;
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: uniqueid,
+                    },
+                    dcontext: {
+                        [Op.like]: 'from-internal',
+                    },
+                },
+            });
+
+            this.log.info(result, AsteriskCdrService.name);
+
+            return result;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_OUTGOING_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return;
+
+        }
     }
-  }
 
-  public async searchPozvonimCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
-    try {
-      this.log.info(`Исходящий вызов Pozvonim ${uniqueid}`, AsteriskCdrService.name);
-      const newUniqueid = uniqueid.substring(0, uniqueid.length - 5);
-      const result = await this.getCallInfo.findAll({
-        raw: true,
-        attributes: CDR_ATTRIBUTES,
-        where: {
-          uniqueid: {
-            [Op.like]: `${newUniqueid}%`,
-          },
-          dcontext: {
-            [Op.like]: 'outrt-pozvonim',
-          },
-        },
-      });
+    public async searchPozvonimCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
 
-      // Небольшой костыл, меняем channel с локальным каналом "Local/124997@from-internal-additional-00002a89;1" на реальный канал пользователя "PJSIP/790-0012ec3b"
-      const updateResult = result.map((c: AsteriskCdr) => {
-        const newChannel = `${ChannelType.PJSIP}/${c.cnum}-0012ec3b`;
-        return { ...c, channel: newChannel };
-      }) as AsteriskCdr[];
-      this.log.info(updateResult, AsteriskCdrService.name);
+            this.log.info(`Исходящий вызов Pozvonim ${uniqueid}`, AsteriskCdrService.name);
 
-      return updateResult;
-    } catch (e) {
-      this.log.error(`${ASTERISK_CDR_POZVONIM_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
-      return;
+            const newUniqueid = uniqueid.substring(0, uniqueid.length - 5);
+
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: `${newUniqueid}%`,
+                    },
+                    dcontext: {
+                        [Op.like]: 'outrt-pozvonim',
+                    },
+                },
+            });
+
+            // Небольшой костыл, меняем channel с локальным каналом "Local/124997@from-internal-additional-00002a89;1" на реальный канал пользователя "PJSIP/790-0012ec3b"
+            const updateResult = result.map((c: AsteriskCdr) => {
+
+                const newChannel = `${ChannelType.PJSIP}/${c.cnum}-0012ec3b`;
+                
+                return {
+                    ...c,
+                    channel: newChannel
+                };
+            }) as AsteriskCdr[];
+
+            this.log.info(updateResult, AsteriskCdrService.name);
+
+            return updateResult;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_POZVONIM_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return;
+
+        }
     }
-  }
 }

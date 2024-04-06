@@ -6,14 +6,17 @@ import { MONITORING_CALL_LOCAL_PREFIX, POZVONIM_PBX_ROUTE_EXTENSION } from '../a
 
 @Injectable()
 export class MonitoringAriCall implements AsteriskAriCall {
-  constructor(private readonly log: LogService) {}
+    constructor(private readonly log: LogService) {}
 
-  public async getOriginateInfo(data: { number: string }): Promise<AsteriskAriOriginate> {
-    return {
-      endpoint: `${ChannelType.LOCAL}/${MONITORING_CALL_LOCAL_PREFIX}${data.number}@${AsteriskContext.fromInternalAdditional}`,
-      context: AsteriskContext.monitoring,
-      extension: POZVONIM_PBX_ROUTE_EXTENSION,
-      appArgs: 'dialed',
-    };
-  }
+    public async getOriginateInfo(data: { number: string }): Promise<AsteriskAriOriginate> {
+
+        return {
+            endpoint: `${ChannelType.LOCAL}/${MONITORING_CALL_LOCAL_PREFIX}${data.number}@${AsteriskContext.fromInternalAdditional}`,
+            context: AsteriskContext.monitoring,
+            extension: POZVONIM_PBX_ROUTE_EXTENSION,
+            appArgs: 'dialed',
+        };
+        
+    }
+
 }

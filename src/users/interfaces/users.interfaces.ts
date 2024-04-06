@@ -1,5 +1,5 @@
 export interface CreateUser {
-  username: string;
-  email: string;
-  passHash: string;
+    username: string;
+    email: string;
+    passHash: string;
 }

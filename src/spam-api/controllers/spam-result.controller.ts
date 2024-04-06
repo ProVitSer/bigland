@@ -11,12 +11,15 @@ import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @UseGuards(RoleGuard([Role.Admin, Role.Asterisk]))
 @UseGuards(JwtGuard)
 export class SpamResultController {
-  constructor(private readonly spamApiService: SpamApiService) {}
+    constructor(private readonly spamApiService: SpamApiService) {}
 
-  @Post('result')
-  @ApiExcludeEndpoint()
-  async setAmdCallResult(@Body() body: CheckSpamCallResultDTO, @Res() res: Response) {
-    this.spamApiService.setCheckNumberResult(body);
-    return res.sendStatus(200);
-  }
+    @Post('result')
+    @ApiExcludeEndpoint()
+    async setAmdCallResult(@Body() body: CheckSpamCallResultDTO, @Res() res: Response) {
+
+        this.spamApiService.setCheckNumberResult(body);
+        
+        return res.sendStatus(200);
+        
+    }
 }

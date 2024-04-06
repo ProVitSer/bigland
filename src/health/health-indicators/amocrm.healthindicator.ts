@@ -6,19 +6,29 @@ import { AmocrmV4AuthService } from '@app/amocrm/v4/services/amocrm-v4-auth.serv
 
 @Injectable()
 export class AmocrmHealthIndicator extends HealthIndicator {
-  constructor(private readonly amocrmV4AuthService: AmocrmV4AuthService) {
-    super();
-  }
-  public async ping(key: string): Promise<HealthIndicatorResult> {
-    try {
-      const amocrmClient = this.amocrmV4AuthService.getAmocrmClient();
-      const response = await amocrmClient.request.get(AmocrmAPIV4.account);
-      if (!response.data.hasOwnProperty('id')) {
-        throw AMOCRM_PROBLEM;
-      }
-      return super.getStatus(key, true);
-    } catch (e) {
-      throw new HealthCheckError(`${key} failed`, this.getStatus(key, false, { message: e }));
+    constructor(private readonly amocrmV4AuthService: AmocrmV4AuthService) {
+        super();
     }
-  }
+
+    public async ping(key: string): Promise<HealthIndicatorResult> {
+        try {
+
+            const amocrmClient = this.amocrmV4AuthService.getAmocrmClient();
+
+            const response = await amocrmClient.request.get(AmocrmAPIV4.account);
+
+            if (!response.data.hasOwnProperty('id')) {
+                throw AMOCRM_PROBLEM;
+            };
+
+            return super.getStatus(key, true);
+
+        } catch (e) {
+
+            throw new HealthCheckError(`${key} failed`, this.getStatus(key, false, {
+                message: e
+            }));
+            
+        }
+    }
 }

@@ -7,16 +7,16 @@ import { LogModule } from '@app/log/log.module';
 import { getMariadbUseFactory } from '@app/config/project-configs//mariadb.config';
 
 @Module({
-  imports: [
-    LogModule,
-    SequelizeModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: getMariadbUseFactory,
-      inject: [ConfigService],
-    }),
-    SequelizeModule.forFeature([AsteriskCdr]),
-  ],
-  providers: [AsteriskCdrService],
-  exports: [AsteriskCdrService],
+    imports: [
+        LogModule,
+        SequelizeModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: getMariadbUseFactory,
+            inject: [ConfigService],
+        }),
+        SequelizeModule.forFeature([AsteriskCdr]),
+    ],
+    providers: [AsteriskCdrService],
+    exports: [AsteriskCdrService],
 })
 export class AsteriskCdrModule {}

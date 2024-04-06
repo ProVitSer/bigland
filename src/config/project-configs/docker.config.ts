@@ -5,25 +5,32 @@ import { ConfigEnvironmentVariables, DockerEnvironmentVariables } from '../inter
 import * as Docker from 'dockerode';
 
 const dockerFactory = (docker: DockerEnvironmentVariables): Docker => {
-  return new Docker({
-    host: docker.host,
-    port: docker.port,
-  });
+
+    return new Docker({
+        host: docker.host,
+        port: docker.port,
+    });
+    
 };
 
 const createDockerProvider = (docker: DockerEnvironmentVariables): FactoryProvider<any> => {
-  return {
-    provide: docker.providerName,
-    useFactory: () => {
-      return dockerFactory(docker);
-    },
-    inject: [ConfigService],
-  };
+
+    return {
+        provide: docker.providerName,
+        useFactory: () => {
+            return dockerFactory(docker);
+        },
+        inject: [ConfigService],
+    };
+
 };
 
-export const createDocker = (): Provider<any>[] => {
-  const { docker } = configuration() as ConfigEnvironmentVariables;
-  return docker.map((docker: DockerEnvironmentVariables) => {
-    return createDockerProvider(docker);
-  });
+export const createDocker = (): Provider<any> [] => {
+
+    const { docker } = configuration() as ConfigEnvironmentVariables;
+
+    return docker.map((docker: DockerEnvironmentVariables) => {
+        return createDockerProvider(docker);
+    });
+
 };

@@ -1,9 +1,9 @@
 export enum ReturnHealthFormatType {
-  http = 'http',
-  mail = 'mail',
+    http = 'http',
+    mail = 'mail',
 }
 
 export enum HealthCheckStatusType {
-  ok = 'ok',
-  error = 'error',
+    ok = 'ok',
+    error = 'error',
 }

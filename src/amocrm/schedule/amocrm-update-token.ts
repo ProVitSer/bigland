@@ -12,45 +12,66 @@ import { AmocrmEnvironmentVariables } from '@app/config/interfaces/config.interf
 
 @Injectable()
 export class AmocrmUpdateTokenSchedule {
-  private amocrmConfig = this.configService.get<AmocrmEnvironmentVariables>('amocrm');
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly log: LogService,
-    private readonly amocrmV4AuthService: AmocrmV4AuthService,
-    private readonly tg: TelegramService,
-    private readonly amocrmV4RequestService: AmocrmV4RequestService,
-  ) {}
+    private amocrmConfig = this.configService.get<AmocrmEnvironmentVariables>('amocrm');
 
-  // Обновляем на одном inst после подгружаем на остльные
-  @Cron(CronExpression.EVERY_DAY_AT_10PM)
-  async updateAmocrmToken(): Promise<void> {
-    if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
-      try {
-        this.log.info('Обновление токена Amocrm', AmocrmUpdateTokenSchedule.name);
-        const amocrmClient = this.amocrmV4AuthService.getAmocrmClient();
-        const token = await amocrmClient.token.refresh();
-        return await this.saveToken(token);
-      } catch (e) {
-        this.log.error(e, AmocrmUpdateTokenSchedule.name);
-      }
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly log: LogService,
+        private readonly amocrmV4AuthService: AmocrmV4AuthService,
+        private readonly tg: TelegramService,
+        private readonly amocrmV4RequestService: AmocrmV4RequestService,
+    ) {}
+
+    // Обновляем на одном inst после подгружаем на остльные
+    @Cron(CronExpression.EVERY_DAY_AT_10PM)
+    async updateAmocrmToken(): Promise<void> {
+
+        if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
+
+            try {
+
+                this.log.info('Обновление токена Amocrm', AmocrmUpdateTokenSchedule.name);
+
+                const amocrmClient = this.amocrmV4AuthService.getAmocrmClient();
+
+                const token = await amocrmClient.token.refresh();
+
+                return await this.saveToken(token);
+
+            } catch (e) {
+
+                this.log.error(e, AmocrmUpdateTokenSchedule.name);
+
+            }
+        }
     }
-  }
 
-  private async saveToken(token: ITokenData): Promise<void> {
-    this.log.info(`Новый токен: ${JSON.stringify(token)}`, AmocrmUpdateTokenSchedule.name);
-    await writeFile(path.join(__dirname, this.amocrmConfig.tokenPath), JSON.stringify(token));
-    this.log.info('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
-    this.tg.tgAlert('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
-  }
+    private async saveToken(token: ITokenData): Promise<void> {
 
-  @Cron('01 22 * * *')
-  async updtaeAmocrmServiceToken(): Promise<void> {
-    try {
-      const token = await this.amocrmV4AuthService.getToken();
-      this.amocrmV4RequestService.updateToken(token);
-      this.log.info('Обновление токена в сервисах Amocrm', AmocrmUpdateTokenSchedule.name);
-    } catch (e) {
-      this.log.error(e, AmocrmUpdateTokenSchedule.name);
+        this.log.info(`Новый токен: ${JSON.stringify(token)}`, AmocrmUpdateTokenSchedule.name);
+
+        await writeFile(path.join(__dirname, this.amocrmConfig.tokenPath), JSON.stringify(token));
+
+        this.log.info('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
+
+        this.tg.tgAlert('Новый токен успешно добавлен', AmocrmUpdateTokenSchedule.name);
+
     }
-  }
+
+    @Cron('01 22 * * *')
+    async updtaeAmocrmServiceToken(): Promise<void> {
+        try {
+
+            const token = await this.amocrmV4AuthService.getToken();
+
+            this.amocrmV4RequestService.updateToken(token);
+
+            this.log.info('Обновление токена в сервисах Amocrm', AmocrmUpdateTokenSchedule.name);
+
+        } catch (e) {
+
+            this.log.error(e, AmocrmUpdateTokenSchedule.name);
+            
+        }
+    }
 }

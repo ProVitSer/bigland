@@ -12,19 +12,22 @@ import { HttpResponseModule } from '@app/http/http.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    ConfigModule,
-    LdsModule,
-    LogModule,
-    MongooseModule.forFeature([{ name: AmocrmUsers.name, schema: AmocrmUsersSchema }]),
-    HttpResponseModule,
-  ],
-  providers: [AmocrmUsersService, AmocrmSynchUserSchedule],
-  exports: [AmocrmUsersService],
-  controllers: [AmocrmUsersController],
+    imports: [
+        ConfigModule,
+        LdsModule,
+        LogModule,
+        MongooseModule.forFeature([{
+            name: AmocrmUsers.name,
+            schema: AmocrmUsersSchema
+        }]),
+        HttpResponseModule,
+    ],
+    providers: [AmocrmUsersService, AmocrmSynchUserSchedule],
+    exports: [AmocrmUsersService],
+    controllers: [AmocrmUsersController],
 })
 export class AmocrmUsersModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(AmocrmUsersModule);
-  }
+    configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(LoggerMiddleware, AllowedIpMiddleware).forRoutes(AmocrmUsersModule);
+    }
 }
