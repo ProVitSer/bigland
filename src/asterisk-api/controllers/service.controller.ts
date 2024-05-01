@@ -10,7 +10,8 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces';
 import { ExtensionsStateService } from '../services/extensions-state.service';
-import { ActualExtensionsState } from '../interfaces/asterisk-api.interfaces';
+import { ActualExtensionsState, DndExtensionsStatus } from '../interfaces/asterisk-api.interfaces';
+import { RateLimiterGuard } from 'nestjs-rate-limiter';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/service')
@@ -66,6 +67,28 @@ export class ServiceCodeApiController {
     async getExtensionsState(@Req() req: Request, @Res() res: Response) {
         try {
             const result = await this.extensionsStateService.getExtensionsState();
+            return this.http.response(req, res, HttpStatus.OK, result);
+        } catch (e) {
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @UseGuards(RateLimiterGuard)
+    @Get('dnd')
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Получить актуальный список снутренних номеров со статус Do Not Disturb (DND)'
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: '',
+        type: DndExtensionsStatus,
+    })
+    async getDndStatus(@Req() req: Request, @Res() res: Response) {
+        try {
+            const result = await this.extensionsStateService.getDndStatus();
             return this.http.response(req, res, HttpStatus.OK, result);
         } catch (e) {
             throw new HttpException({

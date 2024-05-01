@@ -22,7 +22,9 @@ export class ResetOperatorsNummbersCountSchedule {
                 const operators = await this.operatorsService.getOperators();
 
                 for (const operator of operators) {
+
                     await this.operatorsService.resetNumbersCounts(operator.name);
+
                 };
 
                 this.tg.tgAlert('Обнуление счетчиков по операторам связи прошел успешно', ResetOperatorsNummbersCountSchedule.name);

@@ -78,7 +78,7 @@ export class AmiActionService {
 
     }
 
-    private async getDNDStatus(extension: string): Promise<AsteriskDNDStatusResponse> {
+    public async getDNDStatus(extension: string): Promise<AsteriskDNDStatusResponse> {
 
         const action = new namiLib.Actions.DbGet();
 
@@ -111,12 +111,16 @@ export class AmiActionService {
   }
 
   public async showHints(): Promise<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>> {
-    try {
-      const action = new namiLib.Actions.ExtensionStateList();
-      return await this.ami.amiClientSend<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>>(action);
-    } catch (e) {
-      throw e;
-    }
+        try {
+
+            const action = new namiLib.Actions.ExtensionStateList();
+
+            return await this.ami.amiClientSend<AsteriskBaseStatusResponse<AsteriskExtensionStatusEvent[]>>(action);
+
+        } catch (e) {
+
+            throw e;
+        }
   }
 
   public async setDNDStatus(data: DndData): Promise<SetDNDStatusResult> {

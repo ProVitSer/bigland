@@ -99,7 +99,7 @@ export class AriIncomingCallApplication implements OnApplicationBootstrap {
 
     private checkRouting(routing: ExtensionRouteInfo): IncomingCallRoutingInfo {
 
-        if (CALL_CENTER_EXTENSIONS.includes(routing.localExtension)) return INCOMING_CALL_DEFAULT_ROUTING;
+        //if (CALL_CENTER_EXTENSIONS.includes(routing.localExtension)) return INCOMING_CALL_DEFAULT_ROUTING;
 
         return {
             group: routing.extensionGroup,

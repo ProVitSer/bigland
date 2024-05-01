@@ -9,3 +9,8 @@ export enum SipBusynessStateId {
     busy = 'busy',
     error = 'error',
 }
+
+export enum DoNotDisturbStatus {
+    on = 'on',
+    off = 'off'
+}

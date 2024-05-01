@@ -126,9 +126,9 @@ export class RoutingInfoService {
 
     private getRandomNumber(operatorInfo: Operators): NumbersInfo {
 
-        const minCounter = Math.min(...operatorInfo.numbers.map((number: NumbersInfo) => number.callCount));
+        const minCounter = Math.min(...operatorInfo.numbers.map((number: NumbersInfo) => number.callsPerDay));
 
-        const smallestCounters = operatorInfo.numbers.filter((number: NumbersInfo) => number.callCount === minCounter);
+        const smallestCounters = operatorInfo.numbers.filter((number: NumbersInfo) => number.callsPerDay === minCounter);
 
         const randomIndex = Math.floor(Math.random() * smallestCounters.length);
 
