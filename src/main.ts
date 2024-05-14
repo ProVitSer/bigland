@@ -38,7 +38,7 @@ async function bootstrap() {
         .addTag('spam-api', 'Проверки номеров на спам')
         .addTag('operators', 'Управление номерами операторов связи')
         .setDescription('API for VoIP integration')
-        .setVersion('2.2.3')
+        .setVersion('2.2.4')
         .addBearerAuth({
             in: 'header',
             type: 'http'
