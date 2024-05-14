@@ -1,9 +1,9 @@
 import { Controller, Get, Query, Res, HttpStatus } from '@nestjs/common';
-import { AmocrmDto } from '../dto/amocrm.dto';
 import { Response } from 'express';
 import { AmocrmApiService } from '../services/amocrm-api.service';
 import { LogService } from '@app/log/log.service';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { AmocrmDto } from '../dto';
 
 @Controller()
 export class AmocrmApiController {

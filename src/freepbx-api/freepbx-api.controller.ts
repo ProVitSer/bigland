@@ -22,14 +22,14 @@ export class FreepbxApiController {
     @Post('create-users')
     @ApiBearerAuth()
     @ApiOperation({
-        summary: 'Изменение статуса dnd добавочных номеров'
+        summary: 'Создание пользователей на АТС'
     })
     @ApiBody({
         type: FreePBXCreateUsersDto
     })
     @ApiOkResponse({
         status: HttpStatus.OK,
-        description: 'Результат изменения статуса dnd внутренних номеров',
+        description: 'Результат создание пользователей на АТС',
         type: CreateUsersData,
     })
     async createUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXCreateUsersDto) {
@@ -51,14 +51,14 @@ export class FreepbxApiController {
     @Post('delete-users')
     @ApiBearerAuth()
     @ApiOperation({
-        summary: 'Изменение статуса dnd добавочных номеров'
+        summary: 'Удаление пользователей на АТС'
     })
     @ApiBody({
         type: FreePBXDeleteUsersDto
     })
     @ApiOkResponse({
         status: HttpStatus.OK,
-        description: 'Результат изменения статуса dnd внутренних номеров',
+        description: 'Результат удаление пользователей на АТС',
         type: DeleteUsersResponse,
     })
     async deleteUsers(@Req() req: Request, @Res() res: Response, @Body() body: FreePBXDeleteUsersDto) {

@@ -2,13 +2,13 @@ import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { ChanspyApiService } from '../services/chanspy-api.service';
 import { Request, Response } from 'express';
-import { ChanspyDto } from '../dto/chanspy.dto';
 import { HttpResponseService } from '@app/http/http-response';
 import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChanspyPasswordResult, UpdateChanspyPasswordResult } from '../interfaces/asterisk-api.interfaces';
+import { ChanspyDto } from '../dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/service/chanspy')

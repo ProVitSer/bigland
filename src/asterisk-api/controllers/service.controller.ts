@@ -1,6 +1,5 @@
 import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
-import { DNDDto } from '../dto/dnd.dto';
 import { Request, Response } from 'express';
 import { ServiceCodeApiService } from '../services/service-code-api.service';
 import { HttpResponseService } from '@app/http/http-response';
@@ -12,10 +11,10 @@ import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces'
 import { ExtensionsStateService } from '../services/extensions-state.service';
 import { ActualExtensionsState, DndExtensionsStatus } from '../interfaces/asterisk-api.interfaces';
 import { RateLimiterGuard } from 'nestjs-rate-limiter';
+import { DNDDto } from '../dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/service')
-@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class ServiceCodeApiController {
@@ -26,6 +25,7 @@ export class ServiceCodeApiController {
     ) {}
 
     @Post('dnd')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Изменение статуса dnd добавочных номеров'
@@ -55,6 +55,7 @@ export class ServiceCodeApiController {
     }
 
     @Get('extensions-state')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получить актуальное состояние внутренних номеров'
@@ -77,6 +78,7 @@ export class ServiceCodeApiController {
 
     @UseGuards(RateLimiterGuard)
     @Get('dnd')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получить актуальный список снутренних номеров со статус Do Not Disturb (DND)'

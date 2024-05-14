@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AmiActionService } from '@app/asterisk/ami/services/action-service';
 import { ActualExtensionsState, DndExtensionsStatus, ExtensionState, ExtensionsItemsDndStatus } from '../interfaces/asterisk-api.interfaces';
-import { AsteriskBaseStatusResponse, AsteriskDNDStatusResponse, AsteriskExtensionStatusEvent, DNDStatus } from '@app/asterisk/ami/interfaces/ami.interfaces';
+import { AsteriskBaseStatusResponse, AsteriskExtensionStatusEvent, DNDStatus } from '@app/asterisk/ami/interfaces/ami.interfaces';
 import { DND_STATUS_MAP, HINT_STATE_TO_BUSYNESS_STATE } from '../asterisk-api.constants';
 import { SipBusynessStateId } from '../interfaces/asterisk-api.enum';
 
