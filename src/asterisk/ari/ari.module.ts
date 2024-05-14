@@ -13,6 +13,7 @@ import { PozvonimCallDataAdapter } from './adapters/pozvonim-call.adapter';
 import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication } from './applications';
 import { AriCallService } from './ari-call.service';
 import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
+import { OriginateCall } from './providers/originate';
 
 const asteriskAriProviders = createAsteriskAri();
 const ariProvidersName = getAsteriskAriProvidesName();
@@ -40,6 +41,7 @@ const ariProvidersName = getAsteriskAriProvidesName();
         MonitoringAriCall,
         CheckSpamNumberAriCall,
         CheckOperatorSpamAriCall,
+        OriginateCall
     ],
     exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriCallService],
 })

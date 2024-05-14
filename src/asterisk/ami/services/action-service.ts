@@ -24,18 +24,13 @@ export class AmiActionService {
     public async sendAmiCall(localExtension: string, outgoingNumber: string): Promise<void> {
         try {
 
-            this.log.info(
-                `Исходящий вызов из webhook CRM: внутренний номер ${localExtension} внешний номер ${outgoingNumber}`,
-                AmiActionService.name,
-            );
-
             const action = new namiLib.Actions.Originate();
 
             action.channel = `${ChannelType.PJSIP}/${localExtension}`;
             action.callerid = localExtension;
             action.priority = AMI_OUTBOUND_CALL.priority;
             action.timeout = AMI_OUTBOUND_CALL.timeout;
-            action.context = AMI_OUTBOUND_CALL.timeout;
+            action.context = AMI_OUTBOUND_CALL.context;
             action.exten = outgoingNumber;
             action.async = AMI_OUTBOUND_CALL.async;
 
@@ -166,6 +161,15 @@ export class AmiActionService {
 
         throw e;
         
+    }}
+
+    public async hangup(channelId: string): Promise<any> {
+
+        const action = new namiLib.Actions.Hangup();
+
+        action.Channel = channelId;
+
+        return await this.ami.amiClientSend(action);
+
     }
-}
 }

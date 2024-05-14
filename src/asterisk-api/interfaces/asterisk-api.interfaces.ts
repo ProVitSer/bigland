@@ -1,7 +1,8 @@
 import { DNDtatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
+import { AsteriskChannelState, DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
+import { OriginateCallDTO } from '../dto/originate.dto';
 
 export interface DndData {
     sip_id: string[];
@@ -57,6 +58,29 @@ export class PozvonimCallResult {
     channelId: string;
 }
 
+export class OriginateCallResult extends PozvonimCallResult {};
+
+
+export class HangupCallResult {
+    @ApiProperty({
+        type: Boolean,
+        description: 'Результат разрыва связи по каналу',
+        example: 'true'
+    })
+    isCallHangupSuccessful: boolean;
+};
+
+
+
+export class ChannelStatusResult {
+    @ApiProperty({
+        enum: AsteriskChannelState,
+        description: 'Статус по каналу',
+        example: 'UP'
+    })
+    channelStatus: AsteriskChannelState;
+};
+
 export class ChanspyPasswordResult {
     @ApiProperty({
         type: String,
@@ -77,7 +101,7 @@ export class UpdateChanspyPasswordResult {
 
 export type AsteriskCallApiUnion = {
     number: string
-} | PozvominCall | CheckNumberSpamData | CheckSpamData;
+} | PozvominCall | CheckNumberSpamData | CheckSpamData | OriginateCallDTO;
 
 export class ModifyBlackListNumbersResult {
     @ApiProperty({
