@@ -7,7 +7,8 @@ import { LdsService } from '../lds.service';
 export class LdsSynchUserSchedule {
     constructor(private readonly ldsService: LdsService, private readonly log: LogService) {}
 
-    @Cron(CronExpression.EVERY_DAY_AT_10PM)
+    
+    @Cron(CronExpression.EVERY_3_HOURS)
     async updateLdsUserStatus() {
 
         if (!process.env.NODE_APP_INSTANCE || Number(process.env.NODE_APP_INSTANCE) === 0) {
