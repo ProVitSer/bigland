@@ -9,6 +9,7 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChannelStatusResult, HangupCallResult, MonitoringCallResult, OriginateCallResult, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO, PozvonimCallDTO, MonitoringCallDTO } from '../dto';
+import { TransferDTO } from '../dto/transfer.dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/call')
@@ -79,7 +80,7 @@ export class CallApiController {
 
 
     @Post('originate')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
+    @UseGuards(RoleGuard([Role.Admin]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Инициация callback вызова между двумя внутренними номерами'
@@ -110,7 +111,7 @@ export class CallApiController {
 
 
     @Post('hangup')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
+    @UseGuards(RoleGuard([Role.Admin]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Завершение вызова по каналу'
@@ -141,7 +142,7 @@ export class CallApiController {
 
 
     @Post('channel-state')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
+    @UseGuards(RoleGuard([Role.Admin]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получение статуса канала'
@@ -158,6 +159,25 @@ export class CallApiController {
         try {
 
             const hangupResult = await this.apiService.channeStatus(body);
+
+            return this.http.response(req, res, HttpStatus.OK, hangupResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
+
+
+    @Post('transfer')
+    @UseGuards(RoleGuard([Role.Admin]))
+    async transfer(@Req() req: Request, @Body() body: TransferDTO, @Res() res: Response) {
+        try {
+
+            const hangupResult = await this.apiService.transfer(body);
 
             return this.http.response(req, res, HttpStatus.OK, hangupResult);
 

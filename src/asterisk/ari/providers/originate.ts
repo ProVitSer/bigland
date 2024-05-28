@@ -1,24 +1,25 @@
 import { AsteriskAriCall, AsteriskAriOriginate } from '../interfaces/ari.interfaces';
 import { Injectable } from '@nestjs/common';
 import { LogService } from '@app/log/log.service';
-import { OriginateCallDTO } from '@app/asterisk-api/dto/originate.dto';
 import { AsteriskContext, ChannelType } from '../interfaces/ari.enum';
+import { OriginateCallData } from '@app/asterisk-api/interfaces/asterisk-api.interfaces';
 
 @Injectable()
 export class OriginateCall implements AsteriskAriCall {
     constructor(private readonly log: LogService) {}
 
-    async getOriginateInfo(data: OriginateCallDTO): Promise<AsteriskAriOriginate> {
+    async getOriginateInfo(data: OriginateCallData): Promise<AsteriskAriOriginate> {
         try {
 
 
             return {
-                endpoint: `${ChannelType.LOCAL}/${data.src_number}@${AsteriskContext.fromInternalAdditional}`,
-                callerId: data.dst_number,
+                endpoint: `${ChannelType.LOCAL}/${data.dstNumber}@${AsteriskContext.fromInternalAdditional}`,
+                callerId: data.srcNumber,
                 context: AsteriskContext.apiOriginate,
-                extension: data.src_number,
+                extension: data.dstNumber,
+                otherChannelId: data.srcChannelId,
                 variables: {
-                    dstLocalExtension: data.dst_number,
+                    dstLocalExtension: data.srcNumber,
                 },
             };
 

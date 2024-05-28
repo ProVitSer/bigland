@@ -1,8 +1,7 @@
-import { DNDtatus } from '@app/asterisk/ami/interfaces/ami.enum';
+import { DNDtatus, StatusTextExtensionStatus } from '@app/asterisk/ami/interfaces/ami.enum';
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
-import { ApiProperty } from '@nestjs/swagger';
-import { AsteriskChannelState, DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
-import { OriginateCallDTO } from '../dto/originate.dto';
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { AsteriskChannelState, AsteriskDisposition, DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
 
 export interface DndData {
     sip_id: string[];
@@ -58,8 +57,80 @@ export class PozvonimCallResult {
     channelId: string;
 }
 
-export class OriginateCallResult extends PozvonimCallResult {};
+export class OriginateCallALeg {
+    @ApiProperty({
+        type: String,
+        description: 'Внутренний номер менеджера',
+        example: '997'
+    })
+    dstNumber?: string;
 
+    @ApiProperty({
+        enum: StatusTextExtensionStatus,
+        enumName: 'StatusTextExtensionStatus',
+        description: 'Статус добавочного',
+    })
+    extensionStatus: StatusTextExtensionStatus; 
+
+    @ApiProperty({
+        type: String,
+        description: 'Уникальный id канала вызова',
+        example: "bdf8dedf-7fbd-4d65-ad2e-919b9f07c6a0"
+    })
+    channelId?: string;
+}
+
+export class OriginateCallBLeg {
+    @ApiProperty({
+        type: String,
+        description: 'Внутренний номер сотрудника КЦ',
+        example: '992'
+    })
+    srcNumber?: string;
+
+    @ApiProperty({
+        enum: StatusTextExtensionStatus,
+        enumName: 'StatusTextExtensionStatus',
+        description: 'Статус добавочного',
+    })
+    extensionStatus: StatusTextExtensionStatus; 
+
+    @ApiProperty({
+        type: String,
+        description: 'Уникальный id канала вызова',
+        example:  "68d134d4-dfac-4d0e-b5d1-2b640afe958b"
+    })
+    channelId?: string;
+}
+
+export class OriginateCallInfo {
+    @ApiProperty({
+        type: OriginateCallALeg,
+        description: 'Инфоромация о А плече',
+    })
+    originateCallALeg: OriginateCallALeg;
+
+    @ApiProperty({
+        type: OriginateCallBLeg,
+        description: 'Инфоромация о Б плече',
+    })
+    originateCallBLeg: OriginateCallBLeg
+}
+
+export class OriginateCallResult {
+    @ApiProperty({
+        type: Boolean,
+        description: 'Успешность инициализации вызова',
+        example: 'true'
+    })
+    isCallOriginate: boolean;
+
+    @ApiProperty({
+        type: OriginateCallInfo,
+        description: 'Информация о вызове',
+    })
+    originateCallInfo: OriginateCallInfo;    
+};
 
 export class HangupCallResult {
     @ApiProperty({
@@ -70,8 +141,6 @@ export class HangupCallResult {
     isCallHangupSuccessful: boolean;
 };
 
-
-
 export class ChannelStatusResult {
     @ApiProperty({
         enum: AsteriskChannelState,
@@ -79,6 +148,13 @@ export class ChannelStatusResult {
         example: 'UP'
     })
     channelStatus: AsteriskChannelState;
+
+    @ApiProperty({
+        enum: AsteriskDisposition,
+        description: 'Статус по каналу',
+        example: 'ON CALL'
+    })
+    callDisposition: AsteriskDisposition
 };
 
 export class ChanspyPasswordResult {
@@ -101,7 +177,7 @@ export class UpdateChanspyPasswordResult {
 
 export type AsteriskCallApiUnion = {
     number: string
-} | PozvominCall | CheckNumberSpamData | CheckSpamData | OriginateCallDTO;
+} | PozvominCall | CheckNumberSpamData | CheckSpamData | OriginateCallData;
 
 export class ModifyBlackListNumbersResult {
     @ApiProperty({
@@ -112,7 +188,7 @@ export class ModifyBlackListNumbersResult {
     numbers: string[];
 }
 
-export class ExtensionState {
+export class ExtensionBusynessState {
     @ApiProperty({ type: String, description: 'Внтуренний номер', example: '102' })
     sip_id: string;
 
@@ -137,9 +213,18 @@ export class ExtensionsItemsDndStatus {
 }
 
 
-export class ActualExtensionsState {
-    @ApiProperty({ type: [ExtensionState], description: 'Массив данных внутренних номеров и их актуального статуса(state)' })
-    items: ExtensionState[];
+export class ActualExtensionBusynessState {
+    @ApiProperty({ type: [ExtensionBusynessState], description: 'Массив данных внутренних номеров и их актуального статуса(state)' })
+    items: ExtensionBusynessState[];
+}
+
+export class ExtensionOriginalState {
+    sip_id: string;
+    original_extension_state: StatusTextExtensionStatus;
+}
+
+export class ActualExtensionOriginalState {
+    items: ExtensionOriginalState[];
 }
 
 export class DndExtensionsStatus {
@@ -148,3 +233,8 @@ export class DndExtensionsStatus {
 }
 
 
+export interface OriginateCallData {
+    srcNumber: string;
+    dstNumber: string;
+    srcChannelId: string;
+}

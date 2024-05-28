@@ -82,4 +82,10 @@ export class AriCallService implements OnApplicationBootstrap {
         return this.client.ariClient.Channel();
         
     }
+
+    public getBridge(): Ari.Bridge {
+
+        return this.client.ariClient.Bridge();
+
+    }
 }

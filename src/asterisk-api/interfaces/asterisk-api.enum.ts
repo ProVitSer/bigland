@@ -28,3 +28,13 @@ export enum AsteriskChannelState {
     PreRing = 'Pre-ring',
     DialingOffhook = 'Dialing Offhook',
 }
+
+export enum AsteriskDisposition {
+    NO_ANSWER = 'NO ANSWER',
+    FAILED = 'FAILED',
+    BUSY  = 'BUSY',
+    ANSWERED = 'ANSWERED',
+    CONGESTION = 'CONGESTION',
+    ON_CALL = 'ON_CALL',
+    UNKNOWN = 'UNKNOWN'
+}
