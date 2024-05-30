@@ -163,13 +163,25 @@ export class AmiActionService {
         
     }}
 
-    public async hangup(channelId: string): Promise<any> {
+    public async hangup(channelId: string): Promise<unknown> {
 
         const action = new namiLib.Actions.Hangup();
 
         action.Channel = channelId;
 
         return await this.ami.amiClientSend(action);
+
+    }
+
+    public async bridgeChannels(channelId1: string, channelId2: string): Promise<AsteriskBaseStatusResponse<[]>> {
+
+        const action = new namiLib.Actions.Bridge();
+
+        action.Channel1 = channelId1;
+        action.Channel2 = channelId2;
+        action.Tone = 'no';
+
+        return await this.ami.amiClientSend<AsteriskBaseStatusResponse<[]>>(action);
 
     }
 }

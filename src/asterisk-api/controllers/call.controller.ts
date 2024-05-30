@@ -7,7 +7,7 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ChannelStatusResult, HangupCallResult, MonitoringCallResult, OriginateCallResult, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
+import { ChannelStatusResult, HangupCallResult, MonitoringCallResult, OriginateCallResult, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO, PozvonimCallDTO, MonitoringCallDTO } from '../dto';
 import { TransferDTO } from '../dto/transfer.dto';
 
@@ -80,7 +80,7 @@ export class CallApiController {
 
 
     @Post('originate')
-    @UseGuards(RoleGuard([Role.Admin]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Инициация callback вызова между двумя внутренними номерами'
@@ -111,7 +111,7 @@ export class CallApiController {
 
 
     @Post('hangup')
-    @UseGuards(RoleGuard([Role.Admin]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Завершение вызова по каналу'
@@ -142,7 +142,7 @@ export class CallApiController {
 
 
     @Post('channel-state')
-    @UseGuards(RoleGuard([Role.Admin]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получение статуса канала'
@@ -173,7 +173,19 @@ export class CallApiController {
 
 
     @Post('transfer')
-    @UseGuards(RoleGuard([Role.Admin]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Перевод вызова'
+    })
+    @ApiBody({
+        type: TransferDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат перевода вызова',
+        type: TransferResult,
+    })
     async transfer(@Req() req: Request, @Body() body: TransferDTO, @Res() res: Response) {
         try {
 
@@ -190,3 +202,4 @@ export class CallApiController {
         }
     }
 }
+

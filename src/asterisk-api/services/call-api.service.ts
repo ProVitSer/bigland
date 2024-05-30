@@ -1,24 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { ChannelStatusResult, ExtensionOriginalState, HangupCallResult, MonitoringCall, MonitoringCallResult, OriginateCallResult, PozvominCall, PozvonimCallResult } from '../interfaces/asterisk-api.interfaces';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ChannelStatusResult, ExtensionOriginalState, HangupCallResult, MonitoringCall, MonitoringCallResult, OriginateCallResult, PozvominCall, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
 import { AriCallType, HangupReason } from '@app/asterisk/ari/interfaces/ari.enum';
 import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO } from '../dto';
-import { Channel } from 'ari-client';
+import { Bridge, Channel } from 'ari-client';
 import { AsteriskChannelState, AsteriskDisposition } from '../interfaces/asterisk-api.enum';
 import { TransferDTO } from '../dto/transfer.dto';
 import * as uuid from 'uuid';
 import { ExtensionsStateService } from './extensions-state.service';
 import { StatusTextExtensionStatus } from '@app/asterisk/ami/interfaces/ami.enum';
-import { ORIGINATE_ERROR } from '../asterisk-api.constants';
+import { EXTENSION_CALL_NOT_FOUND, ORIGINATE_ERROR, SEARCH_CHANNEL_ERROR } from '../asterisk-api.constants';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
+import { AmiActionService } from '@app/asterisk/ami/services/action-service';
 
 @Injectable()
 export class CallApiService {
     constructor(
         private readonly ari: AriCallService, 
         private readonly extensionsStateService: ExtensionsStateService,
-        private readonly asteriskCdrService: AsteriskCdrService
+        private readonly asteriskCdrService: AsteriskCdrService,
+        private readonly ami: AmiActionService
     ) {}
 
     public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
@@ -226,24 +228,28 @@ export class CallApiService {
     }
 
 
-    public async transfer(data: TransferDTO): Promise<void> {
+    public async transfer(data: TransferDTO): Promise<TransferResult> {
         try {
 
-            const endpoint =  this.ari.getBridge();
-            console.log(await endpoint.list())
+            const channelList =  await this.ari.getAriChannelList();
 
-            // const channels = await endpoint.list();
+            this.checkOriginateApiChannel(data, channelList);
 
-            // console.log(channels)
+            const extensionChannel = this.getExtensionChannel(data, channelList);
 
+            const bridgeList = await this.ari.getBridgeList();
 
-            // const batov = channels.filter((c: Channel) => c.caller.number == "442")
+            const originateApiBridge = bridgeList.filter((b: Bridge) => b.channels.includes(data.channelId));
 
-            
-            // console.log(batov)
+            const channelsCallBridge = bridgeList.filter((b: Bridge) => b.channels.includes(extensionChannel));
 
+            const outgoingChannel = channelList.filter((c: Channel) => channelsCallBridge[0].channels.includes(c.id)).filter((c: Channel) => c.caller.number.length > 5)
 
-            // console.log(batov[0])
+            const originateApiBridgeCallBridge = originateApiBridge[0].channels as string[];
+
+            const bridgeResult = await this.ami.bridgeChannels( outgoingChannel[0].id , originateApiBridgeCallBridge.filter((c: string) => c !== data.channelId)[0]);
+
+            return { isTransferSuccessful: (bridgeResult.response == 'Success') ? true : false } ;
 
 
         } catch (e) {
@@ -251,5 +257,27 @@ export class CallApiService {
             throw e;
             
         }
+    }
+
+    private checkOriginateApiChannel(data: TransferDTO, channels: Channel[]): void {
+
+        const originateApiChannel = channels.filter((c: Channel) => c.id == data.channelId);
+
+        if(originateApiChannel.length == 0) throw new HttpException({ message: `${SEARCH_CHANNEL_ERROR} : ${data.channelId}` }, HttpStatus.NOT_FOUND);
+
+    }
+
+    private getExtensionChannel(data: TransferDTO, channels: Channel[]): string{
+
+        const callChannelByNumber = channels.filter((c: Channel) => c.caller.number == data.from_extension);
+
+        const regexp = new RegExp(`^PJSIP/${data.from_extension}-.*$`);
+
+        const callChannelByName = channels.filter((c: Channel) => regexp.test(c.name));
+
+        if(callChannelByNumber.length == 0 && callChannelByName.length == 0)  throw new HttpException({ message: `${EXTENSION_CALL_NOT_FOUND} : ${data.from_extension}` }, HttpStatus.NOT_FOUND); 
+    
+        return callChannelByNumber[0]?.id || callChannelByName[0]?.id;
+
     }
 }

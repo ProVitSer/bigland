@@ -238,3 +238,13 @@ export interface OriginateCallData {
     dstNumber: string;
     srcChannelId: string;
 }
+
+
+export class TransferResult {
+    @ApiProperty({
+        type: Boolean,
+        description: 'Результат попытки перевод вызова ',
+        example: 'true',
+    })
+    isTransferSuccessful: boolean;
+}

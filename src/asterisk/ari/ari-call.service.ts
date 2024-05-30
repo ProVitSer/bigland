@@ -63,7 +63,7 @@ export class AriCallService implements OnApplicationBootstrap {
 
     private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
 
-        const channel = this.getAriChannel();
+        const channel = this.client.ariClient.Channel();
 
         return await channel.originate({
             ...originateInfo,
@@ -77,15 +77,19 @@ export class AriCallService implements OnApplicationBootstrap {
         
     }
 
-    private getAriChannel(): Ari.Channel {
+    public async getAriChannelList(): Promise<Ari.Channel[]> {
 
-        return this.client.ariClient.Channel();
-        
+        const channel =  this.client.ariClient.Channel();
+
+        return await channel.list();
+
     }
 
-    public getBridge(): Ari.Bridge {
+    public async getBridgeList(): Promise<Ari.Bridge[]> {
 
-        return this.client.ariClient.Bridge();
+        const bridge =  this.client.ariClient.Bridge();
+
+        return await bridge.list();
 
     }
 }
