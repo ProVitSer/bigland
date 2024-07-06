@@ -200,9 +200,9 @@ export class CallApiService {
 
         const asteriskCdr = await this.asteriskCdrService.searchOriginateCallInfoInCdr(data.channelId);
 
-        if(asteriskCdr.length == 0) return AsteriskDisposition.UNKNOWN;
-
         if(state == AsteriskChannelState.Up) return AsteriskDisposition.ON_CALL;
+
+        if(asteriskCdr.length == 0) return AsteriskDisposition.UNKNOWN;
 
         if(asteriskCdr[0].uniqueid == asteriskCdr[0].linkedid){
 
@@ -247,7 +247,9 @@ export class CallApiService {
 
             const originateApiBridgeCallBridge = originateApiBridge[0].channels as string[];
 
-            const bridgeResult = await this.ami.bridgeChannels( outgoingChannel[0].id , originateApiBridgeCallBridge.filter((c: string) => c !== data.channelId)[0]);
+            const bridgeOutgoingChannel = outgoingChannel.length > 1 ? outgoingChannel[1].id : outgoingChannel[0].id;
+
+            const bridgeResult = await this.ami.bridgeChannels( bridgeOutgoingChannel, originateApiBridgeCallBridge.filter((c: string) => c !== data.channelId)[0]);
 
             return { isTransferSuccessful: (bridgeResult.response == 'Success') ? true : false } ;
 
