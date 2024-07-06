@@ -5,6 +5,10 @@ export const SEND_CALL_CHECK_SPAM = 30000;
 export const NUMBER_NOT_FOUND = 'Переданный номер не найден';
 export const NUMBER_IS_NOT_ACTIVE = 'Номер больше не используется';
 export const AUTH_AMOCRM_ERROR = 'Ошибка авторизации';
+export const ORIGINATE_ERROR = 'Ошибка оригинации вызова';
+export const SEARCH_CHANNEL_ERROR = 'Запрашиваемый канал не найден';
+export const EXTENSION_CALL_NOT_FOUND = 'Не найден внешний вызов с внутренним номером';
+
 
 export const HINT_STATE_TO_BUSYNESS_STATE: { [code in StatusTextExtensionStatus]: SipBusynessStateId } = {
   [StatusTextExtensionStatus.InUse]: SipBusynessStateId.busy,

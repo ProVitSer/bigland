@@ -5,6 +5,7 @@ import { AsteriskCdr } from './asterisk-cdr.entity';
 import { Op } from 'sequelize';
 import {
   ASTERISK_CDR_INCOMING_CALL_ERROR,
+  ASTERISK_CDR_ORIGINATE_CALL_ERROR,
   ASTERISK_CDR_OUTGOING_CALL_ERROR,
   ASTERISK_CDR_POZVONIM_CALL_ERROR,
   CDR_ATTRIBUTES,
@@ -167,4 +168,40 @@ export class AsteriskCdrService {
 
         }
     }
+
+
+    public async searchOriginateCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
+
+            this.log.info(`Вызов чере API ${uniqueid}`, AsteriskCdrService.name);
+
+            const newUniqueid = uniqueid.substring(0, uniqueid.length - 5);
+
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: `${newUniqueid}%`,
+                    },
+                    dcontext: {
+                        [Op.like]: 'ext-local',
+                    },
+                   
+                }
+            });
+
+            this.log.info(result, AsteriskCdrService.name);
+
+            return result;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_ORIGINATE_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return [];
+
+        }
+    }
+
 }

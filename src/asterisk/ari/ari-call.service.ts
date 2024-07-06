@@ -5,6 +5,7 @@ import { AsteriskCallApiUnion } from '@app/asterisk-api/interfaces/asterisk-api.
 import { AriCallType } from './interfaces/ari.enum';
 import { AsteriskAriCall, AsteriskAriCallProviders, AsteriskAriOriginate } from './interfaces/ari.interfaces';
 import { MonitoringAriCall, PozvonimAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
+import { OriginateCall } from './providers/originate';
 
 @Injectable()
 export class AriCallService implements OnApplicationBootstrap {
@@ -19,6 +20,8 @@ export class AriCallService implements OnApplicationBootstrap {
         private readonly pozvonim: PozvonimAriCall,
         private readonly checkSpamNumber: CheckSpamNumberAriCall,
         private readonly checkOperatorSpam: CheckOperatorSpamAriCall,
+        private readonly originateCall: OriginateCall,
+
     ) {}
 
     private get providers(): AsteriskAriCallProviders {
@@ -27,6 +30,8 @@ export class AriCallService implements OnApplicationBootstrap {
             [AriCallType.pozvonim]: this.pozvonim,
             [AriCallType.checkSpamNumber]: this.checkSpamNumber,
             [AriCallType.checkOperatorSpam]: this.checkOperatorSpam,
+            [AriCallType.originate]: this.originateCall,
+
         };
     }
 
@@ -58,7 +63,7 @@ export class AriCallService implements OnApplicationBootstrap {
 
     private async sendAriCall(originateInfo: AsteriskAriOriginate): Promise<Channel> {
 
-        const channel = this.getAriChannel();
+        const channel = this.client.ariClient.Channel();
 
         return await channel.originate({
             ...originateInfo,
@@ -66,9 +71,25 @@ export class AriCallService implements OnApplicationBootstrap {
 
     }
 
-    private getAriChannel(): Ari.Channel {
+    public getAriChannels(): Ari.Channels {
 
-        return this.client.ariClient.Channel();
+        return this.client.ariClient.channels;
         
+    }
+
+    public async getAriChannelList(): Promise<Ari.Channel[]> {
+
+        const channel =  this.client.ariClient.Channel();
+
+        return await channel.list();
+
+    }
+
+    public async getBridgeList(): Promise<Ari.Bridge[]> {
+
+        const bridge =  this.client.ariClient.Bridge();
+
+        return await bridge.list();
+
     }
 }

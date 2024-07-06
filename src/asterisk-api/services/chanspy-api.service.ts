@@ -1,8 +1,8 @@
 import { SystemService } from '@app/system/system.service';
 import { UtilsService } from '@app/utils/utils.service';
 import { Injectable } from '@nestjs/common';
-import { ChanspyDto } from '../dto/chanspy.dto';
 import { ChanspyPasswordResult, UpdateChanspyPasswordResult } from '../interfaces/asterisk-api.interfaces';
+import { ChanspyDto } from '../dto';
 
 @Injectable()
 export class ChanspyApiService {

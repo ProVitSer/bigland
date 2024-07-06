@@ -31,8 +31,8 @@ export class DialBeginEventParser implements AsteriskAmiEventProviderInterface {
     private async parseDialBeginEvent(event: AsteriskDialBeginEvent): Promise<void> {
         if (
             !!event.destcalleridnum &&
-            event.destcalleridnum.toString().length == 3 &&
-            event.calleridnum.toString().length >= MIN_EXTERNAL_NUMBER_LENGTH
+            event?.destcalleridnum?.toString().length == 3 &&
+            event?.calleridnum?.toString().length >= MIN_EXTERNAL_NUMBER_LENGTH
         ) {
 
             this.log.info(event, DialBeginEventParser.name);

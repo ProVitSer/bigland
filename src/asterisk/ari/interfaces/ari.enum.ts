@@ -3,6 +3,8 @@ export enum AriCallType {
     monitoring = 'monitoring',
     checkSpamNumber = 'checkSpamNumber',
     checkOperatorSpam = 'checkOperatorSpam',
+    originate = 'originate',
+
 }
 
 export enum ChannelType {
@@ -35,6 +37,7 @@ export enum AsteriskContext {
     pozvonim = 'pozvonim',
     amdCheckSpam = 'amd-check-spam',
     fromInternalAdditional = 'from-internal-additional',
+    apiOriginate = 'apiOriginate',
 }
 
 export enum AsteriskOperatorTrunkName {

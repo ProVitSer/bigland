@@ -7,8 +7,8 @@ import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BlackListNumbersService } from '../services';
-import { BlackListNumbersDTO } from '../dto/black-list-numbers.dto';
 import { ModifyBlackListNumbersResult } from '../interfaces/asterisk-api.interfaces';
+import { BlackListNumbersDTO } from '../dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/service/black-list-numbers')
