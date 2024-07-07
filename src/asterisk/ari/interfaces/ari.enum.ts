@@ -4,7 +4,9 @@ export enum AriCallType {
     checkSpamNumber = 'checkSpamNumber',
     checkOperatorSpam = 'checkOperatorSpam',
     originate = 'originate',
-
+    apiTollFree = 'apiTollFree',
+    apiGorod = 'apiGorod',
+    apiPozvonim = 'apiPozvonim',
 }
 
 export enum ChannelType {
@@ -38,6 +40,10 @@ export enum AsteriskContext {
     amdCheckSpam = 'amd-check-spam',
     fromInternalAdditional = 'from-internal-additional',
     apiOriginate = 'apiOriginate',
+    apiPozvonim = 'api-pozvonim',
+    apiGorod = 'api-gorod',
+    apiTollFree = 'api-toll-free',
+
 }
 
 export enum AsteriskOperatorTrunkName {

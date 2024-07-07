@@ -6,6 +6,9 @@ import { AriCallType } from './interfaces/ari.enum';
 import { AsteriskAriCall, AsteriskAriCallProviders, AsteriskAriOriginate } from './interfaces/ari.interfaces';
 import { MonitoringAriCall, PozvonimAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
 import { OriginateCall } from './providers/originate';
+import { ApiPozvonimAriCall } from './providers/api-pozvonim';
+import { ApiGorodAriCall } from './providers/api-gorod';
+import { ApiTollFreeAriCall } from './providers/api-toll-free';
 
 @Injectable()
 export class AriCallService implements OnApplicationBootstrap {
@@ -21,6 +24,9 @@ export class AriCallService implements OnApplicationBootstrap {
         private readonly checkSpamNumber: CheckSpamNumberAriCall,
         private readonly checkOperatorSpam: CheckOperatorSpamAriCall,
         private readonly originateCall: OriginateCall,
+        private readonly apiPozvonim: ApiPozvonimAriCall,
+        private readonly apiGorodAriCall: ApiGorodAriCall,
+        private readonly apiTollFreeAriCall: ApiTollFreeAriCall
 
     ) {}
 
@@ -31,6 +37,9 @@ export class AriCallService implements OnApplicationBootstrap {
             [AriCallType.checkSpamNumber]: this.checkSpamNumber,
             [AriCallType.checkOperatorSpam]: this.checkOperatorSpam,
             [AriCallType.originate]: this.originateCall,
+            [AriCallType.apiPozvonim]: this.apiPozvonim,
+            [AriCallType.apiGorod]: this.apiGorodAriCall,
+            [AriCallType.apiTollFree]: this.apiTollFreeAriCall,
 
         };
     }
