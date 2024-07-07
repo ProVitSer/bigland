@@ -1,18 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ChannelStatusResult, ExtensionOriginalState, HangupCallResult, MonitoringCall, MonitoringCallResult, OriginateCallResult, PozvominCall, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
+import { CallTypeData, ChannelStatusResult, ExtensionOriginalState, HangupCallResult, MonitoringCall, MonitoringCallResult, OriginateCallResult, PozvominCall, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
 import { AriCallType, HangupReason } from '@app/asterisk/ari/interfaces/ari.enum';
 import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO } from '../dto';
-import { Bridge, Channel } from 'ari-client';
+import { Bridge, Channel, Channels } from 'ari-client';
 import { AsteriskChannelState, AsteriskDisposition } from '../interfaces/asterisk-api.enum';
 import { TransferDTO } from '../dto/transfer.dto';
 import * as uuid from 'uuid';
 import { ExtensionsStateService } from './extensions-state.service';
 import { StatusTextExtensionStatus } from '@app/asterisk/ami/interfaces/ami.enum';
-import { EXTENSION_CALL_NOT_FOUND, ORIGINATE_ERROR, SEARCH_CHANNEL_ERROR } from '../asterisk-api.constants';
+import { E164_NUMBER_LENGTH, EXTENSION_CALL_NOT_FOUND, INCORRECT_DST_NUMBER, ORIGINATE_ERROR, PREFIX_TO_ARI_CALL_TYPE, SEARCH_CHANNEL_ERROR } from '../asterisk-api.constants';
 import { AsteriskCdrService } from '@app/asterisk-cdr/asterisk-cdr.service';
 import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmiActionService } from '@app/asterisk/ami/services/action-service';
+import { ChannelsStateDTO } from '../dto/channesl-state.dto';
+import { ApiCallDTO } from '../dto/api-call.dto';
 
 @Injectable()
 export class CallApiService {
@@ -30,14 +32,13 @@ export class CallApiService {
 
             for (const number of data.numbers) {
 
-                await this.ari.sendCall({
-                    number
-                }, AriCallType.monitoring);
+                await this.ari.sendCall({ number }, AriCallType.monitoring);
 
                 result.push({
                     number,
                     isCallSuccessful: true,
                 });
+
             };
 
             return result;
@@ -67,7 +68,61 @@ export class CallApiService {
         }
     }
 
-    
+    public async originateApiCall(data: ApiCallDTO){
+        try {
+
+
+            const callTypeData = this.getCallTypeData(data.dst_number);
+
+            const channelInfo = await this.ari.sendCall({ sip_id : data.sip_id, dst_number: callTypeData.number }, callTypeData.type);
+
+            return {
+                number: data.dst_number,
+                isCallSuccessful: true,
+                channelId: channelInfo.id,
+            };
+
+        } catch (e) {
+
+            throw e;
+            
+        }
+    }
+
+    private getCallTypeData(number: string): CallTypeData {
+
+        const removeNonDigits = num => num.replace(/\D/g, '');
+
+        const formatToElevenDigits = num => '7' + num.padStart(10, '0').slice(-10);
+
+        const extractMainPart = num => num.slice(3);
+      
+        number = removeNonDigits(number);
+      
+        for (const prefix in PREFIX_TO_ARI_CALL_TYPE) {
+          if (number.startsWith(prefix)) {
+            return {
+              type: PREFIX_TO_ARI_CALL_TYPE[prefix],
+              number: formatToElevenDigits(extractMainPart(number))
+            };
+          }
+        }
+      
+        if (number.length === E164_NUMBER_LENGTH && number.startsWith('7')) {
+
+          return { type: AriCallType.apiPozvonim , number: number };
+
+        }
+      
+        if (number.length === E164_NUMBER_LENGTH && number.startsWith('8')) {
+
+          return { type: AriCallType.apiPozvonim , number: '7' + number.slice(1) };
+
+        }
+      
+        throw new Error(INCORRECT_DST_NUMBER)
+    }
+      
     public async originate(data: OriginateCallDTO): Promise<OriginateCallResult> {
         try {
 
@@ -162,32 +217,12 @@ export class CallApiService {
         }
     }
 
-    public async channeStatus(data: ChannelStateDTO): Promise<ChannelStatusResult> {
+    public async channelStatus(data: ChannelStateDTO): Promise<ChannelStatusResult> {
         try {
 
             const ariChannels =  this.ari.getAriChannels();
 
-            return await new Promise<ChannelStatusResult>((resolve) => {
-
-                ariChannels.get({
-                    channelId: data.channelId,
-                }, async  (err: Error, channel: Channel) => {
-
-                    if(err) return resolve({ 
-                        channelStatus: AsteriskChannelState.Down,
-                        callDisposition: await this.getCallDisposition(data, channel?.state as AsteriskChannelState)
-                     });
-
-                    
-
-                    return resolve({ 
-                        channelStatus: channel.state as AsteriskChannelState,
-                        callDisposition: await this.getCallDisposition(data, channel?.state as AsteriskChannelState)
-                    });
-
-                });
-
-            });
+            return await this.getChannelStatus(ariChannels, data.channelId);
 
         } catch (e) {
 
@@ -196,9 +231,57 @@ export class CallApiService {
         }
     }
 
-    private async getCallDisposition(data: ChannelStateDTO, state?: AsteriskChannelState): Promise<AsteriskDisposition> {
+    public async channelsStatus(data: ChannelsStateDTO): Promise<ChannelStatusResult[]> {
+        try {
 
-        const asteriskCdr = await this.asteriskCdrService.searchOriginateCallInfoInCdr(data.channelId);
+            const ariChannels =  this.ari.getAriChannels();
+
+            const channelStatusResult: ChannelStatusResult[] = [];
+
+            for (const channelId of data.channelIds) { 
+
+                channelStatusResult.push(await this.getChannelStatus(ariChannels, channelId));
+
+            }
+            
+            return channelStatusResult;
+
+        } catch (e) {
+
+            throw e;
+            
+        }
+    }
+
+    private async getChannelStatus(ariChannels: Channels, channelId: string ): Promise<ChannelStatusResult>{
+
+        return await new Promise<ChannelStatusResult>((resolve) => {
+
+            ariChannels.get({
+                channelId,
+                }, async  (err: Error, channel: Channel) => {
+
+                if(err) return resolve({ 
+                    channelStatus: AsteriskChannelState.Down,
+                    callDisposition: await this.getCallDisposition(channelId, channel?.state as AsteriskChannelState)
+                });
+
+            
+
+                return resolve({ 
+                    channelStatus: channel.state as AsteriskChannelState,
+                    callDisposition: await this.getCallDisposition(channelId, channel?.state as AsteriskChannelState)
+                });
+
+            });
+
+        });
+    }
+
+
+    private async getCallDisposition(channelId: string, state?: AsteriskChannelState): Promise<AsteriskDisposition> {
+
+        const asteriskCdr = await this.asteriskCdrService.searchOriginateCallInfoInCdr(channelId);
 
         if(state == AsteriskChannelState.Up) return AsteriskDisposition.ON_CALL;
 
