@@ -4,7 +4,7 @@ import { AriCallType, HangupReason } from '@app/asterisk/ari/interfaces/ari.enum
 import { AriCallService } from '@app/asterisk/ari/ari-call.service';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO } from '../dto';
 import { Bridge, Channel, Channels } from 'ari-client';
-import { AsteriskChannelState, AsteriskDisposition } from '../interfaces/asterisk-api.enum';
+import { AsteriskCallContext, AsteriskChannelState, AsteriskDisposition, TransferContext } from '../interfaces/asterisk-api.enum';
 import { TransferDTO } from '../dto/transfer.dto';
 import * as uuid from 'uuid';
 import { ExtensionsStateService } from './extensions-state.service';
@@ -15,6 +15,10 @@ import { AsteriskCdr } from '@app/asterisk-cdr/asterisk-cdr.entity';
 import { AmiActionService } from '@app/asterisk/ami/services/action-service';
 import { ChannelsStateDTO } from '../dto/channesl-state.dto';
 import { ApiCallDTO } from '../dto/api-call.dto';
+import { LogService } from '@app/log/log.service';
+import { UtilsService } from '@app/utils/utils.service';
+import { TransferTestDTO } from '../dto/transfer-test.dto';
+import { AsteriskBaseStatusResponse } from '@app/asterisk/ami/interfaces/ami.interfaces';
 
 @Injectable()
 export class CallApiService {
@@ -22,7 +26,8 @@ export class CallApiService {
         private readonly ari: AriCallService, 
         private readonly extensionsStateService: ExtensionsStateService,
         private readonly asteriskCdrService: AsteriskCdrService,
-        private readonly ami: AmiActionService
+        private readonly ami: AmiActionService,
+        private readonly log: LogService,
     ) {}
 
     public async sendMonitoringCall(data: MonitoringCall): Promise<MonitoringCallResult[]> {
@@ -315,6 +320,8 @@ export class CallApiService {
         try {
 
             const channelList =  await this.ari.getAriChannelList();
+            
+            this.log.info(data, CallApiService.name)
 
             this.checkOriginateApiChannel(data, channelList);
 
@@ -322,15 +329,17 @@ export class CallApiService {
 
             const bridgeList = await this.ari.getBridgeList();
 
+            this.log.info( { log: "extensionChannel", extensionChannel }, CallApiService.name)
+
             const originateApiBridge = bridgeList.filter((b: Bridge) => b.channels.includes(data.channelId));
 
             const channelsCallBridge = bridgeList.filter((b: Bridge) => b.channels.includes(extensionChannel));
 
-            const outgoingChannel = channelList.filter((c: Channel) => channelsCallBridge[0].channels.includes(c.id)).filter((c: Channel) => c.caller.number.length > 5)
+            const outgoingChannel = channelList.filter((c: Channel) => channelsCallBridge[0].channels.includes(c.id)).filter((c: Channel) => c.caller.number.length > 5);
 
             const originateApiBridgeCallBridge = originateApiBridge[0].channels as string[];
 
-            const bridgeOutgoingChannel = outgoingChannel.length > 1 ? outgoingChannel[1].id : outgoingChannel[0].id;
+            const bridgeOutgoingChannel = outgoingChannel.length > 1 ? outgoingChannel.filter(( oc: Channel) => [AsteriskCallContext.pstn, AsteriskCallContext.gorod].includes(oc.dialplan.context as AsteriskCallContext))[0].id : outgoingChannel[0].id;
 
             const bridgeResult = await this.ami.bridgeChannels( bridgeOutgoingChannel, originateApiBridgeCallBridge.filter((c: string) => c !== data.channelId)[0]);
 
@@ -344,6 +353,43 @@ export class CallApiService {
         }
     }
 
+    public async transferCalls(data: TransferTestDTO): Promise<TransferResult>{
+
+        const endpointsList =  await this.ari.getAriEndpointsRequest(data.to_extension);
+        
+        if(endpointsList.channel_ids.length !== 0){
+
+            const resultHangup = await this.hangup({ channelId: endpointsList.channel_ids[0]});
+
+            this.log.info(resultHangup);
+        }
+
+        await UtilsService.sleep(5000)
+
+        const channelList = await this.ari.getAriChannelListRequest();
+
+        const extensionChannel = this.getExtensionChannel({ from_extension: data.from_extension, channelId: "" }, channelList);
+
+        const channel = channelList.filter((c: Channel) => c.id == extensionChannel);
+
+        let transferResult: AsteriskBaseStatusResponse<[]>;
+
+        if(channel[0]?.dialplan.context == AsteriskCallContext.dialoutTrunk){
+
+            transferResult = await this.ami.transfer({ channelId: extensionChannel, extension: data.to_extension, transferContext: TransferContext.withHandler });
+
+        } else {
+
+            transferResult = await this.ami.transfer({ channelId: extensionChannel, extension: data.to_extension, transferContext: TransferContext.withoutHandler });
+
+        }
+
+
+        return { isTransferSuccessful: (transferResult.response == 'Success') ? true : false } ;
+
+        
+    }
+
     private checkOriginateApiChannel(data: TransferDTO, channels: Channel[]): void {
 
         const originateApiChannel = channels.filter((c: Channel) => c.id == data.channelId);
@@ -352,7 +398,7 @@ export class CallApiService {
 
     }
 
-    private getExtensionChannel(data: TransferDTO, channels: Channel[]): string{
+    private getExtensionChannel(data: TransferDTO, channels: Channel[]): string{ 
 
         const callChannelByNumber = channels.filter((c: Channel) => c.caller.number == data.from_extension);
 

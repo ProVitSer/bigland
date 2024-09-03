@@ -58,7 +58,15 @@ export class AmocrmCallDataAdapter {
 
     private getPhone(data: SendCallInfoToCRM): string {
 
-        return data.msg.callType === CallType.incoming ? data.asteriskCdrInfo.src : data.asteriskCdrInfo.dst;
+        const phone =  data.msg.callType === CallType.incoming ? data.asteriskCdrInfo.src : data.asteriskCdrInfo.dst;
+
+        if (phone.length > 11) {
+
+            return phone.slice(-11);
+            
+        }
+
+        return phone;
         
     }
 }

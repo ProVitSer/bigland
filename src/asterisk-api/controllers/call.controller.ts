@@ -12,6 +12,7 @@ import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO, PozvonimCallDTO, Moni
 import { TransferDTO } from '../dto/transfer.dto';
 import { ChannelsStateDTO } from '../dto/channesl-state.dto';
 import { ApiCallDTO } from '../dto/api-call.dto';
+import { TransferTestDTO } from '../dto/transfer-test.dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/call')
@@ -51,7 +52,7 @@ export class CallApiController {
     }
 
     @Post('pozvonim')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Инициация обратного вызова через "Pozvonim"'
@@ -81,7 +82,7 @@ export class CallApiController {
     }
 
     @Post('api-call')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Инициация обратного с маршрутизацией по префиксу номера (7910406122, 1117910406122, 8007910406122)'
@@ -139,6 +140,7 @@ export class CallApiController {
             
         }
     }
+
 
 
     @Post('hangup')
@@ -251,6 +253,36 @@ export class CallApiController {
         try {
 
             const hangupResult = await this.apiService.transfer(body);
+
+            return this.http.response(req, res, HttpStatus.OK, hangupResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
+
+    @Post('transfer-calls')
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Перевод вызова'
+    })
+    @ApiBody({
+        type: TransferTestDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат перевода вызова',
+        type: TransferResult,
+    })
+    async transferTest(@Req() req: Request, @Body() body: TransferTestDTO, @Res() res: Response) {
+        try {
+
+            const hangupResult = await this.apiService.transferCalls(body);
 
             return this.http.response(req, res, HttpStatus.OK, hangupResult);
 

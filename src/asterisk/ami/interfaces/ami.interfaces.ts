@@ -263,3 +263,9 @@ export interface AsteriskHangupHandlerProviderInterface {
 export type AsteriskHangupHandlerProviders = {
     [key in HangupHandler]: AsteriskHangupHandlerProviderInterface;
 };
+
+export interface AmiTransferData {
+    channelId: string; // Канал который будет трансфериться
+    extension: string; // Добавочный на который будет трансфер
+    transferContext: string; // Контекст по которому будет производиться трансфер
+}

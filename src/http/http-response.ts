@@ -16,8 +16,6 @@ export class HttpResponseService {
 
         const response = this.getResponseStruct(status, true, data);
 
-        this.logData(LogEventType.api_success, response);
-
         return res.status(response.statusCode).json(response);
 
     }
@@ -29,8 +27,6 @@ export class HttpResponseService {
         const errorBody = exception.getResponse() as DataObject;
 
         const response = this.getResponseStruct(exception.getStatus(), false, '', errorBody?.message);
-
-        this.logData(LogEventType.api_error, response);
 
         return res.status(response.statusCode).json(response);
 

@@ -21,6 +21,7 @@ import { ExtensionsStateService } from './services/extensions-state.service';
 import { RateLimiterModule } from 'nestjs-rate-limiter';
 import { MAX_REMOTE_DURATION, MAX_REMOTE_POINTS, RATELIMIT_REQUEST_ERROR } from '@app/config/project-configs/rate-ilmite.config';
 import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [
@@ -37,7 +38,8 @@ import { AsteriskCdrModule } from '@app/asterisk-cdr/asterisk-cdr.module';
             points: MAX_REMOTE_POINTS,
             errorMessage: RATELIMIT_REQUEST_ERROR,
           }),
-        AsteriskCdrModule
+        AsteriskCdrModule,
+        HttpModule
     ],
     controllers: [CallApiController, AmocrmApiController, ServiceCodeApiController, ChanspyApiController, BlackListyApiController],
     providers: [CallApiService, AmocrmApiService, ServiceCodeApiService, ChanspyApiService, BlackListNumbersService, ExtensionsStateService],

@@ -9,6 +9,11 @@ import { OriginateCall } from './providers/originate';
 import { ApiPozvonimAriCall } from './providers/api-pozvonim';
 import { ApiGorodAriCall } from './providers/api-gorod';
 import { ApiTollFreeAriCall } from './providers/api-toll-free';
+import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { AriAsteriskEnvironmentVariables, AsteriskEnvironmentVariables } from '@app/config/interfaces/config.interface';
 
 @Injectable()
 export class AriCallService implements OnApplicationBootstrap {
@@ -26,8 +31,9 @@ export class AriCallService implements OnApplicationBootstrap {
         private readonly originateCall: OriginateCall,
         private readonly apiPozvonim: ApiPozvonimAriCall,
         private readonly apiGorodAriCall: ApiGorodAriCall,
-        private readonly apiTollFreeAriCall: ApiTollFreeAriCall
-
+        private readonly apiTollFreeAriCall: ApiTollFreeAriCall,
+        private httpService: HttpService,
+        private readonly configService: ConfigService,
     ) {}
 
     private get providers(): AsteriskAriCallProviders {
@@ -88,8 +94,8 @@ export class AriCallService implements OnApplicationBootstrap {
 
     public async getAriChannelList(): Promise<Ari.Channel[]> {
 
-        const channel =  this.client.ariClient.Channel();
-
+        const channel = this.client.ariClient.Channel();
+        
         return await channel.list();
 
     }
@@ -99,6 +105,50 @@ export class AriCallService implements OnApplicationBootstrap {
         const bridge =  this.client.ariClient.Bridge();
 
         return await bridge.list();
+
+    }
+
+
+    public async getAriEndpoints(): Promise<Ari.Endpoints> {
+
+        return this.client.ariClient.endpoints;
+
+    }
+
+
+    public async getAriEndpointsRequest(extension: string): Promise<Ari.Endpoint> {
+
+        const { ari } = this.configService.get('asterisk') as AsteriskEnvironmentVariables;
+
+        const ariCall = ari.filter((a: AriAsteriskEnvironmentVariables) => a.user == 'aricall');
+
+        const result = await firstValueFrom(
+            this.httpService.get(`${ariCall[0].url}/ari/endpoints/PJSIP/${extension}?api_key=${ariCall[0].user}:${ariCall[0].password}`).pipe(
+                catchError((e: AxiosError) => {
+                    throw e;
+                }),
+            ),
+        );
+
+        return result.data as Ari.Endpoint;
+
+    }
+
+    public async getAriChannelListRequest(): Promise<Ari.Channel[]> {
+
+        const { ari } = this.configService.get('asterisk') as AsteriskEnvironmentVariables;
+
+        const ariCall = ari.filter((a: AriAsteriskEnvironmentVariables) => a.user == 'aricall');
+
+        const result = await firstValueFrom(
+            this.httpService.get(`${ariCall[0].url}/ari/channels?api_key=${ariCall[0].user}:${ariCall[0].password}`).pipe(
+                catchError((e: AxiosError) => {
+                    throw e;
+                }),
+            ),
+        );
+
+        return result.data as Ari.Channel[];
 
     }
 }
