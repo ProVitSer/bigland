@@ -5,6 +5,7 @@ import { AsteriskAmi } from '../ami';
 import { LogService } from '@app/log/log.service';
 import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 import {
+    AmiTransferData,
   AsteriskBaseStatusResponse,
   AsteriskDNDStatusResponse,
   AsteriskExtensionStatusEvent,
@@ -24,18 +25,13 @@ export class AmiActionService {
     public async sendAmiCall(localExtension: string, outgoingNumber: string): Promise<void> {
         try {
 
-            this.log.info(
-                `Исходящий вызов из webhook CRM: внутренний номер ${localExtension} внешний номер ${outgoingNumber}`,
-                AmiActionService.name,
-            );
-
             const action = new namiLib.Actions.Originate();
 
             action.channel = `${ChannelType.PJSIP}/${localExtension}`;
             action.callerid = localExtension;
             action.priority = AMI_OUTBOUND_CALL.priority;
             action.timeout = AMI_OUTBOUND_CALL.timeout;
-            action.context = AMI_OUTBOUND_CALL.timeout;
+            action.context = AMI_OUTBOUND_CALL.context;
             action.exten = outgoingNumber;
             action.async = AMI_OUTBOUND_CALL.async;
 
@@ -166,6 +162,41 @@ export class AmiActionService {
 
         throw e;
         
+    }}
+
+    public async hangup(channelId: string): Promise<unknown> {
+
+        const action = new namiLib.Actions.Hangup();
+
+        action.Channel = channelId;
+
+        return await this.ami.amiClientSend(action);
+
     }
-}
+
+    public async bridgeChannels(channelId1: string, channelId2: string): Promise<AsteriskBaseStatusResponse<[]>> {
+
+        const action = new namiLib.Actions.Bridge();
+
+        action.Channel1 = channelId1;
+        action.Channel2 = channelId2;
+        action.Tone = 'no';
+
+        return await this.ami.amiClientSend<AsteriskBaseStatusResponse<[]>>(action);
+
+    }
+
+    public async transfer(data: AmiTransferData): Promise<AsteriskBaseStatusResponse<[]>>{
+
+        let action = new namiLib.Actions.BlindTransfer();
+
+        action.Channel = data.channelId;
+
+        action.Context = data.transferContext;
+
+        action.Exten = data.extension;
+
+        return await this.ami.amiClientSend<AsteriskBaseStatusResponse<[]>>(action);
+
+    }
 }

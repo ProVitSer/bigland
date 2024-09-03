@@ -5,11 +5,13 @@ import { AsteriskCdr } from './asterisk-cdr.entity';
 import { Op } from 'sequelize';
 import {
   ASTERISK_CDR_INCOMING_CALL_ERROR,
+  ASTERISK_CDR_ORIGINATE_CALL_ERROR,
   ASTERISK_CDR_OUTGOING_CALL_ERROR,
   ASTERISK_CDR_POZVONIM_CALL_ERROR,
   CDR_ATTRIBUTES,
 } from './asterisk-cdr.constants';
 import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { AsteriskCallContext } from '@app/asterisk-api/interfaces/asterisk-api.enum';
 
 @Injectable()
 export class AsteriskCdrService {
@@ -72,7 +74,7 @@ export class AsteriskCdrService {
                         [Op.like]: `${newUniqueid}%`,
                     },
                     dcontext: {
-                        [Op.like]: 'ext-local',
+                        [Op.like]: AsteriskCallContext.local,
                     },
                 },
                 order: [
@@ -106,7 +108,7 @@ export class AsteriskCdrService {
                         [Op.like]: uniqueid,
                     },
                     dcontext: {
-                        [Op.like]: 'from-internal',
+                        [Op.like]: AsteriskCallContext.internal,
                     },
                 },
             });
@@ -139,11 +141,12 @@ export class AsteriskCdrService {
                         [Op.like]: `${newUniqueid}%`,
                     },
                     dcontext: {
-                        [Op.like]: 'outrt-pozvonim',
+                        [Op.in]: [AsteriskCallContext.pozvonim, AsteriskCallContext.apiGorod, AsteriskCallContext.apiPozvonim, AsteriskCallContext.tollFree],
                     },
                 },
             });
 
+            
             // Небольшой костыл, меняем channel с локальным каналом "Local/124997@from-internal-additional-00002a89;1" на реальный канал пользователя "PJSIP/790-0012ec3b"
             const updateResult = result.map((c: AsteriskCdr) => {
 
@@ -167,4 +170,40 @@ export class AsteriskCdrService {
 
         }
     }
+
+
+    public async searchOriginateCallInfoInCdr(uniqueid: string): Promise<AsteriskCdr[]> {
+        try {
+
+            this.log.info(`Вызов чере API ${uniqueid}`, AsteriskCdrService.name);
+
+            const newUniqueid = uniqueid.substring(0, uniqueid.length - 5);
+
+            const result = await this.getCallInfo.findAll({
+                raw: true,
+                attributes: CDR_ATTRIBUTES,
+                where: {
+                    uniqueid: {
+                        [Op.like]: `${newUniqueid}%`,
+                    },
+                    dcontext: {
+                        [Op.like]: AsteriskCallContext.local,
+                    },
+                   
+                }
+            });
+
+            this.log.info(result, AsteriskCdrService.name);
+
+            return result;
+
+        } catch (e) {
+
+            this.log.error(`${ASTERISK_CDR_ORIGINATE_CALL_ERROR}: ${e}`, AsteriskCdrService.name);
+
+            return [];
+
+        }
+    }
+
 }

@@ -1,6 +1,5 @@
 import { ApiHttpExceptionFilter } from '@app/http/http-exception.filter';
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
-import { DNDDto } from '../dto/dnd.dto';
 import { Request, Response } from 'express';
 import { ServiceCodeApiService } from '../services/service-code-api.service';
 import { HttpResponseService } from '@app/http/http-response';
@@ -10,12 +9,12 @@ import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetDNDStatusResult } from '@app/asterisk/ami/interfaces/ami.interfaces';
 import { ExtensionsStateService } from '../services/extensions-state.service';
-import { ActualExtensionsState, DndExtensionsStatus } from '../interfaces/asterisk-api.interfaces';
+import { ActualExtensionBusynessState, DndExtensionsStatus } from '../interfaces/asterisk-api.interfaces';
 import { RateLimiterGuard } from 'nestjs-rate-limiter';
+import { DNDDto } from '../dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/service')
-@UseGuards(RoleGuard([Role.Admin, Role.Api]))
 @UseGuards(JwtGuard)
 @UseFilters(ApiHttpExceptionFilter)
 export class ServiceCodeApiController {
@@ -26,6 +25,7 @@ export class ServiceCodeApiController {
     ) {}
 
     @Post('dnd')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Изменение статуса dnd добавочных номеров'
@@ -55,6 +55,7 @@ export class ServiceCodeApiController {
     }
 
     @Get('extensions-state')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получить актуальное состояние внутренних номеров'
@@ -62,12 +63,15 @@ export class ServiceCodeApiController {
     @ApiOkResponse({
         status: HttpStatus.OK,
         description: 'Актуальное состояние внутренних номеров',
-        type: ActualExtensionsState,
+        type: ActualExtensionBusynessState,
     })
     async getExtensionsState(@Req() req: Request, @Res() res: Response) {
         try {
-            const result = await this.extensionsStateService.getExtensionsState();
+
+            const result = await this.extensionsStateService.getExtensionBusynessState();
+
             return this.http.response(req, res, HttpStatus.OK, result);
+
         } catch (e) {
             throw new HttpException({
                 message: e?.message || e
@@ -77,6 +81,7 @@ export class ServiceCodeApiController {
 
     @UseGuards(RateLimiterGuard)
     @Get('dnd')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Получить актуальный список снутренних номеров со статус Do Not Disturb (DND)'
@@ -88,8 +93,11 @@ export class ServiceCodeApiController {
     })
     async getDndStatus(@Req() req: Request, @Res() res: Response) {
         try {
+
             const result = await this.extensionsStateService.getDndStatus();
+
             return this.http.response(req, res, HttpStatus.OK, result);
+            
         } catch (e) {
             throw new HttpException({
                 message: e?.message || e

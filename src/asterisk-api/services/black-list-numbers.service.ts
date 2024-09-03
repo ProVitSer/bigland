@@ -1,7 +1,7 @@
 import { SystemService } from '@app/system/system.service';
 import { Injectable } from '@nestjs/common';
-import { BlackListNumbersDTO } from '../dto/black-list-numbers.dto';
 import { ModifyBlackListNumbersResult } from '../interfaces/asterisk-api.interfaces';
+import { BlackListNumbersDTO } from '../dto';
 
 @Injectable()
 export class BlackListNumbersService {

@@ -26,5 +26,5 @@ export const INCOMING_CALL_DEFAULT_ROUTING = {
     group: PbxGroup.callCenter,
     localExtension: '900',
 };
-export const CALL_CENTER_EXTENSIONS: string[] = ['318', '102', '126', '262', '494', '296', '203', '422', '865', '230', '890', '299', '118', '569','745', '783', '762', '761', '231', '317'];
+export const CALL_CENTER_EXTENSIONS: string[] = ['101','102', '126', '296', '203', '422', '865', '783', '761', '231', '317', '314', '216'];
 export const POZVONIM_PBX_ROUTE_EXTENSION = '2222';
