@@ -11,6 +11,7 @@ import {
   CDR_ATTRIBUTES,
 } from './asterisk-cdr.constants';
 import { ChannelType } from '@app/asterisk/ari/interfaces/ari.enum';
+import { AsteriskCallContext } from '@app/asterisk-api/interfaces/asterisk-api.enum';
 
 @Injectable()
 export class AsteriskCdrService {
@@ -73,7 +74,7 @@ export class AsteriskCdrService {
                         [Op.like]: `${newUniqueid}%`,
                     },
                     dcontext: {
-                        [Op.like]: 'ext-local',
+                        [Op.like]: AsteriskCallContext.local,
                     },
                 },
                 order: [
@@ -107,7 +108,7 @@ export class AsteriskCdrService {
                         [Op.like]: uniqueid,
                     },
                     dcontext: {
-                        [Op.like]: 'from-internal',
+                        [Op.like]: AsteriskCallContext.internal,
                     },
                 },
             });
@@ -140,11 +141,12 @@ export class AsteriskCdrService {
                         [Op.like]: `${newUniqueid}%`,
                     },
                     dcontext: {
-                        [Op.like]: 'outrt-pozvonim',
+                        [Op.in]: [AsteriskCallContext.pozvonim, AsteriskCallContext.apiGorod, AsteriskCallContext.apiPozvonim, AsteriskCallContext.tollFree],
                     },
                 },
             });
 
+            
             // Небольшой костыл, меняем channel с локальным каналом "Local/124997@from-internal-additional-00002a89;1" на реальный канал пользователя "PJSIP/790-0012ec3b"
             const updateResult = result.map((c: AsteriskCdr) => {
 
@@ -185,7 +187,7 @@ export class AsteriskCdrService {
                         [Op.like]: `${newUniqueid}%`,
                     },
                     dcontext: {
-                        [Op.like]: 'ext-local',
+                        [Op.like]: AsteriskCallContext.local,
                     },
                    
                 }

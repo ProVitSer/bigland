@@ -33,6 +33,14 @@ export class LogService {
 
     }
 
+    test(message: any, context?: string): void {
+
+        this.logger.info(message, {
+            context: `${this.context}.${context}`
+        });
+
+    }
+
     debug(message: any, context?: string): void {
 
         const messageString = UtilsService.dataToString(message);

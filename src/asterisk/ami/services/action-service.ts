@@ -5,6 +5,7 @@ import { AsteriskAmi } from '../ami';
 import { LogService } from '@app/log/log.service';
 import { AMI_OUTBOUND_CALL } from '@app/asterisk/ari/ari.constants';
 import {
+    AmiTransferData,
   AsteriskBaseStatusResponse,
   AsteriskDNDStatusResponse,
   AsteriskExtensionStatusEvent,
@@ -180,6 +181,20 @@ export class AmiActionService {
         action.Channel1 = channelId1;
         action.Channel2 = channelId2;
         action.Tone = 'no';
+
+        return await this.ami.amiClientSend<AsteriskBaseStatusResponse<[]>>(action);
+
+    }
+
+    public async transfer(data: AmiTransferData): Promise<AsteriskBaseStatusResponse<[]>>{
+
+        let action = new namiLib.Actions.BlindTransfer();
+
+        action.Channel = data.channelId;
+
+        action.Context = data.transferContext;
+
+        action.Exten = data.extension;
 
         return await this.ami.amiClientSend<AsteriskBaseStatusResponse<[]>>(action);
 

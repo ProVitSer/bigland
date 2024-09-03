@@ -9,9 +9,6 @@ export class BlackListNumbersDTO {
     @IsArray({
         message: 'Поле numbers должно быть массивом. '
     })
-    @IsString({
-        each: true
-    })
     @Validate(IsE164Constraint, {
         each: true
     })

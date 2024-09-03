@@ -92,7 +92,7 @@ export interface PozvonimOperatorInfoData {
 export interface PozvonimOriginateInfo {
     endpoint: string;
     callerId: string;
-    context: AsteriskContext.pozvonim;
+    context: AsteriskContext.apiPozvonim | AsteriskContext.pozvonim;
     extension: string;
     timeout: number;
     variables: {

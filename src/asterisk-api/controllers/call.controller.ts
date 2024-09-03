@@ -7,9 +7,12 @@ import { JwtGuard } from '@app/auth/guard/jwt.guard';
 import { RoleGuard } from '@app/auth/guard/role.guard';
 import { Role } from '@app/users/interfaces/users.enum';
 import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ChannelStatusResult, HangupCallResult, MonitoringCallResult, OriginateCallResult, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
+import { ApiCallResult, ChannelStatusResult, HangupCallResult, MonitoringCallResult, OriginateCallResult, PozvonimCallResult, TransferResult } from '../interfaces/asterisk-api.interfaces';
 import { ChannelStateDTO, HangupCallDTO, OriginateCallDTO, PozvonimCallDTO, MonitoringCallDTO } from '../dto';
 import { TransferDTO } from '../dto/transfer.dto';
+import { ChannelsStateDTO } from '../dto/channesl-state.dto';
+import { ApiCallDTO } from '../dto/api-call.dto';
+import { TransferTestDTO } from '../dto/transfer-test.dto';
 
 @ApiTags('asterisk-api')
 @Controller('asterisk-api/call')
@@ -49,7 +52,7 @@ export class CallApiController {
     }
 
     @Post('pozvonim')
-    @UseGuards(RoleGuard([Role.Admin, Role.Api]))
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
     @ApiBearerAuth()
     @ApiOperation({
         summary: 'Инициация обратного вызова через "Pozvonim"'
@@ -78,6 +81,35 @@ export class CallApiController {
         }
     }
 
+    @Post('api-call')
+    @UseGuards(RoleGuard([Role.Admin, Role.Api, Role.Dev]))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Инициация обратного с маршрутизацией по префиксу номера (7910406122, 1117910406122, 8007910406122)'
+    })
+    @ApiBody({
+        type: ApiCallDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат инициации вызова',
+        type: ApiCallResult,
+    })
+    async apiCall(@Req() req: Request, @Body() body: ApiCallDTO, @Res() res: Response) {
+        try {
+
+            const originaCallResult = await this.apiService.originateApiCall(body);
+
+            return this.http.response(req, res, HttpStatus.OK, originaCallResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
 
     @Post('originate')
     @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
@@ -108,6 +140,7 @@ export class CallApiController {
             
         }
     }
+
 
 
     @Post('hangup')
@@ -155,10 +188,40 @@ export class CallApiController {
         description: 'Результат статуса канала',
         type: ChannelStatusResult,
     })
-    async status(@Req() req: Request, @Body() body: ChannelStateDTO, @Res() res: Response) {
+    async channelStatus(@Req() req: Request, @Body() body: ChannelStateDTO, @Res() res: Response) {
         try {
 
-            const hangupResult = await this.apiService.channeStatus(body);
+            const hangupResult = await this.apiService.channelStatus(body);
+
+            return this.http.response(req, res, HttpStatus.OK, hangupResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
+
+    @Post('channels-state')
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Получение статусов каналов'
+    })
+    @ApiBody({
+        type: ChannelsStateDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат с информацией по статусам каналов',
+        type: [ChannelStatusResult],
+    })
+    async channelsStatus(@Req() req: Request, @Body() body: ChannelsStateDTO, @Res() res: Response) {
+        try {
+
+            const hangupResult = await this.apiService.channelsStatus(body);
 
             return this.http.response(req, res, HttpStatus.OK, hangupResult);
 
@@ -190,6 +253,36 @@ export class CallApiController {
         try {
 
             const hangupResult = await this.apiService.transfer(body);
+
+            return this.http.response(req, res, HttpStatus.OK, hangupResult);
+
+        } catch (e) {
+
+            throw new HttpException({
+                message: e?.message || e
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+            
+        }
+    }
+
+    @Post('transfer-calls')
+    @UseGuards(RoleGuard([Role.Admin, Role.Dev, Role.Api]))
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Перевод вызова'
+    })
+    @ApiBody({
+        type: TransferTestDTO
+    })
+    @ApiOkResponse({
+        status: HttpStatus.OK,
+        description: 'Результат перевода вызова',
+        type: TransferResult,
+    })
+    async transferTest(@Req() req: Request, @Body() body: TransferTestDTO, @Res() res: Response) {
+        try {
+
+            const hangupResult = await this.apiService.transferCalls(body);
 
             return this.http.response(req, res, HttpStatus.OK, hangupResult);
 

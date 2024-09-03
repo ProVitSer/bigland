@@ -14,6 +14,13 @@ import { AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplicat
 import { AriCallService } from './ari-call.service';
 import { PozvonimAriCall, MonitoringAriCall, CheckSpamNumberAriCall, CheckOperatorSpamAriCall } from './providers';
 import { OriginateCall } from './providers/originate';
+import { ApiPozvonimAriCall } from './providers/api-pozvonim';
+import { ApiPozvonimCallDataAdapter } from './adapters/api-pozvonim-call.adapter';
+import { ApiGorodAriCall } from './providers/api-gorod';
+import { ApiTollFreeAriCall } from './providers/api-toll-free';
+import { HttpModule } from '@nestjs/axios';
+
+
 
 const asteriskAriProviders = createAsteriskAri();
 const ariProvidersName = getAsteriskAriProvidesName();
@@ -28,6 +35,7 @@ const ariProvidersName = getAsteriskAriProvidesName();
         AmocrmModule,
         OperatorsModule,
         PbxCallRoutingModule,
+        HttpModule
     ],
     providers: [
         ...asteriskAriProviders,
@@ -41,7 +49,11 @@ const ariProvidersName = getAsteriskAriProvidesName();
         MonitoringAriCall,
         CheckSpamNumberAriCall,
         CheckOperatorSpamAriCall,
-        OriginateCall
+        OriginateCall,
+        ApiPozvonimAriCall,
+        ApiPozvonimCallDataAdapter,
+        ApiGorodAriCall,
+        ApiTollFreeAriCall
     ],
     exports: [...ariProvidersName, AriIncomingCallApplication, AriBlackListApplication, AriChanSpyApplication, AriCallService],
 })

@@ -2,6 +2,7 @@ import { DNDtatus, StatusTextExtensionStatus } from '@app/asterisk/ami/interface
 import { CheckNumberSpamData, CheckSpamData } from '@app/spam-api/interfaces/spam-api.interfaces';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { AsteriskChannelState, AsteriskDisposition, DoNotDisturbStatus, SipBusynessStateId } from './asterisk-api.enum';
+import { AriCallType } from '@app/asterisk/ari/interfaces/ari.enum';
 
 export interface DndData {
     sip_id: string[];
@@ -56,6 +57,8 @@ export class PozvonimCallResult {
     })
     channelId: string;
 }
+
+export class ApiCallResult extends PozvonimCallResult{};
 
 export class OriginateCallALeg {
     @ApiProperty({
@@ -177,7 +180,7 @@ export class UpdateChanspyPasswordResult {
 
 export type AsteriskCallApiUnion = {
     number: string
-} | PozvominCall | CheckNumberSpamData | CheckSpamData | OriginateCallData;
+} | PozvominCall | CheckNumberSpamData | CheckSpamData | OriginateCallData | ApiCall;
 
 export class ModifyBlackListNumbersResult {
     @ApiProperty({
@@ -247,4 +250,14 @@ export class TransferResult {
         example: 'true',
     })
     isTransferSuccessful: boolean;
+}
+
+export interface CallTypeData {
+    type: AriCallType;
+    number: string;
+}
+
+export interface ApiCall {
+    sip_id: string;
+    dst_number: string;
 }
